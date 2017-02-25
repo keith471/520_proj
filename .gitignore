@@ -1,2 +1,3 @@
 src/y.*
 src/out
+src/lex.yy.*

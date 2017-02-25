@@ -2,7 +2,7 @@
 
 https://github.com/Sable/comp520-2017-04
 
-## General
+## Later
 - make sure to support append
     ```
     var x []int
@@ -21,48 +21,22 @@ https://github.com/Sable/comp520-2017-04
     p.y = 2
     p.z = 3
     ```
-
+- casts will (likely) appear as function calls in your AST. It will be important in a later
+phase of the compiler to convert them to the proper cast nodes.
 
 ## Scanner
 - thoroughly test
 
-
-
 ## Parser
-- fix reduce-reduce conflicts
-    - the issues are with lists and and conversion
-        - State 76
-
-          147 operand: identifier .
-          160 type: identifier .
-
-            '('       reduce using rule 147 (operand)
-            '('       [reduce using rule 160 (type)]
-            $default  reduce using rule 147 (operand)
-        - State 210
-
-          147 operand: identifier .
-          158 idList: identifier .
-          160 type: identifier .
-
-            '('       reduce using rule 147 (operand)
-            '('       [reduce using rule 160 (type)]
-            ','       reduce using rule 147 (operand)
-            ','       [reduce using rule 158 (idList)]
-            ':'       reduce using rule 158 (idList)
-            $default  reduce using rule 147 (operand)
 - thoroughly test
 
 ## AST
-- then uncomment all ast productions and try!
 - do we need to record the signature as a string in FUNCTIONDECLARATION?
-
-- casts will (likely) appear as function calls in your AST. It will be important in a later
-phase of the compiler to convert them to the proper cast nodes.
 
 
 ## Pretty printing
-- continue with pretty printing of type declarations
+- continue with pretty printing of statements
+- pretty print expressions and that's it
 
 ## Weeding
 - make sure assignment of list to list consists of lists of equal length, and that the left list consists of all lvalues
@@ -73,13 +47,9 @@ phase of the compiler to convert them to the proper cast nodes.
 is the element to add (though this probably should happen in the type phase)
 
 
-
 ## Symbol table
 - redeclaration: Unlike regular variable declarations, a short variable declaration may redeclare variables provided they were originally declared earlier in the same block (or the parameter lists if the block is the function body) with the same type, and at least one of the non-blank variables is new. As a consequence, redeclaration can only appear in a multi-variable short declaration. Redeclaration does not introduce a new variable; it just assigns a new value to the original.
 
 
-
-## Keith
-- Create 2 correct example programs
-- Create 10 invalid example programs
+## Sources
 http://stackoverflow.com/questions/10826744/semicolon-insertion-ala-google-go-with-flex

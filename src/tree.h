@@ -5,9 +5,7 @@
 #ifndef TREE_H
 #define TREE_H
 
-typedef enum { plusUp, minusOp, timeOp, divOp, modOp, lArrowOp, notOp, bitwiseOrOp, bitwiseAndOp, xorOp,
-               ltOp, gtOp, eqOp, neqOp, leqOp, geqOp, orOp, andOp, leftShiftOp,
-               rightShiftOp, bitClearOp, plusEqOp, minusEqOp, timesEqOp, divEqOp,
+typedef enum { plusEqOp, minusEqOp, timesEqOp, divEqOp,
                modEqOp, andEqOp, orEqOp, xorEqOp, leftShiftEqOp, rightShiftEqOp,
                bitClearEqOp } OperationKind;
 
@@ -267,8 +265,6 @@ typedef struct STATEMENT {
 typedef struct SWITCHCASE {
     int lineno;
     enum { caseK, defaultK } kind;
-    struct EXP* exps;   /* the expressions to match on */
-    struct STATEMENT* statements;   /* the statements to execute */
     union {
         struct {struct EXP* exps;
                 struct STATEMENT* statements;} caseC;
