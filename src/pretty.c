@@ -262,49 +262,21 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
     }
     switch (s->kind) {
         case emptyK:
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case expK:
             prettyEXP(s->val.expS);
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case incK:
             prettyEXP(s->val.incS);
             fprintf(emitFILE, "++");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case decK:
             prettyEXP(s->val.decS);
             fprintf(emitFILE, "--");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case regAssignK:
             // print the svalues
@@ -313,14 +285,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             fprintf(emitFILE, " = ");
             // print the exps
             prettyEXP(s->val.regAssignS.exps);
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case binOpAssignK:
             // print the lvalue
@@ -329,27 +294,13 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             prettyBinOp(s->val.binOpAssignS.opKind);
             // print the exp
             prettyEXP(s->val.binOpAssignS.exp);
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
             prettyEXP(s->val.shortDeclS.ids);
             fprintf(emitFILE, " := ");
             prettyEXP(s->val.shortDeclS.exps);
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case varDeclK:
             // this will print a semicolon and new line regardless, but that's fine
@@ -366,14 +317,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             fprintf(emitFILE, "print(");
             prettyEXP(s->val.printS);
             fprintf(emitFILE, ")");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case printlnK:
             fprintf(emitFILE, "println(");
@@ -392,14 +336,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
         case returnK:
             fprintf(emitFILE, "return ");
             prettyEXP(s->val.returnS);
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case ifK:
             fprintf(emitFILE, "if (");
@@ -415,14 +352,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             prettySTATEMENT(s->val.ifS.body, level + 1, 1);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case ifElseK:
             fprintf(emitFILE, "if (");
@@ -451,17 +381,10 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
                 printTabsToFile(level, emitFILE);
                 fprintf(emitFILE, "}");
             }
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case switchK:
-            fprintf(emitFILE, "switch(");
+            fprintf(emitFILE, "switch (");
             if (s->val.switchS.initStatement) {
                 // print the init statement inline and terminate it with a semicolon
                 prettySTATEMENT(s->val.ifS.initStatement, -1, 1, 0);
@@ -473,14 +396,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             prettySWITCHCASE(s->val.switchS.cases, level + 1);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case whileK:
             fprintf(emitFILE, "for (");
@@ -490,14 +406,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             prettySTATEMENT(s->val.whileS.body, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case infiniteLoopK:
             fprintf(emitFILE, "for {");
@@ -505,104 +414,44 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             prettySTATEMENT(s->val.infiniteLoopS, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case forK:
             fprintf(emitFILE, "for (");
-            // TODO here
-            // tFOR simpleStatement ';' exp ';' postStatement block
+            prettySTATEMENT(s->val.forS.initStatement, -1, 0, 0);
+            fprintf(emitFILE, "; ");
+            prettyEXP(s->val.forS.condition);
+            fprintf(emitFILE, "; ");
+            prettySTATEMENT(s->val.forS.postStatement, -1, 0, 0);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
-            prettySTATEMENT(s->val.infiniteLoopS, level + 1, 1, 0);
+            prettySTATEMENT(s->val.forS.body, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case breakK:
             fprintf(emitFILE, "break");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case continueK:
             fprintf(emitFILE, "continue");
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
-            break;
+            terminateSTATEMENT(level, semicolon);
     }
     // print the next statement
     prettySTATEMENT(s->next, level, 1, 0);
 }
 
-typedef struct STATEMENT {
-    int lineno;
-    enum { emptyK, expK, incK, decK, regAssignK, binOpAssignK, shortDeclK, varDeclK,
-           typeDeclK, printK, printlnK, returnK, ifK, ifElseK, switchK, whileK,
-           infiniteLoopK, forK, breakK, continueK } kind;
-    union{
-        // break, continue, and empty statements have no associated val
-        struct EXP* expS;
-        struct EXP *returnS; // return expression
-        struct {struct STATEMENT* initStatement;
-                struct EXP *condition;
-                struct STATEMENT *body;} ifS;
-        struct {struct STATEMENT* initStatement;
-                struct EXP *condition;
-                struct STATEMENT *thenPart;
-                struct STATEMENT *elsePart; /* could be another if --> else if statement! */} ifElseS;
-        struct {struct EXP *condition;
-                struct STATEMENT *body;} whileS;
-        struct STATEMENT* infiniteLoopS; // the body of an infinite loop
-        struct {struct STATEMENT* initStatement;
-                struct EXP* condition;
-                struct STATEMENT* postStatement;
-                struct STATEMENT* body;} forS;
-        struct {struct STATEMENT* initStatement;
-                struct EXP* condition;
-                struct SWITCHCASE* cases;} switchS;
-        struct {struct EXP* lvalues;    // weed to ensure that all exps are lvalues
-                struct EXP* exps;} regAssignS;
-        struct {struct EXP* lvalue; // weed to ensure that exp is an lvalue (and that there is just one of them? should already only be one since matches with primaryExp)
-                OperationKind opKind;
-                struct EXP* exp;} binOpAssignS;
-        struct EXP* incS;   // weed to ensure exp is an lvalue
-        struct EXP* decS;   // weed to ensure exp is an lvalue
-        struct EXP* printS;     // linked-list of expressions
-        struct EXP* printlnS;   // linked-list of expressions
-        struct VARDECLARATION* varDeclS;
-        struct TYPEDECLARATION* typeDeclS;
-        struct {struct EXP* ids;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
-                struct EXP* exps;} shortDeclS;
-    } val;
-    // points to the next statement at the same level as this one
-    // nested statements are pointed to by the appropriate statement structs in val
-    struct STATEMENT* next;
-} STATEMENT;
+void terminateSTATEMENT(int level, int semicolon) {
+    if (level == -1) {
+        if (semicolon) {
+            fprintf(emitFILE, ";");
+        }
+    } else {
+        fprintf(emitFILE, ";");
+        newLineInFile(emitFILE);
+    }
+}
 
 /*
  * print switch cases at given level and print a new line after (prettySTATEMENT prints a new line after)

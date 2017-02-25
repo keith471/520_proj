@@ -35,8 +35,7 @@ phase of the compiler to convert them to the proper cast nodes.
 
 
 ## Pretty printing
-- continue with pretty printing of statements
-- pretty print expressions and that's it
+- pretty print expressions and that's it!
 
 ## Weeding
 - make sure assignment of list to list consists of lists of equal length, and that the left list consists of all lvalues
