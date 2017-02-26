@@ -4,7 +4,6 @@
 #include "y.tab.h"  // to get the token types that we return to Bison
 #include "error.h"
 int shouldInsertBeforeNewLine = 0;
-int shouldInsertBeforeRightBrace = 0;
 %}
 %option yylineno
 %%
@@ -14,7 +13,6 @@ break           {
                         printf("found a 'break'\n");
                     #endif
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tBREAK;
                 }
 case            {
@@ -22,7 +20,6 @@ case            {
                         printf("found a 'case'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tCASE;
                 }
 chan            {
@@ -30,7 +27,6 @@ chan            {
                         printf("found a 'chan'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tCHAN;
                 }
 const           {
@@ -38,7 +34,6 @@ const           {
                         printf("found a 'const'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tCONST;
                 }
 continue        {
@@ -46,7 +41,6 @@ continue        {
                         printf("found a 'continue'\n");
                     #endif
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tCONTINUE;
                 }
 default         {
@@ -54,7 +48,6 @@ default         {
                         printf("found a 'default'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tDEFAULT;
                 }
 defer           {
@@ -62,7 +55,6 @@ defer           {
                         printf("found a 'defer'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tDEFER;
                 }
 else            {
@@ -70,7 +62,6 @@ else            {
                         printf("found a 'else'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tELSE;
                 }
 fallthrough     {
@@ -78,7 +69,6 @@ fallthrough     {
                         printf("found a 'fallthrough'\n");
                     #endif
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tFALLTHROUGH;
                 }
 for             {
@@ -86,7 +76,6 @@ for             {
                         printf("found a 'for'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tFOR;
                 }
 func            {
@@ -94,7 +83,6 @@ func            {
                         printf("found a 'func'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tFUNC;
                 }
 go              {
@@ -102,7 +90,6 @@ go              {
                         printf("found a 'go'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tGO;
                 }
 goto            {
@@ -110,7 +97,6 @@ goto            {
                         printf("found a 'goto'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tGOTO;
                 }
 if              {
@@ -118,7 +104,6 @@ if              {
                         printf("found a 'if'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tIF;
                 }
 import          {
@@ -126,7 +111,6 @@ import          {
                         printf("found a 'import'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tIMPORT;
                 }
 interface       {
@@ -134,7 +118,6 @@ interface       {
                         printf("found a 'interface'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tINTERFACE;
                 }
 map             {
@@ -142,7 +125,6 @@ map             {
                         printf("found a 'map'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tMAP;
                 }
 package         {
@@ -150,7 +132,6 @@ package         {
                         printf("found a 'package'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tPACKAGE;
                 }
 range           {
@@ -158,7 +139,6 @@ range           {
                         printf("found a 'range'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tRANGE;
                 }
 return          {
@@ -166,7 +146,6 @@ return          {
                         printf("found a 'return'\n");
                     #endif
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tRETURN;
                 }
 select          {
@@ -174,7 +153,6 @@ select          {
                         printf("found a 'select'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tSELECT;
                 }
 struct          {
@@ -182,7 +160,6 @@ struct          {
                         printf("found a 'struct'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tSTRUCT;
                 }
 switch          {
@@ -190,7 +167,6 @@ switch          {
                         printf("found a 'switch'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tSWITCH;
                 }
 type            {
@@ -198,7 +174,6 @@ type            {
                         printf("found a 'type'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tTYPE;
                 }
 var             {
@@ -206,7 +181,6 @@ var             {
                         printf("found a 'var'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tVAR;
                 }
 print           {
@@ -214,7 +188,6 @@ print           {
                         printf("found a 'var'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tPRINT;
                 }
 println         {
@@ -222,7 +195,6 @@ println         {
                         printf("found a 'var'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tPRINTLN;
                 }
 append          {
@@ -230,33 +202,32 @@ append          {
                         printf("found a 'var'\n");
                     #endif
                     shouldInsertBeforeNewLine = 0;
-                    shouldInsertBeforeRightBrace = 1;
                     return tAPPEND;
                 }
 
-"="             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '='; }
-">"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '>'; }
-"<"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '<'; }
-"!"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '!'; }
-"=="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tEQ; }
-"<="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tLEQ; }
-">="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tGEQ; }
-"!="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tNEQ; }
-":="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tSHORT; }
-"&&"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tAND; }
-"||"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tOR; }
-"&"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '&'; }
-"|"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '|'; }
-"^"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '^'; }
-"<<"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tLEFTSHIFT; }
-">>"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tRIGHTSHIFT; }
-"&^"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tBITCLEAR; }
-"+"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '+'; }
-"-"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '-'; }
-"*"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '*'; }
-"/"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '/'; }
-"%"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '%'; }
-"{"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 0; return '{'; }
+"="             { shouldInsertBeforeNewLine = 0; return '='; }
+">"             { shouldInsertBeforeNewLine = 0; return '>'; }
+"<"             { shouldInsertBeforeNewLine = 0; return '<'; }
+"!"             { shouldInsertBeforeNewLine = 0; return '!'; }
+"=="            { shouldInsertBeforeNewLine = 0; return tEQ; }
+"<="            { shouldInsertBeforeNewLine = 0; return tLEQ; }
+">="            { shouldInsertBeforeNewLine = 0; return tGEQ; }
+"!="            { shouldInsertBeforeNewLine = 0; return tNEQ; }
+":="            { shouldInsertBeforeNewLine = 0; return tSHORT; }
+"&&"            { shouldInsertBeforeNewLine = 0; return tAND; }
+"||"            { shouldInsertBeforeNewLine = 0; return tOR; }
+"&"             { shouldInsertBeforeNewLine = 0; return '&'; }
+"|"             { shouldInsertBeforeNewLine = 0; return '|'; }
+"^"             { shouldInsertBeforeNewLine = 0; return '^'; }
+"<<"            { shouldInsertBeforeNewLine = 0; return tLEFTSHIFT; }
+">>"            { shouldInsertBeforeNewLine = 0; return tRIGHTSHIFT; }
+"&^"            { shouldInsertBeforeNewLine = 0; return tBITCLEAR; }
+"+"             { shouldInsertBeforeNewLine = 0; return '+'; }
+"-"             { shouldInsertBeforeNewLine = 0; return '-'; }
+"*"             { shouldInsertBeforeNewLine = 0; return '*'; }
+"/"             { shouldInsertBeforeNewLine = 0; return '/'; }
+"%"             { shouldInsertBeforeNewLine = 0; return '%'; }
+"{"             { shouldInsertBeforeNewLine = 0; return '{'; }
 "}"             {
                     /*
                     if (lastToken != ';' || lastToken != '\n') {
@@ -270,45 +241,39 @@ append          {
                         return '}';
                     }
                     */
-                    if (shouldInsertBeforeRightBrace) {
-                        unput('}');
-                        shouldInsertBeforeRightBrace = 0;
-                        return ';';
-                    } else {
-                        shouldInsertBeforeNewLine = 1;
-                        return '}';
-                    }
+                    shouldInsertBeforeNewLine = 1;
+
+                    return '}';
                 }
-";"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 0;  return ';'; }
-":"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return ':'; }
-"("             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '('; }
-")"             { shouldInsertBeforeNewLine = 1; shouldInsertBeforeRightBrace = 1; return ')'; }
-"["             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '['; }
-"]"             { shouldInsertBeforeNewLine = 1; shouldInsertBeforeRightBrace = 1; return ']'; }
-","             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return ','; }
-"."             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '.'; }
-"+="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tPLUSEQ; }
-"-="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tMINUSEQ; }
-"*="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tTIMESEQ; }
-"/="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tDIVEQ; }
-"%="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tMODEQ; }
-"&="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tANDEQ; }
-"|="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tOREQ; }
-"^="            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tXOREQ; }
-"<<="           { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tLEFTSHIFTEQ; }
-">>="           { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tRIGHTSHIFTEQ; }
-"&^="           { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tBITCLEAREQ; }
-"++"            { shouldInsertBeforeNewLine = 1; shouldInsertBeforeRightBrace = 1; return tINC; }
-"--"            { shouldInsertBeforeNewLine = 1; shouldInsertBeforeRightBrace = 1; return tDEC; }
-"<-"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tLARROW; }
-"..."           { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tELLIPSIS; }
+";"             { shouldInsertBeforeNewLine = 0; return ';'; }
+":"             { shouldInsertBeforeNewLine = 0; return ':'; }
+"("             { shouldInsertBeforeNewLine = 0; return '('; }
+")"             { shouldInsertBeforeNewLine = 1; return ')'; }
+"["             { shouldInsertBeforeNewLine = 0; return '['; }
+"]"             { shouldInsertBeforeNewLine = 1; return ']'; }
+","             { shouldInsertBeforeNewLine = 0; return ','; }
+"."             { shouldInsertBeforeNewLine = 0; return '.'; }
+"+="            { shouldInsertBeforeNewLine = 0; return tPLUSEQ; }
+"-="            { shouldInsertBeforeNewLine = 0; return tMINUSEQ; }
+"*="            { shouldInsertBeforeNewLine = 0; return tTIMESEQ; }
+"/="            { shouldInsertBeforeNewLine = 0; return tDIVEQ; }
+"%="            { shouldInsertBeforeNewLine = 0; return tMODEQ; }
+"&="            { shouldInsertBeforeNewLine = 0; return tANDEQ; }
+"|="            { shouldInsertBeforeNewLine = 0; return tOREQ; }
+"^="            { shouldInsertBeforeNewLine = 0; return tXOREQ; }
+"<<="           { shouldInsertBeforeNewLine = 0; return tLEFTSHIFTEQ; }
+">>="           { shouldInsertBeforeNewLine = 0; return tRIGHTSHIFTEQ; }
+"&^="           { shouldInsertBeforeNewLine = 0; return tBITCLEAREQ; }
+"++"            { shouldInsertBeforeNewLine = 1; return tINC; }
+"--"            { shouldInsertBeforeNewLine = 1; return tDEC; }
+"<-"            { shouldInsertBeforeNewLine = 0; return tLARROW; }
+"..."           { shouldInsertBeforeNewLine = 0; return tELLIPSIS; }
 
 [ \t\r]         { shouldInsertBeforeNewLine = 0; }
 \n              {
                     if (shouldInsertBeforeNewLine) {
                         unput('\n');
                         shouldInsertBeforeNewLine = 0;
-                        shouldInsertBeforeRightBrace = 0;
                         return ';';
                     }
                 }
@@ -317,13 +282,12 @@ append          {
                         printf("found a single-line comment: %s\n", yytext);
                     #endif
                 }
-[a-zA-Z_][a-zA-Z_0-9]* {
+[a-zA-z_][a-zA-z_0-9]* {
                     #ifdef FLEX_DEBUG
                         printf("found an identifier: %s\n", yytext);
                     #endif
                     yylval.stringLiteral = strdup(yytext);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tIDENTIFIER;
                 }
 (0|[1-9][0-9]*)\.[0-9]* {
@@ -332,7 +296,6 @@ append          {
                     #endif
                     yylval.floatLiteral = atof(yytext);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tFLOAT64LITERAL;
                 }
 0|[1-9][0-9]*   {
@@ -341,7 +304,6 @@ append          {
                     #endif
                     yylval.intLiteral = atoi(yytext);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tINTDECLITERAL;
                 }
 0[0-7]*         {
@@ -350,7 +312,6 @@ append          {
                     #endif
                     yylval.intLiteral = (int) strtol(yytext, NULL, 8);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tINTOCTLITERAL;
                 }
 0[xX][a-fA-F0-9]+ {
@@ -359,7 +320,6 @@ append          {
                     #endif
                     yylval.intLiteral = (int) strtol(yytext, NULL, 16);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tINTHEXLITERAL;
                 }
 '(\\[abfnrtv'\\]|[a-zA-Z 0123456789~`@#$%^&*()-_=+{}[\]|:;"\/<>,.])' {
@@ -368,7 +328,6 @@ append          {
                     #endif
                     yylval.runeLiteral = yytext[0];
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tRUNELITERAL;
                 }
 \"(?:\\[abfnrtv"\\]|[a-zA-Z0-9 ~#$%^&*\-+\/`<>=_|';:{}\[\]()@!?.,])*\" {
@@ -377,7 +336,6 @@ append          {
                     #endif
                     yylval.stringLiteral = strdup(yytext);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tSTRINGLITERAL;
                 }
 \'(?:\\[abfnrtv'\\]|[a-zA-Z0-9 ~#$%^&*\-+\/`<>=_|";:{}\[\]()@!?.,])*\' {
@@ -386,7 +344,6 @@ append          {
                     #endif
                     yylval.stringLiteral = strdup(yytext);
                     shouldInsertBeforeNewLine = 1;
-                    shouldInsertBeforeRightBrace = 1;
                     return tSTRINGLITERAL;
                 }
 .               {

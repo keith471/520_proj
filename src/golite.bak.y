@@ -606,9 +606,19 @@ continueStatement:
 
 exp:
       unaryExp
-        { $$ = $1; }
+        {
+            #ifdef BISON_DEBUG
+                printf("found a unary expression\n");
+            #endif
+            $$ = $1;
+        }
     | binaryExp
-        { $$ = $1; }
+        {
+            #ifdef BISON_DEBUG
+                printf("found a binary expression\n");
+            #endif
+            $$ = $1;
+        }
     | tAPPEND '(' exp ',' exp ')'
         {
             #ifdef BISON_DEBUG
@@ -636,181 +646,63 @@ unaryExp:
       primaryExp
         { $$ = $1; }
     | '+' unaryExp %prec UNARY
-        {
-            #ifdef BISON_DEBUG
-                printf("found a unary plus expression\n");
-            #endif
-            $$ = makeEXPuplus($2);
-        }
+        { $$ = makeEXPuplus($2); }
     | '-' unaryExp %prec UNARY
-        {
-            #ifdef BISON_DEBUG
-                printf("found a unary minus expression\n");
-            #endif
-            $$ = makeEXPuminus($2);
-        }
+        { $$ = makeEXPuminus($2); }
     | '!' unaryExp %prec UNARY
-        {
-            #ifdef BISON_DEBUG
-                printf("found a unary not expression\n");
-            #endif
-            $$ = makeEXPunot($2);
-        }
+        { $$ = makeEXPunot($2); }
     | '^' unaryExp %prec UNARY
-        {
-            #ifdef BISON_DEBUG
-                printf("found a unary xor expression\n");
-            #endif
-            $$ = makeEXPuxor($2);
-        }
+        { $$ = makeEXPuxor($2); }
     | tLARROW unaryExp %prec UNARY
-        {
-            #ifdef BISON_DEBUG
-                printf("found a unary receive expression\n");
-            #endif
-            $$ = makeEXPureceive($2);
-        }
+        { $$ = makeEXPureceive($2); }
     ;
 
 binaryExp:
       exp '+' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a plus exp\n");
-            #endif
-            $$ = makeEXPplus($1, $3);
-        }
+        { $$ = makeEXPplus($1, $3); }
     | exp '-' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a minus exp\n");
-            #endif
-            $$ = makeEXPminus($1, $3);
-        }
+        { $$ = makeEXPminus($1, $3); }
     | exp '*' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a times exp\n");
-            #endif
-            $$ = makeEXPtimes($1, $3);
-        }
+        { $$ = makeEXPtimes($1, $3); }
     | exp '/' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a div exp\n");
-            #endif
-            $$ = makeEXPdiv($1, $3);
-        }
+        { $$ = makeEXPdiv($1, $3); }
     | exp '%' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a mod exp\n");
-            #endif
-            $$ = makeEXPmod($1, $3);
-        }
+        { $$ = makeEXPmod($1, $3); }
     | exp '|' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a bitwise or exp\n");
-            #endif
-            $$ = makeEXPbitwiseor($1, $3);
-        }
+        { $$ = makeEXPbitwiseor($1, $3); }
     | exp '&' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a bitwise and exp\n");
-            #endif
-            $$ = makeEXPbitwiseand($1, $3);
-        }
+        { $$ = makeEXPbitwiseand($1, $3); }
     | exp '^' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found an xor exp\n");
-            #endif
-            $$ = makeEXPxor($1, $3);
-        }
+        { $$ = makeEXPxor($1, $3); }
     | exp '<' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a less-than exp\n");
-            #endif
-            $$ = makeEXPlt($1, $3);
-        }
+        { $$ = makeEXPlt($1, $3); }
     | exp '>' exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a greater than exp\n");
-            #endif
-            $$ = makeEXPgt($1, $3);
-        }
+        { $$ = makeEXPgt($1, $3); }
     | exp tEQ exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found an equality exp\n");
-            #endif
-            $$ = makeEXPeq($1, $3);
-        }
+        { $$ = makeEXPeq($1, $3); }
     | exp tNEQ exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a not-equal-to exp\n");
-            #endif
-            $$ = makeEXPneq($1, $3);
-        }
+        { $$ = makeEXPneq($1, $3); }
     | exp tLEQ exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a leq exp\n");
-            #endif
-            $$ = makeEXPleq($1, $3);
-        }
+        { $$ = makeEXPleq($1, $3); }
     | exp tGEQ exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a geq exp\n");
-            #endif
-            $$ = makeEXPgeq($1, $3);
-        }
+        { $$ = makeEXPgeq($1, $3); }
     | exp tOR exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found an or exp\n");
-            #endif
-            $$ = makeEXPor($1, $3);
-        }
+        { $$ = makeEXPor($1, $3); }
     | exp tAND exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found an and exp\n");
-            #endif
-            $$ = makeEXPand($1, $3);
-        }
+        { $$ = makeEXPand($1, $3); }
     | exp tLEFTSHIFT exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a left-shift exp\n");
-            #endif
-            $$ = makeEXPleftshift($1, $3);
-        }
+        { $$ = makeEXPleftshift($1, $3); }
     | exp tRIGHTSHIFT exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a right-shift exp\n");
-            #endif
-            $$ = makeEXPrightshift($1, $3);
-        }
+        { $$ = makeEXPrightshift($1, $3); }
     | exp tBITCLEAR exp
-        {
-            #ifdef BISON_DEBUG
-                printf("found a bit-clear exp\n");
-            #endif
-            $$ = makeEXPbitclear($1, $3);
-        }
+        { $$ = makeEXPbitclear($1, $3); }
     ;
 
 primaryExp:
       operand
         { $$ = $1; }
+    //| conversion // a cast
+    //    { $$ = makeEXPcast($1); }
     | primaryExp '.' identifier // field access
         { $$ = makeEXPselector($1, $3); }
     | primaryExp '[' exp ']' // array indexing
@@ -823,65 +715,173 @@ operand:
       basicLiteral
         { $$ = $1; }
     | identifier
-        {
-            #ifdef BISON_DEBUG
-                printf("found an identifier operand: %s\n", ($1)->name);
-            #endif
-            $$ = makeEXPid($1);
-        }
+        { $$ = makeEXPid($1); }
     | '(' exp ')'
-        {
-            #ifdef BISON_DEBUG
-                printf("found a parenthesized expression operand\n");
-            #endif
-            $$ = $2;
-        }
+        { $$ = $2; }
+    ;
+
+/*
+conversion:
+      tINT '(' exp ')'
+        { $$ = makeCAST($3); }
+    | tFLOAT '(' exp ')'
+        { $$ = makeCAST($3); }
+    | tRUNE '(' exp ')'
+        { $$ = makeCAST($3); }
+    | tSTRING '(' exp ')'
+        { $$ = makeCAST($3); }
+    ;
+*/
+
+basicLiteral:
+      tINTDECLITERAL
+        { $$ = makeEXPintdecliteral($1); }
+    | tINTOCTLITERAL
+        { $$ = makeEXPintoctliteral($1); }
+    | tINTHEXLITERAL
+        { $$ = makeEXPinthexliteral($1); }
+    | tFLOAT64LITERAL
+        { $$ = makeEXPfloatliteral($1); }
+    | tRUNELITERAL
+        { $$ = makeEXPruneliteral($1); }
+    | tSTRINGLITERAL
+        { $$ = makeEXPstringliteral($1); }
+    ;
+
+/*
+exp:
+      unaryExp
+    | binaryExp
+    ;
+
+expList:
+      //epsilon
+    | neExpList
+    ;
+
+neExpList:
+      exp
+    | neExpList ',' exp
+    ;
+
+unaryExp:
+      primaryExp
+    | '+' unaryExp %prec UNARY
+    | '-' unaryExp %prec UNARY
+    | '!' unaryExp %prec UNARY
+    | '^' unaryExp %prec UNARY
+    | tLARROW unaryExp %prec UNARY
+    ;
+
+binaryExp:
+      exp '+' exp
+    | exp '-' exp
+    | exp '*' exp
+    | exp '/' exp
+    | exp '%' exp
+    | exp '|' exp
+    | exp '&' exp
+    | exp '^' exp
+    | exp '<' exp
+    | exp '>' exp
+    | exp tEQ exp
+    | exp tNEQ exp
+    | exp tLEQ exp
+    | exp tGEQ exp
+    | exp tOR exp
+    | exp tAND exp
+    | exp tLEFTSHIFT exp
+    | exp tRIGHTSHIFT exp
+    | exp tBITCLEAR exp
+    ;
+
+primaryExp:
+      operand
+    | conversion // a cast
+    | primaryExp selector // field access
+    | primaryExp index // array indexing
+    | primaryExp slice // slice access
+    | primaryExp arguments // function call
+    ;
+
+arguments:
+      '(' expList ')'
+    ;
+
+selector:
+      '.' identifier
+    ;
+
+index:
+      '[' exp ']'
+    ;
+
+slice:
+      '[' optionalExp ':' optionalExp ']'
+    | '[' optionalExp ':' exp ':' exp ']'
+    ;
+
+optionalExp:
+      //epsilon
+    | exp
+    ;
+
+operand:
+      literal
+    | identifier
+    | '(' exp ')'
+    ;
+
+conversion:
+      type '(' exp ')'
+    ;
+
+literal:
+      // we don't support composite or function literals
+      basicLiteral
     ;
 
 basicLiteral:
       tINTDECLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found an int dec literal\n");
-            #endif
-            $$ = makeEXPintdecliteral($1);
-        }
     | tINTOCTLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found an int oct literal\n");
-            #endif
-            $$ = makeEXPintoctliteral($1);
-        }
     | tINTHEXLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found an int hex literal\n");
-            #endif
-            $$ = makeEXPinthexliteral($1);
-        }
     | tFLOAT64LITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found a float literal\n");
-            #endif
-            $$ = makeEXPfloatliteral($1);
-        }
     | tRUNELITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found a rune literal\n");
-            #endif
-            $$ = makeEXPruneliteral($1);
-        }
     | tSTRINGLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found a string literal\n");
-            #endif
-            $$ = makeEXPstringliteral($1);
-        }
     ;
+*/
+
+
+/*
+unaryExp:
+      '+' exp %prec UNARY
+    | '-' exp %prec UNARY
+    | '!' exp %prec UNARY
+    | '^' exp %prec UNARY
+    ;
+
+binaryExp:
+      exp '+' exp
+    | exp '-' exp
+    | exp '*' exp
+    | exp '/' exp
+    | exp '%' exp
+    | exp '|' exp
+    | exp '&' exp
+    | exp '^' exp
+    | exp '<' exp
+    | exp '>' exp
+    | exp tEQ exp
+    | exp tNEQ exp
+    | exp tLEQ exp
+    | exp tGEQ exp
+    | exp tOR exp
+    | exp tAND exp
+    | exp tLEFTSHIFT exp
+    | exp tRIGHTSHIFT exp
+    | exp tBITCLEAR exp
+    ;
+*/
 
 /* identifiers */
 
@@ -908,26 +908,11 @@ type:
 
 typeLit:
       arrayType
-        {
-            #ifdef BISON_DEBUG
-                printf("found an array type\n");
-            #endif
-            $$ = $1;
-        }
+        { $$ = $1; }
     | structType
-        {
-            #ifdef BISON_DEBUG
-                printf("found a struct type\n");
-            #endif
-            $$ = $1;
-        }
+        { $$ = $1; }
     | sliceType
-        {
-            #ifdef BISON_DEBUG
-                printf("found a slice type\n");
-            #endif
-            $$ = $1;
-        }
+        { $$ = $1; }
     ;
 
 arrayType:

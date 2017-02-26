@@ -43,7 +43,7 @@ typedef struct TOPLEVELDECLARATION {
 
 typedef struct TOPLEVELDECLARATION {
   int lineno;
-  enum { varDeclK, typeDeclK, functionDeclK } kind;
+  enum { vDeclK, tDeclK, functionDeclK } kind;
   union {
       struct VARDECLARATION* varDeclTLD;
       struct TYPEDECLARATION* typeDeclTLD;
@@ -182,7 +182,7 @@ typedef struct CAST {
  */
  typedef struct TYPE {
      int lineno;
-     enum {idK, structK, sliceK, arrayK} kind;
+     enum { idK, structK, sliceK, arrayK } kind;
      union {
          struct ID* idT;
          struct {struct EXP* size;

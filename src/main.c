@@ -3,7 +3,9 @@
 #include <string.h>
 #include "error.h"
 #include "tree.h"
+#include "pretty.h"
 
+int yylex();
 void yyparse();
 
 PROGRAM* theprogram;
@@ -86,11 +88,14 @@ int main(int argc, char* argv[]) {
 
     #ifndef FLEX_DEBUG
 
-        char* programFilename = "test.go";
+        char* programPath = "test.go";
+        char* programName; // parsed from program name
+        char* outputPath = "./output/"; // the path to the output folder
+        char* prettyPath; // the path to the pretty printed file
 
         if (argc == 2) {
-            programFilename = argv[1];
-            parsePROGRAM(programFilename);
+            programPath = argv[1];
+            parsePROGRAM(programPath);
         } else if (argc > 2) {
             printf("USAGE: <path_to_executable> <path_to_golite_file>\n");
             exit(1);
@@ -99,6 +104,17 @@ int main(int argc, char* argv[]) {
             // parse the program and build an AST rooted at theprogram
             yyparse();
         }
+
+        programName = getProgramName(programPath);
+
+        // TODO weed the program
+
+        // pretty print the program
+        printf("pretty printing program...");
+        prettyPath = concat(outputPath, concat(programName, ".pretty.go"));
+        prettyPROGRAM(theprogram, prettyPath);
+        printf("SUCCESS\n");
+        printf(">>> pretty printed program to %s\n", prettyPath);
 
     #endif
 

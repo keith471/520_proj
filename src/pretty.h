@@ -18,6 +18,7 @@ void prettyFIELD(FIELD* field, int level);
 void prettyFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd);
 void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer);
 void terminateSTATEMENT(int level, int semicolon);
+void printTabsPrecedingStatement(int level, int startAtRwPointer);
 void prettySWITCHCASE(SWITCHCASE* s, int level);
 void prettyBinOp(OperationKind opKind);
 void prettyPARAMETER(PARAMETER* param);

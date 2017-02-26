@@ -2,6 +2,10 @@
 
 https://github.com/Sable/comp520-2017-04
 
+## Now
+- see if anything else to do
+- write up answer to part 3
+
 ## Later
 - make sure to support append
     ```
@@ -34,10 +38,7 @@ phase of the compiler to convert them to the proper cast nodes.
 - do we need to record the signature as a string in FUNCTIONDECLARATION?
 
 ## Pretty printing
-- update main
-- update Makefile
-- make and fix bugs
-- once all bugs fixed, then try it with some example code!
+- try it with some example code!!!
 
 ## Weeding
 - make sure assignment of list to list consists of lists of equal length, and that the left list consists of all lvalues

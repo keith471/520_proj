@@ -7,7 +7,6 @@
 #include "outputhelpers.h"
 
 // the number of times to indent before printing
-int numIndents = 0;
 FILE* emitFILE;
 
 void prettyPROGRAM(PROGRAM *p, char* filePath) {
@@ -27,11 +26,11 @@ void prettyPACKAGE(PACKAGE* package) {
 void prettyTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
     // if null, stop, else print and then recurse on tld->next
     if (tld == NULL) return;
-    switch (ltd->kind) {
-        case varDeclK:
+    switch (tld->kind) {
+        case vDeclK:
             prettyVARDECLARATION(tld->val.varDeclTLD, 0);
             break;
-        case typeDeclK:
+        case tDeclK:
             prettyTYPEDECLARATION(tld->val.typeDeclTLD, 0);
             break;
         case functionDeclK:
@@ -56,7 +55,7 @@ void prettyVARDECLARATION(VARDECLARATION* vd, int level) {
         newLineInFile(emitFILE);
         prettyVARDECLARATIONdistributedbody(vd, level + 1);
         printTabsToFile(level, emitFILE);
-        fprintf(");");
+        fprintf(emitFILE, ");");
     } else {
         prettyVARDECLARATIONsingleline(vd);
     }
@@ -81,7 +80,7 @@ void prettyVARDECLARATIONsingleline(VARDECLARATION* vd) {
     switch (vd->kind) {
         case typeOnlyK:
             fprintf(emitFILE, " ");
-            prettyTYPE(vd->val.typeVD);
+            prettyTYPE(vd->val.typeVD, -1);
             break;
         case expOnlyK:
             fprintf(emitFILE, " = ");
@@ -89,7 +88,7 @@ void prettyVARDECLARATIONsingleline(VARDECLARATION* vd) {
             break;
         case typeAndExpK:
             fprintf(emitFILE, " ");
-            prettyTYPE(vd->val.typeAndExpVD.type);
+            prettyTYPE(vd->val.typeAndExpVD.type, -1);
             fprintf(emitFILE, " = ");
             prettyEXPs(vd->val.typeAndExpVD.exp);
             break;
@@ -128,9 +127,9 @@ void prettyTYPEDECLARATION(TYPEDECLARATION* td, int level) {
         newLineInFile(emitFILE);
         prettyTYPEDECLARATIONdistributedbody(td, level + 1);
         printTabsToFile(level, emitFILE);
-        fprintf(");");
+        fprintf(emitFILE, ");");
     } else {
-        prettyTYPEDECLARATIONsingle(td);
+        prettyTYPEDECLARATIONsingle(td, level);
     }
     newLineInFile(emitFILE);
 }
@@ -165,6 +164,7 @@ void prettyTYPEDECLARATIONsingle(TYPEDECLARATION* td, int level) {
  * if level == -1, prints the type inline
  */
 void prettyTYPE(TYPE* type, int level) {
+    if (type == NULL) return;
     switch (type->kind) {
         case idK:
             prettyID(type->val.idT);
@@ -212,14 +212,14 @@ void prettyFIELD(FIELD* field, int level) {
         prettyID(field->ids);
         fprintf(emitFILE, " ");
         prettyTYPE(field->type, level);
-        fprintf(emifFILE, ";");
+        fprintf(emitFILE, ";");
     } else {
         // print multiline
         printTabsToFile(level, emitFILE);
         prettyID(field->ids);
         fprintf(emitFILE, " ");
         prettyTYPE(field->type, level);
-        fprintf(emifFILE, ";");
+        fprintf(emitFILE, ";");
         newLineInFile(emitFILE);
     }
     // recurse
@@ -237,12 +237,16 @@ void prettyFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
     prettyPARAMETER(fd->parameters);
     fprintf(emitFILE, ") ");
     // print the return type inline
-    prettyTYPE(fd->returnType, -1);
-    fprintf(emitFILE, " {");
+    if (fd->returnType) {
+        prettyTYPE(fd->returnType, -1);
+        fprintf(emitFILE, " {");
+    } else {
+        fprintf(emitFILE, "{");
+    }
     newLineInFile(emitFILE);
     // begin printing the statements at level 1 and with a trailing semicolon
     prettySTATEMENT(fd->statements, 1, 1, 0);
-    fprintf(emitFILE, "};")
+    fprintf(emitFILE, "};");
     newLineInFile(emitFILE);
 }
 
@@ -257,28 +261,30 @@ void prettyFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
  */
 void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) {
     if (s == NULL) return;
-    if (level != -1 && !startAtRwPointer) {
-        printTabsToFile(level, emitFILE);
-    }
     switch (s->kind) {
         case emptyK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             terminateSTATEMENT(level, semicolon);
             break;
         case expK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             prettyEXPs(s->val.expS);
             terminateSTATEMENT(level, semicolon);
             break;
         case incK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             prettyEXPs(s->val.incS);
             fprintf(emitFILE, "++");
             terminateSTATEMENT(level, semicolon);
             break;
         case decK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             prettyEXPs(s->val.decS);
             fprintf(emitFILE, "--");
             terminateSTATEMENT(level, semicolon);
             break;
         case regAssignK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             // print the svalues
             prettyEXPs(s->val.regAssignS.lvalues);
             // print the equals
@@ -288,6 +294,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case binOpAssignK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             // print the lvalue
             prettyEXPs(s->val.binOpAssignS.lvalue);
             // print the equals
@@ -297,6 +304,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             prettyEXPs(s->val.shortDeclS.ids);
             fprintf(emitFILE, " := ");
             prettyEXPs(s->val.shortDeclS.exps);
@@ -305,64 +313,63 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
         case varDeclK:
             // this will print a semicolon and new line regardless, but that's fine
             // because we will never have a var declaration that will look unnatural
-            // if on a new line, and all var declarations must end with a semicolon
+            // if on a new line, and all var declarations must end with a semicolon.
+            // also, prettyVARDECLARATION already prints tabs
             prettyVARDECLARATION(s->val.varDeclS, level);
             break;
         case typeDeclK:
             // this will print a semicolon and new line regardless, but that's fine
             // for similar reasons to the above
+            // also, prettyTYPEDECLARATION already prints tabs
             prettyTYPEDECLARATION(s->val.typeDeclS, level);
             break;
         case printK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "print(");
             prettyEXPs(s->val.printS);
             fprintf(emitFILE, ")");
             terminateSTATEMENT(level, semicolon);
             break;
         case printlnK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "println(");
             prettyEXPs(s->val.printlnS);
             fprintf(emitFILE, ")");
-            newLineInFile(emitFILE);
-            if (level == -1) {
-                if (semicolon) {
-                    fprintf(emitFILE, ";");
-                }
-            } else {
-                fprintf(emitFILE, ";");
-                newLineInFile(emitFILE);
-            }
+            terminateSTATEMENT(level, semicolon);
             break;
         case returnK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "return ");
             prettyEXPs(s->val.returnS);
             terminateSTATEMENT(level, semicolon);
             break;
         case ifK:
-            fprintf(emitFILE, "if (");
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            fprintf(emitFILE, "if ");
             if (s->val.ifS.initStatement) {
                 // print the init statement inline and terminate it with a semicolon
                 prettySTATEMENT(s->val.ifS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
             prettyEXPs(s->val.ifS.condition);
-            fprintf(emitFILE, ") {");
+            fprintf(emitFILE, " {");
             newLineInFile(emitFILE);
             // print the body at a level deeper and terminating with a semicolon
-            prettySTATEMENT(s->val.ifS.body, level + 1, 1);
+            prettySTATEMENT(s->val.ifS.body, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
             terminateSTATEMENT(level, semicolon);
             break;
         case ifElseK:
-            fprintf(emitFILE, "if (");
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            fprintf(emitFILE, "if ");
             if (s->val.ifElseS.initStatement) {
                 // print the init statement inline and terminate it with a semicolon
                 prettySTATEMENT(s->val.ifElseS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
             prettyEXPs(s->val.ifElseS.condition);
-            fprintf(emitFILE, ") {");
+            fprintf(emitFILE, " {");
             newLineInFile(emitFILE);
             // print the body at a level deeper and terminating with a semicolon
             prettySTATEMENT(s->val.ifElseS.thenPart, level + 1, 1, 0);
@@ -370,9 +377,9 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             fprintf(emitFILE, "} else ");
             if (s->val.ifElseS.elsePart->kind == ifK || s->val.ifElseS.elsePart->kind == ifElseK) {
                 // if/else
-                // print at the same level, no trailing semicolon (to avoid duplicates),
+                // print at the same level, with a trailing semicolon
                 // and starting at rw-pointer
-                prettySTATEMENT(s->val.ifElseS.elsePart, level, 0, 1);
+                prettySTATEMENT(s->val.ifElseS.elsePart, level, 1, 1);
             } else {
                 // else block
                 fprintf(emitFILE, "{");
@@ -380,18 +387,19 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
                 prettySTATEMENT(s->val.ifElseS.elsePart, level + 1, 1, 0);
                 printTabsToFile(level, emitFILE);
                 fprintf(emitFILE, "}");
+                terminateSTATEMENT(level, semicolon);
             }
-            terminateSTATEMENT(level, semicolon);
             break;
         case switchK:
-            fprintf(emitFILE, "switch (");
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            fprintf(emitFILE, "switch ");
             if (s->val.switchS.initStatement) {
                 // print the init statement inline and terminate it with a semicolon
                 prettySTATEMENT(s->val.ifS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
             prettyEXPs(s->val.switchS.condition);
-            fprintf(emitFILE, ") {");
+            fprintf(emitFILE, " {");
             newLineInFile(emitFILE);
             prettySWITCHCASE(s->val.switchS.cases, level + 1);
             printTabsToFile(level, emitFILE);
@@ -399,9 +407,10 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case whileK:
-            fprintf(emitFILE, "for (");
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            fprintf(emitFILE, "for ");
             prettyEXPs(s->val.whileS.condition);
-            fprintf(emitFILE, ") {");
+            fprintf(emitFILE, " {");
             newLineInFile(emitFILE);
             prettySTATEMENT(s->val.whileS.body, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
@@ -409,6 +418,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case infiniteLoopK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "for {");
             newLineInFile(emitFILE);
             prettySTATEMENT(s->val.infiniteLoopS, level + 1, 1, 0);
@@ -417,13 +427,14 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case forK:
-            fprintf(emitFILE, "for (");
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            fprintf(emitFILE, "for ");
             prettySTATEMENT(s->val.forS.initStatement, -1, 0, 0);
             fprintf(emitFILE, "; ");
             prettyEXPs(s->val.forS.condition);
             fprintf(emitFILE, "; ");
             prettySTATEMENT(s->val.forS.postStatement, -1, 0, 0);
-            fprintf(emitFILE, ") {");
+            fprintf(emitFILE, " {");
             newLineInFile(emitFILE);
             prettySTATEMENT(s->val.forS.body, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
@@ -431,10 +442,12 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case breakK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "break");
             terminateSTATEMENT(level, semicolon);
             break;
         case continueK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "continue");
             terminateSTATEMENT(level, semicolon);
     }
@@ -450,6 +463,12 @@ void terminateSTATEMENT(int level, int semicolon) {
     } else {
         fprintf(emitFILE, ";");
         newLineInFile(emitFILE);
+    }
+}
+
+void printTabsPrecedingStatement(int level, int startAtRwPointer) {
+    if (level != -1 && !startAtRwPointer) {
+        printTabsToFile(level, emitFILE);
     }
 }
 
@@ -561,7 +580,7 @@ void prettyEXPs(EXP* exp) {
  * does not print anything after
  */
 void prettyEXP(EXP* e) {
-    switch (exp->kind) {
+    switch (e->kind) {
         case idK:
             prettyID(e->val.idE);
             break;
@@ -748,9 +767,9 @@ void prettyEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case selectorK:
-            prettyExp(e->val.selectorE.rest);
+            prettyEXP(e->val.selectorE.rest);
             fprintf(emitFILE, ".");
-            prettyID(e-val.selectorE.lastSelector);
+            prettyID(e->val.selectorE.lastSelector);
             break;
         case indexK:
             prettyEXP(e->val.indexE.rest);
@@ -759,15 +778,12 @@ void prettyEXP(EXP* e) {
             fprintf(emitFILE, "]");
             break;
         case argumentsK:
-            struct {struct EXP* rest;
-                    struct EXP* args;} argumentsE; // linked list of expressions (using next pointers)
             prettyEXP(e->val.argumentsE.rest);
             fprintf(emitFILE, "(");
             prettyEXPs(e->val.argumentsE.args);
             fprintf(emitFILE, ")");
             break;
         case castK:
-            struct CAST* castE;
             prettyTYPE(e->val.castE->type, -1);
             fprintf(emitFILE, "(");
             prettyEXP(e->val.castE->exp);

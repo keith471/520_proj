@@ -59,7 +59,7 @@ TOPLEVELDECLARATION* makeTOPLEVELDECLARATIONvar(VARDECLARATION* varDecl) {
     TOPLEVELDECLARATION *d;
     d = NEW(TOPLEVELDECLARATION);
     d->lineno = yylineno;
-    d->kind = varDeclK;
+    d->kind = vDeclK;
     d->val.varDeclTLD = varDecl;
     d->next = NULL;
     return d;
@@ -85,7 +85,7 @@ TOPLEVELDECLARATION* makeTOPLEVELDECLARATIONtype(TYPEDECLARATION* typeDecl) {
     TOPLEVELDECLARATION *d;
     d = NEW(TOPLEVELDECLARATION);
     d->lineno = yylineno;
-    d->kind = typeDeclK;
+    d->kind = tDeclK;
     d->val.typeDeclTLD = typeDecl;
     d->next = NULL;
     return d;
