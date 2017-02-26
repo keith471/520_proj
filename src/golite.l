@@ -2,7 +2,7 @@
 #include <stdio.h>  // for printf
 #include <stdlib.h> // for strtol
 #include "y.tab.h"  // to get the token types that we return to Bison
-#include "error.h"
+#include "error.h"  
 int shouldInsertBeforeNewLine = 0;
 int shouldInsertBeforeRightBrace = 0;
 %}
@@ -258,18 +258,6 @@ append          {
 "%"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return '%'; }
 "{"             { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 0; return '{'; }
 "}"             {
-                    /*
-                    if (lastToken != ';' || lastToken != '\n') {
-                        // must be the end of a block on one line; better insert a semicolon BEFORE '}'
-                        unput('}');
-                        return ';';
-                    } else {
-                        // indicate that we should insert a semicolon AFTER this
-                        shouldInsertBeforeNewLine = 1;
-
-                        return '}';
-                    }
-                    */
                     if (shouldInsertBeforeRightBrace) {
                         unput('}');
                         shouldInsertBeforeRightBrace = 0;
