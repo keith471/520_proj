@@ -85,13 +85,13 @@ void prettyVARDECLARATIONsingleline(VARDECLARATION* vd) {
             break;
         case expOnlyK:
             fprintf(emitFILE, " = ");
-            prettyEXP(vd->val.expVD);
+            prettyEXPs(vd->val.expVD);
             break;
         case typeAndExpK:
             fprintf(emitFILE, " ");
             prettyTYPE(vd->val.typeAndExpVD.type);
             fprintf(emitFILE, " = ");
-            prettyEXP(vd->val.typeAndExpVD.exp);
+            prettyEXPs(vd->val.typeAndExpVD.exp);
             break;
     }
     fprintf(emitFILE, ";");
@@ -191,7 +191,7 @@ void prettyTYPE(TYPE* type, int level) {
             break;
         case arrayK:
             fprintf(emitFILE, "[");
-            prettyEXP(type->val.arrayT.size);
+            prettyEXPs(type->val.arrayT.size);
             fprintf(emitFILE, "]");
             // recurse to print the type of the elements in the array
             prettyTYPE(type->val.arrayT.elementType, level);
@@ -265,41 +265,41 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             terminateSTATEMENT(level, semicolon);
             break;
         case expK:
-            prettyEXP(s->val.expS);
+            prettyEXPs(s->val.expS);
             terminateSTATEMENT(level, semicolon);
             break;
         case incK:
-            prettyEXP(s->val.incS);
+            prettyEXPs(s->val.incS);
             fprintf(emitFILE, "++");
             terminateSTATEMENT(level, semicolon);
             break;
         case decK:
-            prettyEXP(s->val.decS);
+            prettyEXPs(s->val.decS);
             fprintf(emitFILE, "--");
             terminateSTATEMENT(level, semicolon);
             break;
         case regAssignK:
             // print the svalues
-            prettyEXP(s->val.regAssignS.lvalues);
+            prettyEXPs(s->val.regAssignS.lvalues);
             // print the equals
             fprintf(emitFILE, " = ");
             // print the exps
-            prettyEXP(s->val.regAssignS.exps);
+            prettyEXPs(s->val.regAssignS.exps);
             terminateSTATEMENT(level, semicolon);
             break;
         case binOpAssignK:
             // print the lvalue
-            prettyEXP(s->val.binOpAssignS.lvalue);
+            prettyEXPs(s->val.binOpAssignS.lvalue);
             // print the equals
             prettyBinOp(s->val.binOpAssignS.opKind);
             // print the exp
-            prettyEXP(s->val.binOpAssignS.exp);
+            prettyEXPs(s->val.binOpAssignS.exp);
             terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
-            prettyEXP(s->val.shortDeclS.ids);
+            prettyEXPs(s->val.shortDeclS.ids);
             fprintf(emitFILE, " := ");
-            prettyEXP(s->val.shortDeclS.exps);
+            prettyEXPs(s->val.shortDeclS.exps);
             terminateSTATEMENT(level, semicolon);
             break;
         case varDeclK:
@@ -315,13 +315,13 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             break;
         case printK:
             fprintf(emitFILE, "print(");
-            prettyEXP(s->val.printS);
+            prettyEXPs(s->val.printS);
             fprintf(emitFILE, ")");
             terminateSTATEMENT(level, semicolon);
             break;
         case printlnK:
             fprintf(emitFILE, "println(");
-            prettyEXP(s->val.printlnS);
+            prettyEXPs(s->val.printlnS);
             fprintf(emitFILE, ")");
             newLineInFile(emitFILE);
             if (level == -1) {
@@ -335,7 +335,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             break;
         case returnK:
             fprintf(emitFILE, "return ");
-            prettyEXP(s->val.returnS);
+            prettyEXPs(s->val.returnS);
             terminateSTATEMENT(level, semicolon);
             break;
         case ifK:
@@ -345,7 +345,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
                 prettySTATEMENT(s->val.ifS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
-            prettyEXP(s->val.ifS.condition);
+            prettyEXPs(s->val.ifS.condition);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
             // print the body at a level deeper and terminating with a semicolon
@@ -361,7 +361,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
                 prettySTATEMENT(s->val.ifElseS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
-            prettyEXP(s->val.ifElseS.condition);
+            prettyEXPs(s->val.ifElseS.condition);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
             // print the body at a level deeper and terminating with a semicolon
@@ -390,7 +390,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
                 prettySTATEMENT(s->val.ifS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
-            prettyEXP(s->val.switchS.condition);
+            prettyEXPs(s->val.switchS.condition);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
             prettySWITCHCASE(s->val.switchS.cases, level + 1);
@@ -400,7 +400,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             break;
         case whileK:
             fprintf(emitFILE, "for (");
-            prettyEXP(s->val.whileS.condition);
+            prettyEXPs(s->val.whileS.condition);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
             prettySTATEMENT(s->val.whileS.body, level + 1, 1, 0);
@@ -420,7 +420,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             fprintf(emitFILE, "for (");
             prettySTATEMENT(s->val.forS.initStatement, -1, 0, 0);
             fprintf(emitFILE, "; ");
-            prettyEXP(s->val.forS.condition);
+            prettyEXPs(s->val.forS.condition);
             fprintf(emitFILE, "; ");
             prettySTATEMENT(s->val.forS.postStatement, -1, 0, 0);
             fprintf(emitFILE, ") {");
@@ -462,7 +462,7 @@ void prettySWITCHCASE(SWITCHCASE* s, int level) {
     switch (s->kind) {
         case caseK:
             fprintf(emitFILE, "case ");
-            prettyEXP(s->val.caseC.exps);
+            prettyEXPs(s->val.caseC.exps);
             fprintf(emitFILE, ":");
             newLineInFile(emitFILE);
             prettySTATEMENT(s->val.caseC.statements, level + 1, 1, 0);
@@ -542,7 +542,7 @@ void prettyPARAMETER(PARAMETER* param) {
  * prints the expression list at the current rw-pointer location
  * does not print a new line
  */
-void prettyEXP(EXP* exp) {
+void prettyEXPs(EXP* exp) {
     if (exp == NULL) return;
     if (exp->next == NULL) {
         // just print the exp
@@ -552,6 +552,226 @@ void prettyEXP(EXP* exp) {
         prettyEXP(exp);
         fprintf(emitFILE, ", ");
         // recurse
-        prettyEXP(exp->next);
+        prettyEXPs(exp->next);
+    }
+}
+
+/*
+ * pretty prints a single expression starting at the current rw-pointer location
+ * does not print anything after
+ */
+void prettyEXP(EXP* e) {
+    switch (exp->kind) {
+        case idK:
+            prettyID(e->val.idE);
+            break;
+        case intLiteralK:
+            fprintf(emitFILE, "%d", e->val.intLiteralE.decValue);
+            break;
+        case floatLiteralK:
+            fprintf(emitFILE, "%f", e->val.floatLiteralE);
+            break;
+        case runeLiteralK:
+            fprintf(emitFILE, "%c", e->val.runeLiteralE);
+            break;
+        case stringLiteralK:
+            fprintf(emitFILE, "%s", e->val.stringLiteralE);
+            break;
+        case uPlusK:
+            fprintf(emitFILE, "(");
+            fprintf(emitFILE, "+");
+            prettyEXP(e->val.uPlusE);
+            fprintf(emitFILE, ")");
+            break;
+        case uMinusK:
+            fprintf(emitFILE, "(");
+            fprintf(emitFILE, "-");
+            prettyEXP(e->val.uMinusE);
+            fprintf(emitFILE, ")");
+            break;
+        case uNotK:
+            fprintf(emitFILE, "(");
+            fprintf(emitFILE, "!");
+            prettyEXP(e->val.uNotE);
+            fprintf(emitFILE, ")");
+            break;
+        case uXorK:
+            fprintf(emitFILE, "(");
+            fprintf(emitFILE, "^");
+            prettyEXP(e->val.uXorE);
+            fprintf(emitFILE, ")");
+            break;
+        case uReceiveK:
+            fprintf(emitFILE, "(");
+            fprintf(emitFILE, "<-");
+            prettyEXP(e->val.uReceiveE);
+            fprintf(emitFILE, ")");
+            break;
+        case plusK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.plusE.left);
+            fprintf(emitFILE, "+");
+            prettyEXP(e->val.plusE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case minusK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.minusE.left);
+            fprintf(emitFILE, "-");
+            prettyEXP(e->val.minusE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case timesK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.timesE.left);
+            fprintf(emitFILE, "*");
+            prettyEXP(e->val.timesE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case divK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.divE.left);
+            fprintf(emitFILE, "/");
+            prettyEXP(e->val.divE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case modK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.modE.left);
+            fprintf(emitFILE, "%%");
+            prettyEXP(e->val.modE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case bitwiseOrK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.bitwiseOrE.left);
+            fprintf(emitFILE, "|");
+            prettyEXP(e->val.bitwiseOrE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case bitwiseAndK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.bitwiseAndE.left);
+            fprintf(emitFILE, "&");
+            prettyEXP(e->val.bitwiseAndE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case xorK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.xorE.left);
+            fprintf(emitFILE, "^");
+            prettyEXP(e->val.xorE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case ltK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.ltE.left);
+            fprintf(emitFILE, "<");
+            prettyEXP(e->val.ltE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case gtK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.gtE.left);
+            fprintf(emitFILE, ">");
+            prettyEXP(e->val.gtE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case eqK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.eqE.left);
+            fprintf(emitFILE, "==");
+            prettyEXP(e->val.eqE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case neqK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.neqE.left);
+            fprintf(emitFILE, "!=");
+            prettyEXP(e->val.neqE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case leqK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.leqE.left);
+            fprintf(emitFILE, "<=");
+            prettyEXP(e->val.leqE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case geqK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.geqE.left);
+            fprintf(emitFILE, ">=");
+            prettyEXP(e->val.geqE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case orK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.orE.left);
+            fprintf(emitFILE, "||");
+            prettyEXP(e->val.orE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case andK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.andE.left);
+            fprintf(emitFILE, "&&");
+            prettyEXP(e->val.andE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case leftShiftK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.leftShiftE.left);
+            fprintf(emitFILE, "<<");
+            prettyEXP(e->val.leftShiftE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case rightShiftK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.rightShiftE.left);
+            fprintf(emitFILE, ">>");
+            prettyEXP(e->val.rightShiftE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case bitClearK:
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.bitClearE.left);
+            fprintf(emitFILE, "&^");
+            prettyEXP(e->val.bitClearE.right);
+            fprintf(emitFILE, ")");
+            break;
+        case appendK:
+            fprintf(emitFILE, "append(");
+            prettyEXP(e->val.appendE.slice);
+            fprintf(emitFILE, ", ");
+            prettyEXP(e->val.appendE.expToAppend);
+            fprintf(emitFILE, ")");
+            break;
+        case selectorK:
+            prettyExp(e->val.selectorE.rest);
+            fprintf(emitFILE, ".");
+            prettyID(e-val.selectorE.lastSelector);
+            break;
+        case indexK:
+            prettyEXP(e->val.indexE.rest);
+            fprintf(emitFILE, "[");
+            prettyEXP(e->val.indexE.lastIndex);
+            fprintf(emitFILE, "]");
+            break;
+        case argumentsK:
+            struct {struct EXP* rest;
+                    struct EXP* args;} argumentsE; // linked list of expressions (using next pointers)
+            prettyEXP(e->val.argumentsE.rest);
+            fprintf(emitFILE, "(");
+            prettyEXPs(e->val.argumentsE.args);
+            fprintf(emitFILE, ")");
+            break;
+        case castK:
+            struct CAST* castE;
+            prettyTYPE(e->val.castE->type, -1);
+            fprintf(emitFILE, "(");
+            prettyEXP(e->val.castE->exp);
+            fprintf(emitFILE, ")");
+            break;
     }
 }

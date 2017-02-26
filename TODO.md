@@ -33,9 +33,11 @@ phase of the compiler to convert them to the proper cast nodes.
 ## AST
 - do we need to record the signature as a string in FUNCTIONDECLARATION?
 
-
 ## Pretty printing
-- pretty print expressions and that's it!
+- update main
+- update Makefile
+- make and fix bugs
+- once all bugs fixed, then try it with some example code!
 
 ## Weeding
 - make sure assignment of list to list consists of lists of equal length, and that the left list consists of all lvalues
@@ -45,10 +47,8 @@ phase of the compiler to convert them to the proper cast nodes.
 - make sure in append that the first argument to append is a slice expression to append to, and the second expression
 is the element to add (though this probably should happen in the type phase)
 
-
 ## Symbol table
 - redeclaration: Unlike regular variable declarations, a short variable declaration may redeclare variables provided they were originally declared earlier in the same block (or the parameter lists if the block is the function body) with the same type, and at least one of the non-blank variables is new. As a consequence, redeclaration can only appear in a multi-variable short declaration. Redeclaration does not introduce a new variable; it just assigns a new value to the original.
-
 
 ## Sources
 http://stackoverflow.com/questions/10826744/semicolon-insertion-ala-google-go-with-flex
