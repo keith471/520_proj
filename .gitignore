@@ -1,3 +1,6 @@
 src/y.*
 src/out
 src/lex.yy.*
+valid.log
+invalid.log
+src/output/*
