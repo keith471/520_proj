@@ -2,6 +2,6 @@
 package main
 
 func main() {
-    var x = .
+    var x = .      //not allowed float
     x++ 
 }

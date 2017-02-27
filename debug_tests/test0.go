@@ -44,6 +44,4 @@ func main() {
     } else {
         fmt.Printf("in else\n");
     }
-    var a, b int
-    a+b
 }

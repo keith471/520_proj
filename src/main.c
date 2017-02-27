@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 
         char* programPath = "test.go";
         char* programName; // parsed from program name
-        char* outputPath = "./output/"; // the path to the output folder
+        char* outputPath = "./src/output/"; // the path to the output folder
         char* prettyPath; // the path to the pretty printed file
 
         if (argc == 2) {

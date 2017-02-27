@@ -40,7 +40,7 @@ fi
 #   (b) exit with status code 0
 # A log of the output is written to valid.log
 
-VALID_DIR=./programs/valid/*.min
+VALID_DIR=./programs/valid/*.go
 
 echo
 echo "*****************************"
@@ -79,7 +79,7 @@ echo ">>>>> # valid programs handled: ${VALID_CORRECT}/${VALID}"
 #   (b) exit with status code 1
 # A log of the output is written to invalid.log
 
-INVALID_DIR=./programs/invalid/*.min
+INVALID_DIR=./programs/invalid/*.go
 
 echo
 echo "*****************************"

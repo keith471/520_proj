@@ -1,4 +1,4 @@
-//valid15.go -Append function 
+//valid15.go -Append function
 
 package main
 

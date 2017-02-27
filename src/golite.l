@@ -2,7 +2,7 @@
 #include <stdio.h>  // for printf
 #include <stdlib.h> // for strtol
 #include "y.tab.h"  // to get the token types that we return to Bison
-#include "error.h"  
+#include "error.h"
 int shouldInsertBeforeNewLine = 0;
 int shouldInsertBeforeRightBrace = 0;
 %}
@@ -291,7 +291,7 @@ append          {
 "<-"            { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tLARROW; }
 "..."           { shouldInsertBeforeNewLine = 0; shouldInsertBeforeRightBrace = 1; return tELLIPSIS; }
 
-[ \t\r]         { shouldInsertBeforeNewLine = 0; }
+[ \t\r]         { ; }
 \n              {
                     if (shouldInsertBeforeNewLine) {
                         unput('\n');

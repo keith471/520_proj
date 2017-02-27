@@ -12,13 +12,13 @@ func main() {
     println(b, c)
 
     // Go will infer the type of initialized variables.
-    var d = true
+    var d = true    
     println(d)
 
     // Variables declared without a corresponding initialization are zero valued.
     var e int
     println(e)
 
-    f := "short"
+    f, g, h := "short", "medium", "tall"
     println(f)
 }

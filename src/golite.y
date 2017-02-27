@@ -61,7 +61,7 @@ extern PROGRAM* theprogram;
                   block
 %type <switchCase> switchClauses switchClause
 %type <exp> exp returnValue unaryExp binaryExp expList neExpList primaryExp
-            basicLiteral operand
+            basicLiteral operand optionalExp
 //%type <cast> conversion
 %type <type> type typeLit arrayType structType sliceType returnType
 %type <id> identifier idList
@@ -576,8 +576,15 @@ whileLoop:
     ;
 
 threePartLoop:
-      tFOR simpleStatement ';' exp ';' postStatement block
+      tFOR simpleStatement ';' optionalExp ';' postStatement block
         { $$ = makeSTATEMENTfor($2, $4, $6, $7); }
+    ;
+
+optionalExp:
+      //epsilon
+        { $$ = NULL; }
+    | exp
+        { $$ = $1; }
     ;
 
 /* break and continue statements */

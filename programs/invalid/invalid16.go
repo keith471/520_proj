@@ -3,5 +3,5 @@
 package main
 
 func main() {
-    var x [1;]a
+    var x [1;]a.   //not allowed
 }

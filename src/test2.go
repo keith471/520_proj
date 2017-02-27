@@ -1,6 +1,8 @@
-// TODO: HERE run this and see what you get (finish parser help prints first)
-package main;
+package cool;
 
-func main() {
-    arr = 0;
-}
+var x, y int    
+
+
+
+
+

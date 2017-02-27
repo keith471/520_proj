@@ -1,4 +1,4 @@
-//valid3.go - Factorial 
+//valid3.go - Factorial
 
 package main
 func factorial(n int) int {
@@ -7,7 +7,7 @@ func factorial(n int) int {
     }
     var ret = 1;
     for i:=2 ; i < n ; i++ {
-        ret *= i; 
+        ret *= i;
     }
     return ret;
 }

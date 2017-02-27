@@ -1,4 +1,4 @@
-//valid14.go - struct all types 
+//valid14.go - struct all types
 
 package main
 

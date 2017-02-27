@@ -1,8 +1,8 @@
-//invalid31.go - multiple unary plus assigned 
-
+//invalid30.go - multiple types allocated to single variable not allowed
 package main
 
+var m int float64 // Error here
+
 func main() {
-  // Error here
-  println(++100000)
+	// Empty
 }

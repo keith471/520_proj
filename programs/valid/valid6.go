@@ -2,9 +2,12 @@
 
 package main
 
+type num int
+
 func main() {
-	x = float64(x)
-	y = int(y)
-	z=num(z)
-	x = /*string*/ int (y)
+    var x int
+    var y, z float64
+	y = float64(x)
+	x = int(y)
+	x = num(z)
 }

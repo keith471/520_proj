@@ -9,7 +9,7 @@ func f() {
 		s1();
 	}
 
-	switch _ { // here 
+	switch _ { // error here 
 		case 1: break; 
 
 	default:
