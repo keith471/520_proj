@@ -131,44 +131,6 @@ typedef struct ID {
 } ID;
 
 /*
- * an lvalue
- * can be:
- *  - identifier
- *  - index into an array
- *  - field access on a struct
- */
-/*
-typedef struct LVALUE {
-    int lineno;
-    enum { identifierK, arrayAccessK, fieldAccessK } kind;
-    union {
-        struct ID* idLV;
-        struct {struct ID* arrayId;
-                struct EXP* indexExp;} arrayAccessLV;
-        struct {struct ID* instanceId;
-                struct LVALUE* fieldLV;} fieldAccessLV;
-    } val;
-} LVALUE;
-*/
-
-/*
- * the start, stop, and step of a slice
- */
-/*
-typedef struct SLICE {
-    int lineno;
-    enum { withStepK, withoutStepK } kind;
-    union {
-        struct {struct EXP* start;
-                struct EXP* end;} withoutStepS;
-        struct {struct EXP* start;
-                struct EXP* end;
-                struct EXP* step;} withStepS;
-    } val;
-} SLICE;
-*/
-
-/*
  * a cast
  */
 typedef struct CAST {
@@ -203,17 +165,10 @@ typedef struct FIELD {
     struct FIELD *next;
 } FIELD;
 
-/*
- * a struct type
- */
-/*
-typedef struct STRUCTT {
-    int lineno;
-    struct ID* id;
-    struct FIELD* fields; // linked-list of fields constituting the struct body
-} STRUCTT;
-*/
 
+/*
+ * statement
+ */
 typedef struct STATEMENT {
     int lineno;
     enum { emptyK, expK, incK, decK, regAssignK, binOpAssignK, shortDeclK, varDeclK,
@@ -346,68 +301,6 @@ typedef struct EXP {
     } val;
     struct EXP* next; // for expression lists; null otherwise
  } EXP;
-/*
-typedef struct EXP {
-    int lineno;
-    struct TYPE* type;  // the type that this expression evaluates to
-    enum { idK, intLiteralK, floatLiteralK, runeLiteralK, stringLiteralK, uPlusK,
-           uMinusK, uNotK, uXorK, plusK, minusK, timesK, divK, modK, bitwiseOrK, bitwiseAndK,
-           ltK, gtK, eqK, neqK, leqK, geqK, orK, andK, leftShiftK, rightShiftK,
-           bitClearK, invokeK, appendK } kind;
-   union {
-       struct ID *idE;  // identifier
-       int intLiteralE;  // value of integer
-       float floatLiteralE;    // value of float
-       char runeLiteralE;   // value of a rune
-       char *stringLiteralE;   // value of string
-       struct EXP* uPlusE;
-       struct EXP* uMinusE;
-       struct EXP* uNotE;
-       struct EXP* uXorE;
-       struct {struct EXP *left;
-               struct EXP *right;} plusE;
-       struct {struct EXP *left;
-               struct EXP *right;} minusE;
-       struct {struct EXP *left;
-               struct EXP *right;} timesE;
-       struct {struct EXP *left;
-               struct EXP *right;} divE;
-       struct {struct EXP *left;
-               struct EXP *right;} modE;
-       struct {struct EXP *left;
-               struct EXP *right;} bitwiseOrE;
-       struct {struct EXP *left;
-               struct EXP *right;} bitwiseAndE;
-       struct {struct EXP *left;
-               struct EXP *right;} ltE;
-       struct {struct EXP *left;
-               struct EXP *right;} gtE;
-       struct {struct EXP *left;
-               struct EXP *right;} eqE;
-       struct {struct EXP *left;
-               struct EXP *right;} neqE;
-       struct {struct EXP *left;
-               struct EXP *right;} leqE;
-       struct {struct EXP *left;
-               struct EXP *right;} geqE;
-       struct {struct EXP *left;
-               struct EXP *right;} orE;
-       struct {struct EXP *left;
-               struct EXP *right;} andE;
-       struct {struct EXP *left;
-               struct EXP *right;} leftShiftE;
-       struct {struct EXP *left;
-               struct EXP *right;} rightShiftE;
-       struct {struct EXP *left;
-               struct EXP *right;} bitClearE;
-       struct {struct ID *id;
-               struct EXP *args;
-               int isCast;} invokeE;
-       struct {struct EXP *first;
-               struct EXP *second;} appendE;
-   } val;
-} EXP;
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTION INVOKATIONS

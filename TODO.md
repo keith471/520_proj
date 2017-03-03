@@ -16,10 +16,12 @@ https://github.com/Sable/comp520-2017-04
 ## Pretty printing
 
 ## Weeding
-- make sure assignment of list to list consists of lists of equal length, and that the left list consists of all lvalues
-- for switch statements, make sure there is only one default case
-- make sure that break and continue are only ever used within for loops
-- make sure expStatement is just a function call or receive operation
+- finish helpers
+- remove weed functions added to golite.y
+- add functions to weed.h
+- update main.c
+- update Makefile
+- test
 
 ## Symbol table
 - redeclaration: Unlike regular variable declarations, a short variable declaration may redeclare variables provided they were originally declared earlier in the same block (or the parameter lists if the block is the function body) with the same type, and at least one of the non-blank variables is new. As a consequence, redeclaration can only appear in a multi-variable short declaration. Redeclaration does not introduce a new variable; it just assigns a new value to the original.
@@ -29,6 +31,7 @@ https://github.com/Sable/comp520-2017-04
 is the element to add (though this probably should happen in the type phase)
 - casts will (likely) appear as function calls in your AST. It will be important in a later
 phase of the compiler to convert them to the proper cast nodes.
+- also pertaining to casts, the weeder only accepts function calls and receive operations as expression statements. However, the parser parser casts as function calls so the weeder will not catch a cast used as a statement. Thus, as soon as we know a function call is actually a cast, we need to check that it is not being used as an expression statement. If it is, we throw an error.
 
 ## Sources
 http://stackoverflow.com/questions/10826744/semicolon-insertion-ala-google-go-with-flex

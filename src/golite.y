@@ -266,6 +266,8 @@ expOnlyVarDecl:
             #ifdef BISON_DEBUG
                 printf("found an expression-only variable declaration\n");
             #endif
+            // weed to ensure the lists are of equal length
+            checkEqualLength_id_exp($1, $3);
             $$ = makeVARDECLARATIONexponly($1, $3);
         }
     ;
@@ -278,6 +280,8 @@ typeAndExpVarDecl:
             #ifdef BISON_DEBUG
                 printf("found a type-and-exp variable declaration\n");
             #endif
+            // weed to ensure the lists are of equal length
+            checkEqualLength_id_exp($1, $4);
             $$ = makeVARDECLARATIONtypeandexp($1, $2, $4);
         }
     ;
@@ -372,6 +376,10 @@ expStatement:
             #ifdef BISON_DEBUG
                 printf("found an expression statement\n");
             #endif
+            // check that this is a function call or receive operation
+            // will NOT catch casts, since we think they are function calls in the parsing stage
+            // thus, casts must be dealt with later on
+            checkFunctionCallOrReceiveOp($1);
             $$ = makeSTATEMENTexp($1);
         }
     ;
@@ -386,6 +394,8 @@ assignmentStatement:
             #ifdef BISON_DEBUG
                 printf("found an assignment statement\n");
             #endif
+            checkEqualLength_exp_exp($1, $3);
+            checkLvalues($1);
             $$ = makeSTATEMENTassign($1, $3);
         }
       // need to weed to ensure that primaryExp is an lvalue
@@ -394,6 +404,7 @@ assignmentStatement:
             #ifdef BISON_DEBUG
                 printf("found a binary operation assignment statement\n");
             #endif
+            checkLvalue($1);
             $$ = makeSTATEMENTbinopassign($1, $2, $3);
         }
     ;
@@ -431,6 +442,7 @@ incDecStatement:
             #ifdef BISON_DEBUG
                 printf("found an inc statement\n");
             #endif
+            checkLvalue($1);
             $$ = makeSTATEMENTinc($1);
         }
     | primaryExp tDEC   // need to weed to ensure that primaryExp is an lvalue
@@ -438,6 +450,7 @@ incDecStatement:
             #ifdef BISON_DEBUG
                 printf("found a dec statement\n");
             #endif
+            checkLvalue($1);
             $$ = makeSTATEMENTdec($1);
         }
     ;
@@ -452,6 +465,8 @@ shortDeclStatement:
             #ifdef BISON_DEBUG
                 printf("found a short decl statement\n");
             #endif
+            checkEqualLength_exp_exp($1, $3);
+            checkIDs($1);
             $$ = makeSTATEMENTshortdecl($1, $3);
         }
     ;

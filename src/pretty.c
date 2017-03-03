@@ -395,7 +395,7 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             fprintf(emitFILE, "switch ");
             if (s->val.switchS.initStatement) {
                 // print the init statement inline and terminate it with a semicolon
-                prettySTATEMENT(s->val.ifS.initStatement, -1, 1, 0);
+                prettySTATEMENT(s->val.switchS.initStatement, -1, 1, 0);
                 fprintf(emitFILE, " ");
             }
             prettyEXPs(s->val.switchS.condition);
