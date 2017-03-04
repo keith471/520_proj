@@ -435,10 +435,6 @@ void checkFunctionCallOrReceiveOp(EXP* exp, int lineno) {
             break;
         case uReceiveK:
             break;
-        case incK:
-            break;
-        case decK:
-            break;
         default:
             reportWeedError("invalid expression statement", lineno);
             break;
