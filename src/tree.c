@@ -95,9 +95,61 @@ TOPLEVELDECLARATION* makeTOPLEVELDECLARATIONtype(TYPEDECLARATION* typeDecl) {
 // VARIABLE DECLARATIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef struct VARDECLARATION {
+    int lineno;
+    enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
+    char* name;
+    int isDistributed;  // whether this declaration is part of a distrubuted statement
+    int isLocal;    // whether this declaration is local (as opposed to global)
+    union {
+        struct TYPE* typeVD;
+        struct EXP* expVD;
+        struct {struct TYPE* type;
+                struct EXP* exp;} typeAndExpVD;
+    } val;
+    struct VARDECLARATION* next; // for when multiple variables are declared in one line
+} VARDECLARATION;
+
+VARDECLARATION* makeVARDECLARATIONtypeonly(char* name, TYPE* type, VARDECLARATION* next) {
+    VARDECLARATION *d;
+    d = NEW(VARDECLARATION);
+    d->lineno = yylineno;
+    d->kind = typeOnlyK;
+    d->name = name;
+    d->isDistributed = 0;
+    d->isLocal = 0;
+    d->val.typeVD = type;
+    d->next = next;
+    return d;
+}
+
+VARDECLARATION* makeVARDECLARATIONtypeonlylist(ID* names, TYPE* type) {
+    if (names == NULL) return NULL;
+    return makeVARDECLARATIONtypeonly(names->name, type, makeVARDECLARATIONtypeonlylist(names->next, type));
+}
+
+VARDECLARATION* makeVARDECLARATIONexponly(char* name, TYPE* type, VARDECLARATION* next) {
+    VARDECLARATION *d;
+    d = NEW(VARDECLARATION);
+    d->lineno = yylineno;
+    d->kind = expOnlyK;
+    d->name = name;
+    d->isDistributed = 0;
+    d->isLocal = 0;
+    d->val.expVD = exps;
+    d->next = NULL;
+    return d;
+}
+
+VARDECLARATION* makeVARDECLARATIONexponlylist(ID* names, TYPE* type) {
+    if (names == NULL) return NULL;
+    return makeVARDECLARATIONexponly(names->name, type, makeVARDECLARATIONexponlylist(names->next, type));
+}
+
 /*
- * Make a variable declaration for variables initialized with type only
+ * Make a list of variable declaration for variables initialized with type only
  */
+/*
 VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type) {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
@@ -110,10 +162,12 @@ VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type) {
     d->next = NULL;
     return d;
 }
+*/
 
 /*
  * Make a variable declaration for variables initialized with expression only
  */
+/*
 VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps) {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
@@ -126,10 +180,12 @@ VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps) {
     d->next = NULL;
     return d;
 }
+*/
 
 /*
  * Make a variable declaration for variables initialized with type and expressions
  */
+/*
 VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps) {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
@@ -143,6 +199,7 @@ VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps) {
     d->next = NULL;
     return d;
 }
+*/
 
 /*
  * for appending variable declarations defined in a distributed var statement

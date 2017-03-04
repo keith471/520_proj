@@ -85,6 +85,7 @@ typedef struct TOPLEVELDECLARATION {
  *  - expression specified but no type
  *  - both type and expression given
  */
+/*
 typedef struct VARDECLARATION {
     int lineno;
     enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
@@ -99,12 +100,12 @@ typedef struct VARDECLARATION {
     } val;
     struct VARDECLARATION* next;    // for distributed variable declarations; else this is null
 } VARDECLARATION;
+*/
 
-/*
 typedef struct VARDECLARATION {
     int lineno;
     enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
-    struct ID* id;
+    char* name;
     int isDistributed;  // whether this declaration is part of a distrubuted statement
     int isLocal;    // whether this declaration is local (as opposed to global)
     union {
@@ -115,7 +116,6 @@ typedef struct VARDECLARATION {
     } val;
     struct VARDECLARATION* next; // for when multiple variables are declared in one line
 } VARDECLARATION;
-*/
 
 /*
  * a type declaration
