@@ -4,6 +4,7 @@
 #include "error.h"
 #include "tree.h"
 #include "pretty.h"
+#include "weed.h"
 
 int yylex();
 void yyparse();
@@ -107,7 +108,11 @@ int main(int argc, char* argv[]) {
 
         programName = getProgramName(programPath);
 
-        // TODO weed the program
+        // weed the program
+        printf("weeding the program...");
+        weedPROGRAM(theprogram);
+        terminateIfErrors();
+        printf("SUCCESS\n");
 
         // pretty print the program
         printf("pretty printing program...");

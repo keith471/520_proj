@@ -2,35 +2,20 @@
 #include "tree.h"
 
 void weedPROGRAM(PROGRAM* p);
+void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
+void weedVARDECLARATION(VARDECLARATION* vd);
+void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd);
+void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase);
+void weedSWITCHCASE(SWITCHCASE* s, int defaultSeen, int inLoop, int inSwitchCase);
 
+/////////////////////////////////////////////////////////////////////////////////
 // HELPERS
+/////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Checks whether an id list and and expression list have equal length
- */
-void checkEqualLength_id_exp(ID* ids, EXP* exps);
-
-/**
- * Checks whether two expression lists have equal length
- */
-void checkEqualLength_exp_exp(EXP* exps1, EXP* exps2);
-
-/**
- * Checks that all expressions in an expression list are lvalues
- */
-void checkLvalues(EXP* exps);
-
-/**
- * Checks that there is only a single expression in the list and that it is an lvalue
- */
-void checkLvalue(EXP* exp);
-
-/**
- * Checks that a list of expressions consists of only identifiers
- */
-void checkIDs(EXP* exps);
-
-/**
- * checks that the expression is a function call or receive op
- */
-void checkFunctionCallOrReceiveOp(EXP* exp);
+void checkEqualLength_id_exp(ID* ids, EXP* exps, int lineno);
+void checkEqualLength_exp_exp(EXP* exps1, EXP* exps2, int lineno);
+void checkLvalues(EXP* exps, int lineno);
+void checkLvalue(EXP* exp, int lineno);
+void lvalueHelper(EXP* exp, int lineno);
+void checkIDs(EXP* exps, int lineno);
+void checkFunctionCallOrReceiveOp(EXP* exp, int lineno);

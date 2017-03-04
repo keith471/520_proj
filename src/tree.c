@@ -942,7 +942,7 @@ EXP* makeEXPid(ID* id) {
     e = NEW(EXP);
     e->lineno = yylineno;
     e->type = NULL; // for now
-    e->kind = idK;
+    e->kind = identifierK;
     e->val.idE = id;
     e->next = NULL;
     return e;

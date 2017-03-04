@@ -581,7 +581,7 @@ void prettyEXPs(EXP* exp) {
  */
 void prettyEXP(EXP* e) {
     switch (e->kind) {
-        case idK:
+        case identifierK:
             prettyID(e->val.idE);
             break;
         case intLiteralK:

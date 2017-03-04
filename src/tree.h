@@ -234,7 +234,7 @@ typedef struct SWITCHCASE {
 typedef struct EXP {
     int lineno;
     struct TYPE* type;  // the type that this expression evaluates to
-    enum { idK, intLiteralK, floatLiteralK, runeLiteralK, stringLiteralK,
+    enum { identifierK, intLiteralK, floatLiteralK, runeLiteralK, stringLiteralK,
            plusK, minusK, timesK, divK, modK, bitwiseOrK, bitwiseAndK, xorK, ltK, gtK,
            eqK, neqK, leqK, geqK, orK, andK, leftShiftK, rightShiftK, bitClearK,
            appendK, castK, selectorK, indexK, argumentsK, uPlusK,

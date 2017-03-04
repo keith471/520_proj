@@ -1,8 +1,7 @@
 package cool;
 
-var x, y int    
+var x, y int = 1, 2
 
+func main() {
 
-
-
-
+}

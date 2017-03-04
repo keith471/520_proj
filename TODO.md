@@ -16,11 +16,6 @@ https://github.com/Sable/comp520-2017-04
 ## Pretty printing
 
 ## Weeding
-- finish helpers
-- remove weed functions added to golite.y
-- add functions to weed.h
-- update main.c
-- update Makefile
 - test
 
 ## Symbol table
