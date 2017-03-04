@@ -19,7 +19,13 @@ https://github.com/Sable/comp520-2017-04
 - test
 
 ## Symbol table
+- write symbol.c
+- copy functions over to symbol.h
+- update tree.h and tree.c
+- update main.c
+- update Makefile
 - redeclaration: Unlike regular variable declarations, a short variable declaration may redeclare variables provided they were originally declared earlier in the same block (or the parameter lists if the block is the function body) with the same type, and at least one of the non-blank variables is new. As a consequence, redeclaration can only appear in a multi-variable short declaration. Redeclaration does not introduce a new variable; it just assigns a new value to the original.
+    - handle preexisting symbols in putSymbol
 
 ## Type Checking
 - make sure in append that the first argument to append is a slice expression to append to, and the second expression

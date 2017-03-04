@@ -11,6 +11,46 @@ typedef enum { plusEqOp, minusEqOp, timesEqOp, divEqOp,
 
 typedef enum { decIL, octIL, hexIL } IntLiteralKind;
 
+typedef enum { packageDeclSym, typeDeclSym, varDeclSym, functionDeclSym, parameterSym, fieldSym } SymbolKind;
+
+/*
+ * symbol
+ */
+/*
+typedef struct SYMBOL {
+    char *name;
+    struct TYPE* type;
+    // this is a linked list in the SymbolTable hashmap, so we have to have this next field.
+    // it doesn't actually have anything to do with the 'current' symbol
+    struct SYMBOL *next;
+} SYMBOL;
+*/
+
+/*
+ * The following have symbols:
+ *  package declaration
+ *  variable declarations
+ *  type declarations
+ *  function declarations
+ *  function parameters
+ *  struct fields
+ */
+typedef struct SYMBOL {
+    char *name;
+    SymbolKind kind;
+    union {
+        struct PACAKGE *packageDeclS;
+        struct TYPEDECLARATION *typeDeclS;
+        struct VARDECLARATION *varDeclS;
+        struct FUNCTIONDECLARATION *functionDeclS;
+        struct PARAMETER *parameterS;
+        struct FIELD *fieldS;
+    } val;
+    // this is a linked list in the SymbolTable hashmap, so we have to have this next field.
+    // it doesn't actually have anything to do with the 'current' symbol
+    struct SYMBOL *next;
+} SYMBOL;
+
 /*
  * a program consists of a package declaration and top-level declarations
  */
@@ -26,20 +66,6 @@ typedef struct PACKAGE {
     char* name;
 } PACKAGE;
 
-/*
- * a top-level declaration
- */
-/*
-typedef struct TOPLEVELDECLARATION {
-  int lineno;
-  enum { declK, functionDeclK } kind;
-  union {
-      struct DECLARATION* declTLD;
-      struct FUNCTIONDECLARATION* functionDeclTLD;
-  } val;
-  struct TOPLEVELDECLARATION *next;
-} TOPLEVELDECLARATION;
-*/
 
 typedef struct TOPLEVELDECLARATION {
   int lineno;
@@ -53,20 +79,6 @@ typedef struct TOPLEVELDECLARATION {
 } TOPLEVELDECLARATION;
 
 /*
- * a declaration is either a variable or type declaration
- */
-/*
-typedef struct DECLARATION {
-    int lineno;
-    enum { varK, typeK } kind;
-    union {
-        struct VARDECLARATION* varDeclD;
-        struct TYPEDECLARATION* typeDeclD;
-    } val;
-} DECLARATION;
-*/
-
-/*
  * a variable declaration
  * there are three kinds:
  *  - type specified but no expression
@@ -77,7 +89,8 @@ typedef struct VARDECLARATION {
     int lineno;
     enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
     struct ID* ids; // weed to ensure matching length with exps, if expOnlyK or typeAndExpK
-    int isDistributed;  // whether is declaration is part of a distrubuted statement
+    int isDistributed;  // whether this declaration is part of a distrubuted statement
+    int isLocal;    // whether this declaration is local (as opposed to global)
     union {
         struct TYPE* typeVD;
         struct EXP* expVD;
@@ -88,6 +101,23 @@ typedef struct VARDECLARATION {
 } VARDECLARATION;
 
 /*
+typedef struct VARDECLARATION {
+    int lineno;
+    enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
+    struct ID* id;
+    int isDistributed;  // whether this declaration is part of a distrubuted statement
+    int isLocal;    // whether this declaration is local (as opposed to global)
+    union {
+        struct TYPE* typeVD;
+        struct EXP* expVD;
+        struct {struct TYPE* type;
+                struct EXP* exp;} typeAndExpVD;
+    } val;
+    struct VARDECLARATION* next; // for when multiple variables are declared in one line
+} VARDECLARATION;
+*/
+
+/*
  * a type declaration
  * type declarations have an identifier and a type
  */
@@ -95,6 +125,7 @@ typedef struct VARDECLARATION {
      int lineno;
      struct ID* id;
      int isDistributed; // whether this declaration is part of a distributed statement
+     int isLocal;   // whether this declaration is local (as opposed to global)
      struct TYPE* type;
      struct TYPEDECLARATION* next; // for distributed type declarations; else this is null
  } TYPEDECLARATION;

@@ -105,6 +105,7 @@ VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type) {
     d->kind = typeOnlyK;
     d->ids = ids;
     d->isDistributed = 0;
+    d->isLocal = 0;
     d->val.typeVD = type;
     d->next = NULL;
     return d;
@@ -120,6 +121,7 @@ VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps) {
     d->kind = expOnlyK;
     d->ids = ids;
     d->isDistributed = 0;
+    d->isLocal = 0;
     d->val.expVD = exps;
     d->next = NULL;
     return d;
@@ -135,6 +137,7 @@ VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps) {
     d->kind = typeAndExpK;
     d->ids = ids;
     d->isDistributed = 0;
+    d->isLocal = 0;
     d->val.typeAndExpVD.type = type;
     d->val.typeAndExpVD.exp = exps;
     d->next = NULL;
@@ -175,6 +178,7 @@ TYPEDECLARATION* makeTYPEDECLARATION(ID* id, TYPE* type) {
     t->lineno = yylineno;
     t->id = id;
     t->isDistributed = 0;
+    t->isLocal = 0;
     t->type = type;
     t->next = NULL;
     return t;
@@ -318,6 +322,9 @@ STATEMENT* makeSTATEMENTprint(EXP* exp) {
 }
 
 STATEMENT* makeSTATEMENTvardecl(VARDECLARATION* varDecl) {
+    // mark the varDecl as local
+    varDecl->isLocal = 1;
+    // create the statement
     STATEMENT* s;
     s = NEW(STATEMENT);
     s->lineno = yylineno;
@@ -328,6 +335,9 @@ STATEMENT* makeSTATEMENTvardecl(VARDECLARATION* varDecl) {
 }
 
 STATEMENT* makeSTATEMENTtypedecl(TYPEDECLARATION* typeDecl) {
+    // mark the typeDecl as local
+    typeDecl->isLocal = 1;
+    // create the statement
     STATEMENT* s;
     s = NEW(STATEMENT);
     s->lineno = yylineno;
