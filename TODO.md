@@ -2,6 +2,10 @@
 
 https://github.com/Sable/comp520-2017-04
 
+Reference compiler:
+ssh kstric@teaching.cs.mcgill.ca
+~cs520/golitec
+
 ## Now
 
 ## Later
@@ -20,6 +24,7 @@ https://github.com/Sable/comp520-2017-04
 
 ## Symbol table
 - write symbol.c
+- somehow deal with TYPE
 - copy functions over to symbol.h
 - update tree.h and tree.c
 - update main.c

@@ -41,15 +41,24 @@ typedef struct SYMBOL {
     union {
         struct PACAKGE *packageDeclS;
         struct TYPEDECLARATION *typeDeclS;
-        struct VARDECLARATION *varDeclS;
+        struct SINGLEVAR *varDeclS;
         struct FUNCTIONDECLARATION *functionDeclS;
-        struct PARAMETER *parameterS;
+        struct SINGLEPARAMETER *parameterS;
         struct FIELD *fieldS;
     } val;
     // this is a linked list in the SymbolTable hashmap, so we have to have this next field.
     // it doesn't actually have anything to do with the 'current' symbol
     struct SYMBOL *next;
 } SYMBOL;
+
+/*
+ * since a single VARDECLARATION can represent multiple variables, we create a
+ * wrapper that pairs a VARDECLARATION with just one of its variables
+ */
+typedef struct SINGLEVAR {
+    struct VARDECLARATION varDecl;
+    int varNum; // the number of the variable represented by VARDECLARATION, zero-indexed
+} SINGLEVAR;
 
 /*
  * a program consists of a package declaration and top-level declarations
@@ -101,23 +110,6 @@ typedef struct VARDECLARATION {
 } VARDECLARATION;
 
 /*
-typedef struct VARDECLARATION {
-    int lineno;
-    enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
-    struct ID* id;
-    int isDistributed;  // whether this declaration is part of a distrubuted statement
-    int isLocal;    // whether this declaration is local (as opposed to global)
-    union {
-        struct TYPE* typeVD;
-        struct EXP* expVD;
-        struct {struct TYPE* type;
-                struct EXP* exp;} typeAndExpVD;
-    } val;
-    struct VARDECLARATION* next; // for when multiple variables are declared in one line
-} VARDECLARATION;
-*/
-
-/*
  * a type declaration
  * type declarations have an identifier and a type
  */
@@ -154,10 +146,20 @@ typedef struct PARAMETER {
 } PARAMETER;
 
 /*
+ * since a single PARAMETER can represent multiple parameters of the same type,
+ * we create a wrapper that pairs a PARAMETER with just one of the actual ids
+ */
+typedef struct SINGLEPARAMETER {
+    struct PARAMETER parameter;
+    int parameterNum; // the number of the id represented by PARAMETER, zero-indexed
+} SINGLEPARAMETER;
+
+/*
  * an identifier
  */
 typedef struct ID {
     char* name;
+    struct SYMBOL* symbol;
     struct ID* next;
 } ID;
 

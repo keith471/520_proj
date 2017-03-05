@@ -30,6 +30,17 @@ void reportWeedError(char* s, int lineno) {
     errors++;
 }
 
+/*
+ * for symbol errors
+ */
+void reportSymbolError(char *s, char *name, int lineno) {
+    printf("IDENTIFIER ERROR:\n");
+    printf("    *** message: %s\n", s);
+    printf("    *** identifier: %s\n", name);
+    printf("    *** location: at line %i\n", lineno);
+    errors++;
+}
+
 /**
  * this is called after each phase of the compiler
  */
