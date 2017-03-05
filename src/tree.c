@@ -3,6 +3,7 @@
 #include <string.h>
 #include "memory.h"
 #include "tree.h"
+#include "error.h"
 
 extern int yylineno;
 
@@ -95,9 +96,88 @@ TOPLEVELDECLARATION* makeTOPLEVELDECLARATIONtype(TYPEDECLARATION* typeDecl) {
 // VARIABLE DECLARATIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type) {
+    if (ids == NULL) return NULL;
+    return makeVARDECLARATIONtypeonlyhelper(ids, type, makeVARDECLARATIONtypeonly(ids->next, type));
+}
+
+VARDECLARATION* makeVARDECLARATIONtypeonlyhelper(ID* id, TYPE* type, VARDECLARATION* next) {
+    VARDECLARATION *d;
+    d = NEW(VARDECLARATION);
+    d->lineno = yylineno;
+    d->kind = typeOnlyK;
+    d->id = id;
+    d->isDistributed = 0;
+    d->isLocal = 0;
+    d->val.typeVD = type;
+    d->next = next;
+    d->nextDistributed = NULL;
+    return d;
+}
+
+VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps) {
+    if (ids == NULL && exps == NULL) return NULL;
+    if (ids == NULL) {
+        // weeding error
+        reportWeedError("more expressions than identifiers", yylineno);
+        return NULL;
+    }
+    if (exps == NULL) {
+        // weeding error
+        reportWeedError("more identifiers than expressions", yylineno);
+        return NULL;
+    }
+    return makeVARDECLARATIONexponlyhelper(ids, exps, makeVARDECLARATIONexponly(ids->next, exps->next));
+}
+
+VARDECLARATION* makeVARDECLARATIONexponlyhelper(ID* id, EXP* exp, VARDECLARATION* next) {
+    VARDECLARATION *d;
+    d = NEW(VARDECLARATION);
+    d->lineno = yylineno;
+    d->kind = expOnlyK;
+    d->id = id;
+    d->isDistributed = 0;
+    d->isLocal = 0;
+    d->val.expVD = exp;
+    d->next = next;
+    d->nextDistributed = NULL;
+    return d;
+}
+
+VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps) {
+    if (ids == NULL && exps == NULL) return NULL;
+    if (ids == NULL) {
+        // weeding error
+        reportWeedError("more expressions than identifiers", yylineno);
+        return NULL;
+    }
+    if (exps == NULL) {
+        // weeding error
+        reportWeedError("more identifiers than expressions", yylineno);
+        return NULL;
+    }
+    return makeVARDECLARATIONtypeandexphelper(ids, type, exps, makeVARDECLARATIONtypeandexp(ids->next, type, exps->next));
+}
+
+VARDECLARATION* makeVARDECLARATIONtypeandexphelper(ID* id, TYPE* type, EXP* exp, VARDECLARATION* next) {
+    VARDECLARATION *d;
+    d = NEW(VARDECLARATION);
+    d->lineno = yylineno;
+    d->kind = typeAndExpK;
+    d->id = id;
+    d->isDistributed = 0;
+    d->isLocal = 0;
+    d->val.typeAndExpVD.type = type;
+    d->val.typeAndExpVD.exp = exp;
+    d->next = next;
+    d->nextDistributed = NULL;
+    return d;
+}
+
 /*
- * Make a variable declaration for variables initialized with type only
+ * Make a list of variable declaration for variables initialized with type only
  */
+/*
 VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type) {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
@@ -110,10 +190,12 @@ VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type) {
     d->next = NULL;
     return d;
 }
+*/
 
 /*
  * Make a variable declaration for variables initialized with expression only
  */
+/*
 VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps) {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
@@ -126,10 +208,12 @@ VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps) {
     d->next = NULL;
     return d;
 }
+*/
 
 /*
  * Make a variable declaration for variables initialized with type and expressions
  */
+/*
 VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps) {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
@@ -143,12 +227,13 @@ VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps) {
     d->next = NULL;
     return d;
 }
+*/
 
 /*
  * for appending variable declarations defined in a distributed var statement
  */
 VARDECLARATION* appendVARDECLARATION(VARDECLARATION *prevs, VARDECLARATION *curr) {
-    // update curr to indicate that this it is part of a distrubuted variable declaration
+    // update curr to indicate that this it is part of a distributed variable declaration
     curr->isDistributed = 1;
     // prevs will be null for the first declaration that we parse
     if (prevs == NULL) return curr;
@@ -156,9 +241,9 @@ VARDECLARATION* appendVARDECLARATION(VARDECLARATION *prevs, VARDECLARATION *curr
     VARDECLARATION *t;
     t = prevs;
     // move to the end of the linkedlist of declarations given by prevs
-    while (t->next != NULL) t = t->next;
+    while (t->nextDistributed != NULL) t = t->nextDistributed;
     // append curr to the end of the list
-    t->next = curr;
+    t->nextDistributed = curr;
     // return the head of the list
     return prevs;
 }
@@ -180,7 +265,7 @@ TYPEDECLARATION* makeTYPEDECLARATION(ID* id, TYPE* type) {
     t->isDistributed = 0;
     t->isLocal = 0;
     t->type = type;
-    t->next = NULL;
+    t->nextDistributed = NULL;
     return t;
 }
 
@@ -193,9 +278,9 @@ TYPEDECLARATION* appendTYPEDECLARATION(TYPEDECLARATION* prevs, TYPEDECLARATION* 
     TYPEDECLARATION *t;
     t = prevs;
     // move to the end of the linked list of declarations given by prevs
-    while (t->next != NULL) t = t->next;
+    while (t->nextDistributed != NULL) t = t->nextDistributed;
     // append curr to the end of the list
-    t->next = curr;
+    t->nextDistributed = curr;
     // return the head of the list
     return prevs;
 }
@@ -221,12 +306,18 @@ FUNCTIONDECLARATION* makeFUNCTIONDECLARATION(ID* id, PARAMETER* parameters, TYPE
 }
 
 PARAMETER* makePARAMETER(ID* ids, TYPE* type) {
+    if (ids == NULL) return NULL;
+    return makePARAMETERhelper(ids, type, makePARAMETER(ids->next, type));
+}
+
+PARAMETER* makePARAMETERhelper(ID* id, TYPE* type, PARAMETER* nextId) {
     PARAMETER* p;
     p = NEW(PARAMETER);
     p->lineno = yylineno;
-    p->ids = ids;
+    p->id = id;
     p->type = type;
-    p->next = NULL;
+    p->nextId = nextId;
+    p->nextParamSet = NULL;
     return p;
 }
 
@@ -237,9 +328,9 @@ PARAMETER* appendPARAMETER(PARAMETER* prevs, PARAMETER* curr) {
     // get a second reference, t, to the head of the list
     t = prevs;
     // move to the end of the linked list of parameters given by prevs
-    while (t->next != NULL) t = t->next;
+    while (t->nextParamSet != NULL) t = t->nextParamSet;
     // append curr to the end of the list
-    t->next = curr;
+    t->nextParamSet = curr;
     // return the head of the list
     return prevs;
 }
@@ -348,12 +439,28 @@ STATEMENT* makeSTATEMENTtypedecl(TYPEDECLARATION* typeDecl) {
 }
 
 STATEMENT* makeSTATEMENTshortdecl(EXP* ids, EXP* exps) {
+    if (ids == NULL && exps == NULL) return NULL;
+    if (ids == NULL) {
+        // weeding error
+        reportWeedError("more expressions than ids", yylineno);
+        return NULL;
+    }
+    if (exps == NULL) {
+        // weeding error
+        reportWeedError("more ids than expressions", yylineno);
+        return NULL;
+    }
+    return makeSTATEMENTshortdeclhelper(ids, exps, makeSTATEMENTshortdecl(ids->next, exps->next));
+}
+
+STATEMENT* makeSTATEMENTshortdeclhelper(EXP* id, EXP* exp, STATEMENT* next) {
     STATEMENT* s;
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = shortDeclK;
-    s->val.shortDeclS.ids = ids;
-    s->val.shortDeclS.exps = exps;
+    s->val.shortDeclS.id = id;
+    s->val.shortDeclS.exp = exp;
+    s->val.shortDeclS.next = next;
     s->next = NULL;
     return s;
 }
@@ -387,12 +494,28 @@ STATEMENT* makeSTATEMENTcontinue() {
 }
 
 STATEMENT* makeSTATEMENTassign(EXP* lvalues, EXP* exps) {
+    if (lvalues == NULL && exps == NULL) return NULL;
+    if (lvalues == NULL) {
+        // weeding error
+        reportWeedError("more expressions than lvalues", yylineno);
+        return NULL;
+    }
+    if (exps == NULL) {
+        // weeding error
+        reportWeedError("more lvalues than expressions", yylineno);
+        return NULL;
+    }
+    return makeSTATEMENTassignhelper(lvalues, exps, makeSTATEMENTassign(lvalues->next, exps->next));
+}
+
+STATEMENT* makeSTATEMENTassignhelper(EXP* lvalue, EXP* exp, STATEMENT* next) {
     STATEMENT* s;
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = regAssignK;
-    s->val.regAssignS.lvalues = lvalues;
-    s->val.regAssignS.exps = exps;
+    s->val.regAssignS.lvalue = lvalue;
+    s->val.regAssignS.exp = exp;
+    s->val.regAssignS.next = next;
     s->next = NULL;
     return s;
 }
@@ -542,12 +665,18 @@ STRUCTT* makeSTRUCTT(ID* id, FIELD* fields) {
 */
 
 FIELD* makeFIELD(ID* ids, TYPE* type) {
+    if (ids == NULL) return NULL;
+    return makeFIELDhelper(ids, type, makeFIELD(ids->next, type));
+}
+
+FIELD* makeFIELDhelper(ID* id, TYPE* type, FIELD* nextId) {
     FIELD* t;
     t = NEW(FIELD);
     t->lineno = yylineno;
-    t->ids = ids;
+    t->id = id;
     t->type = type;
-    t->next = NULL;
+    t->nextId = nextId;
+    t->nextFieldSet = NULL;
     return t;
 }
 
@@ -558,9 +687,9 @@ FIELD* appendFIELD(FIELD* prevs, FIELD* curr) {
     // get a second reference, t, to the head of the list
     t = prevs;
     // move to the end of the linked list of fields given by prevs
-    while (t->next != NULL) t = t->next;
+    while (t->nextFieldSet != NULL) t = t->nextFieldSet;
     // append curr to the end of the list
-    t->next = curr;
+    t->nextFieldSet = curr;
     // return the head of the list
     return prevs;
 }

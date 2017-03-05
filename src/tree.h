@@ -94,6 +94,7 @@ typedef struct TOPLEVELDECLARATION {
  *  - expression specified but no type
  *  - both type and expression given
  */
+/*
 typedef struct VARDECLARATION {
     int lineno;
     enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
@@ -108,6 +109,23 @@ typedef struct VARDECLARATION {
     } val;
     struct VARDECLARATION* next;    // for distributed variable declarations; else this is null
 } VARDECLARATION;
+*/
+
+typedef struct VARDECLARATION {
+    int lineno;
+    enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
+    struct ID* id;
+    int isDistributed;  // whether this declaration is part of a distrubuted statement
+    int isLocal;    // whether this declaration is local (as opposed to global)
+    union {
+        struct TYPE* typeVD;
+        struct EXP* expVD;
+        struct {struct TYPE* type;
+                struct EXP* exp;} typeAndExpVD;
+    } val;
+    struct VARDECLARATION* next; // for when multiple variables are declared in one line
+    struct VARDECLARATION* nextDistributed; // for distributed variable declarations
+} VARDECLARATION;
 
 /*
  * a type declaration
@@ -119,7 +137,7 @@ typedef struct VARDECLARATION {
      int isDistributed; // whether this declaration is part of a distributed statement
      int isLocal;   // whether this declaration is local (as opposed to global)
      struct TYPE* type;
-     struct TYPEDECLARATION* next; // for distributed type declarations; else this is null
+     struct TYPEDECLARATION* nextDistributed; // for distributed type declarations; else this is null
  } TYPEDECLARATION;
 
 /*
@@ -140,9 +158,10 @@ typedef struct FUNCTIONDECLARATION {
  */
 typedef struct PARAMETER {
     int lineno;
-    struct ID* ids;
+    struct ID* id;
     struct TYPE *type;
-    struct PARAMETER *next;
+    struct PARAMETER* nextId;   // for the next parameter in the list, e.g. a, b, c int
+    struct PARAMETER* nextParamSet; // for the next set of parameters, e.g. a, b, c int, d, e float64
 } PARAMETER;
 
 /*
@@ -193,11 +212,11 @@ typedef struct CAST {
  */
 typedef struct FIELD {
     int lineno;
-    struct ID* ids;
+    struct ID* id;
     struct TYPE *type;
-    struct FIELD *next;
+    struct FIELD* nextId;
+    struct FIELD* nextFieldSet;
 } FIELD;
-
 
 /*
  * statement
@@ -228,8 +247,9 @@ typedef struct STATEMENT {
         struct {struct STATEMENT* initStatement;
                 struct EXP* condition;
                 struct SWITCHCASE* cases;} switchS;
-        struct {struct EXP* lvalues;    // weed to ensure that all exps are lvalues
-                struct EXP* exps;} regAssignS;
+        struct {struct EXP* lvalue;    // weed to ensure that all exps are lvalues
+                struct EXP* exp;
+                struct STATEMENT* next;} regAssignS;
         struct {struct EXP* lvalue; // weed to ensure that exp is an lvalue (and that there is just one of them? should already only be one since matches with primaryExp)
                 OperationKind opKind;
                 struct EXP* exp;} binOpAssignS;
@@ -239,8 +259,9 @@ typedef struct STATEMENT {
         struct EXP* printlnS;   // linked-list of expressions
         struct VARDECLARATION* varDeclS;
         struct TYPEDECLARATION* typeDeclS;
-        struct {struct EXP* ids;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
-                struct EXP* exps;} shortDeclS;
+        struct {struct EXP* id;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
+                struct EXP* exp;
+                struct STATEMENT* next;} shortDeclS;
     } val;
     // points to the next statement at the same level as this one
     // nested statements are pointed to by the appropriate statement structs in val
@@ -373,8 +394,11 @@ TOPLEVELDECLARATION* makeTOPLEVELDECLARATIONfunction(FUNCTIONDECLARATION* functi
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VARDECLARATION* makeVARDECLARATIONtypeonly(ID* ids, TYPE* type);
+VARDECLARATION* makeVARDECLARATIONtypeonlyhelper(ID* id, TYPE* type, VARDECLARATION* next);
 VARDECLARATION* makeVARDECLARATIONexponly(ID* ids, EXP* exps);
+VARDECLARATION* makeVARDECLARATIONexponlyhelper(ID* id, EXP* exp, VARDECLARATION* next);
 VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps);
+VARDECLARATION* makeVARDECLARATIONtypeandexphelper(ID* id, TYPE* type, EXP* exp, VARDECLARATION* next);
 VARDECLARATION* appendVARDECLARATION(VARDECLARATION *prevs, VARDECLARATION *curr);
 VARDECLARATION* markAsDistributedVarDecl(VARDECLARATION* v);
 
@@ -392,6 +416,7 @@ TYPEDECLARATION* markAsDistributedTypeDecl(TYPEDECLARATION* t);
 
 FUNCTIONDECLARATION* makeFUNCTIONDECLARATION(ID* id, PARAMETER* parameters, TYPE* returnType, STATEMENT* statements);
 PARAMETER* makePARAMETER(ID* ids, TYPE* type);
+PARAMETER* makePARAMETERhelper(ID* id, TYPE* type, PARAMETER* nextId);
 PARAMETER* appendPARAMETER(PARAMETER* prevs, PARAMETER* curr);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -408,10 +433,12 @@ STATEMENT* makeSTATEMENTprint(EXP* exp);
 STATEMENT* makeSTATEMENTvardecl(VARDECLARATION* varDecl);
 STATEMENT* makeSTATEMENTtypedecl(TYPEDECLARATION* typeDecl);
 STATEMENT* makeSTATEMENTshortdecl(EXP* ids, EXP* exps);
+STATEMENT* makeSTATEMENTshortdeclhelper(EXP* id, EXP* exp, STATEMENT* next);
 STATEMENT* makeSTATEMENTreturn(EXP* exp);
 STATEMENT* makeSTATEMENTbreak();
 STATEMENT* makeSTATEMENTcontinue();
 STATEMENT* makeSTATEMENTassign(EXP* lvalues, EXP* exps);
+STATEMENT* makeSTATEMENTassignhelper(EXP* lvalue, EXP* exp, STATEMENT* next);
 STATEMENT* makeSTATEMENTbinopassign(EXP* lvalue, OperationKind opKind, EXP* exp);
 STATEMENT* makeSTATEMENTif(STATEMENT* initStatement, EXP* condition, STATEMENT* body);
 STATEMENT* makeSTATEMENTifelse(STATEMENT* initStatement, EXP* condition, STATEMENT* thenPart, STATEMENT* elsePart);
@@ -430,6 +457,7 @@ SWITCHCASE* appendSWITCHCASE(SWITCHCASE* prevs, SWITCHCASE* curr);
 
 //STRUCTT* makeSTRUCTT(ID* id, FIELD* fields);
 FIELD* makeFIELD(ID* ids, TYPE* type);
+FIELD* makeFIELDhelper(ID* id, TYPE* type, FIELD* nextId);
 FIELD* appendFIELD(FIELD* prevs, FIELD* curr);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
