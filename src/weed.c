@@ -10,11 +10,10 @@ void weedPROGRAM(PROGRAM* p) {
 
 void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
     if (tld == NULL) return;
-    // no need to weed type declarations
+    // no need to weed var or type declarations
+    // var declarations are weeded by the parser
+    // type declarations require no weeding
     switch (tld->kind) {
-        case vDeclK:
-            weedVARDECLARATION(tld->val.varDeclTLD);
-            break;
         case functionDeclK:
             weedFUNCTIONDECLARATION(tld->val.functionDeclTLD);
             break;
@@ -24,6 +23,7 @@ void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
     weedTOPLEVELDECLARATION(tld->next);
 }
 
+/*
 void weedVARDECLARATION(VARDECLARATION* vd) {
     if (vd == NULL) return;
     switch (vd->kind) {
@@ -38,6 +38,7 @@ void weedVARDECLARATION(VARDECLARATION* vd) {
     }
     weedVARDECLARATION(vd->next);
 }
+*/
 
 void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
     // we need to weed function statements, but nothing else
@@ -64,18 +65,14 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             checkLvalue(s->val.decS, s->lineno);
             break;
         case regAssignK:
-            checkEqualLength_exp_exp(s->val.regAssignS.lvalues, s->val.regAssignS.exps, s->lineno);
-            checkLvalues(s->val.regAssignS.lvalues, s->lineno);
+            checkLvalues(s->val.regAssignS.lvalue, s->lineno); // cheat and use linked list pointed to
+                                                                // by lvalue
             break;
         case binOpAssignK:
             checkLvalue(s->val.binOpAssignS.lvalue, s->lineno);
             break;
         case shortDeclK:
-            checkEqualLength_exp_exp(s->val.shortDeclS.ids, s->val.shortDeclS.exps, s->lineno);
-            checkIDs(s->val.shortDeclS.ids, s->lineno);
-            break;
-        case varDeclK:
-            weedVARDECLARATION(s->val.varDeclS);
+            checkIDs(s->val.shortDeclS.id, s->lineno);  // cheat
             break;
         case ifK:
             weedSTATEMENT(s->val.ifS.initStatement, inLoop, inSwitchCase);
@@ -147,6 +144,7 @@ void weedSWITCHCASE(SWITCHCASE* s, int defaultSeen, int inLoop, int inSwitchCase
 /**
  * Checks whether an id list and and expression list have equal length
  */
+/*
 void checkEqualLength_id_exp(ID* ids, EXP* exps, int lineno) {
     if (ids == NULL && exps == NULL) return;
     if (ids == NULL) {
@@ -161,10 +159,12 @@ void checkEqualLength_id_exp(ID* ids, EXP* exps, int lineno) {
     }
     checkEqualLength_id_exp(ids->next, exps->next, lineno);
 }
+*/
 
 /**
  * Checks whether two expression lists have equal length
  */
+/*
 void checkEqualLength_exp_exp(EXP* exps1, EXP* exps2, int lineno) {
     if (exps1 == NULL && exps2 == NULL) return;
     if (exps1 == NULL) {
@@ -179,6 +179,7 @@ void checkEqualLength_exp_exp(EXP* exps1, EXP* exps2, int lineno) {
     }
     checkEqualLength_exp_exp(exps1->next, exps2->next, lineno);
 }
+*/
 
 /**
  * Checks that all expressions in an expression list are lvalues

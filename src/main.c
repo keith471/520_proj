@@ -74,6 +74,8 @@ void parsePROGRAM(char* programFilename) {
     do {
         yyparse();
     } while (!feof(yyin));
+    // we do some weeding in the parser; if there were any weeding errors, terminate
+    terminateIfErrors();
     printf("SUCCESS\n");
     fclose(infile);
 }
@@ -104,11 +106,13 @@ int main(int argc, char* argv[]) {
             printf("Type some golite code folowed by one or two Ctrl-d's:\n");
             // parse the program and build an AST rooted at theprogram
             yyparse();
+            // we do some weeding in the parser; if there were any weeding errors, terminate
+            terminateIfErrors();
         }
 
         programName = getProgramName(programPath);
 
-        // weed the program
+        // finish any weeding that we didn't do in the parser
         printf("weeding the program...");
         weedPROGRAM(theprogram);
         terminateIfErrors();

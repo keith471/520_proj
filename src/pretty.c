@@ -68,7 +68,7 @@ void prettyVARDECLARATIONdistributedbody(VARDECLARATION* vd, int level) {
     prettyVARDECLARATIONsingleline(vd);
     newLineInFile(emitFILE);
     // recurse
-    prettyVARDECLARATIONdistributedbody(vd->next, level);
+    prettyVARDECLARATIONdistributedbody(vd->nextDistributed, level);
 }
 
 /*
@@ -76,7 +76,9 @@ void prettyVARDECLARATIONdistributedbody(VARDECLARATION* vd, int level) {
  * does not print tabs before or a new line after, but does print a semicolon
  */
 void prettyVARDECLARATIONsingleline(VARDECLARATION* vd) {
-    prettyID(vd->ids);
+    prettyID(vd->id); // we could go to vd->next to get the next id in the variable declaration,
+                        // or we could just cheat and use the linked-list of ids pointed to by vd->id!
+                        // we cheat to keep things simple.
     switch (vd->kind) {
         case typeOnlyK:
             fprintf(emitFILE, " ");
@@ -143,7 +145,7 @@ void prettyTYPEDECLARATIONdistributedbody(TYPEDECLARATION* td, int level) {
     prettyTYPEDECLARATIONsingle(td, level);
     newLineInFile(emitFILE);
     // recurse
-    prettyTYPEDECLARATIONdistributedbody(td->next, level);
+    prettyTYPEDECLARATIONdistributedbody(td->nextDistributed, level);
 }
 
 /*
@@ -209,21 +211,21 @@ void prettyFIELD(FIELD* field, int level) {
     if (field == NULL) return;
     if (level == -1) {
         // print inline
-        prettyID(field->ids);
+        prettyID(field->id); // again, we cheat
         fprintf(emitFILE, " ");
         prettyTYPE(field->type, level);
         fprintf(emitFILE, ";");
     } else {
         // print multiline
         printTabsToFile(level, emitFILE);
-        prettyID(field->ids);
+        prettyID(field->id); // again, we cheat
         fprintf(emitFILE, " ");
         prettyTYPE(field->type, level);
         fprintf(emitFILE, ";");
         newLineInFile(emitFILE);
     }
     // recurse
-    prettyFIELD(field->next, level);
+    prettyFIELD(field->nextFieldSet, level);
 }
 
 /*
@@ -285,12 +287,16 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             break;
         case regAssignK:
             printTabsPrecedingStatement(level, startAtRwPointer);
-            // print the svalues
-            prettyEXPs(s->val.regAssignS.lvalues);
+            // print the lvalues
+            prettyEXPs(s->val.regAssignS.lvalue); // we cheat: instead of iterating
+                                                    // to s->val.regAssignS.next, we just
+                                                    // rely on the fact that we know
+                                                    // s->val.regAssignS.lvalue gives
+                                                    // us a list of all the lvalues
             // print the equals
             fprintf(emitFILE, " = ");
             // print the exps
-            prettyEXPs(s->val.regAssignS.exps);
+            prettyEXPs(s->val.regAssignS.exp); // cheat
             terminateSTATEMENT(level, semicolon);
             break;
         case binOpAssignK:
@@ -305,9 +311,9 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             break;
         case shortDeclK:
             printTabsPrecedingStatement(level, startAtRwPointer);
-            prettyEXPs(s->val.shortDeclS.ids);
+            prettyEXPs(s->val.shortDeclS.id); // cheat
             fprintf(emitFILE, " := ");
-            prettyEXPs(s->val.shortDeclS.exps);
+            prettyEXPs(s->val.shortDeclS.exp); // cheat
             terminateSTATEMENT(level, semicolon);
             break;
         case varDeclK:
@@ -543,17 +549,17 @@ void prettyBinOp(OperationKind opKind) {
  */
 void prettyPARAMETER(PARAMETER* param) {
     if (param == NULL) return;
-    if (param->next == NULL) {
-        prettyID(param->ids);
+    if (param->nextParamSet == NULL) {
+        prettyID(param->id); // again, we "cheat"
         fprintf(emitFILE, " ");
         prettyTYPE(param->type, -1);
     } else {
-        prettyID(param->ids);
+        prettyID(param->id);
         fprintf(emitFILE, " ");
         prettyTYPE(param->type, -1);
         fprintf(emitFILE, ", ");
         // recurse
-        prettyPARAMETER(param->next);
+        prettyPARAMETER(param->nextParamSet);
     }
 }
 
