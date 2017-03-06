@@ -2,8 +2,11 @@
 #include "tree.h"
 
 void weedPROGRAM(PROGRAM* p);
+void weedPACKAGE(PACKAGE* p);
 void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
-//void weedVARDECLARATION(VARDECLARATION* vd);
+void weedVARDECLARATION(VARDECLARATION* vd);
+void weedVARDECLARATIONlist(VARDECLARATION* vd);
+void weedTYPEDECLARATION(TYPEDECLARATION* td);
 void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd);
 void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase);
 void weedSWITCHCASE(SWITCHCASE* s, int defaultSeen, int inLoop, int inSwitchCase);
@@ -19,3 +22,5 @@ void checkLvalue(EXP* exp, int lineno);
 void lvalueHelper(EXP* exp, int lineno);
 void checkIDs(EXP* exps, int lineno);
 void checkFunctionCallOrReceiveOp(EXP* exp, int lineno);
+void checkForBlankIdentifier_exp(EXP* e);
+void checkForBlankIdentifier_string(char* s, char* message, int lineno);

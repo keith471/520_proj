@@ -26,6 +26,7 @@ PROGRAM* makePROGRAM(PACKAGE* package, TOPLEVELDECLARATION* topLevelDeclaration)
 PACKAGE* makePACKAGE(ID* id) {
     PACKAGE* p;
     p = NEW(PACKAGE);
+    p->lineno = yylineno;
     p->name = id->name;
     return p;
 }

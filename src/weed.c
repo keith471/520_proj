@@ -1,19 +1,28 @@
 
 #include <stdio.h>
+#include <string.h>
 #include "weed.h"
 #include "error.h"
 
 void weedPROGRAM(PROGRAM* p) {
-    // no need to weed package declarations
+    weedPACKAGE(p->package);
     weedTOPLEVELDECLARATION(p->topLevelDeclaration);
+}
+
+void weedPACKAGE(PACKAGE* p) {
+    // check that the name of the package is not the blank identifier
+    checkForBlankIdentifier_string(p->name, "the package cannot be the blank identifier", p->lineno);
 }
 
 void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
     if (tld == NULL) return;
-    // no need to weed var or type declarations
-    // var declarations are weeded by the parser
-    // type declarations require no weeding
     switch (tld->kind) {
+        case vDeclK:
+            weedVARDECLARATION(tld->val.varDeclTLD);
+            break;
+        case tDeclK:
+            weedTYPEDECLARATION(tld->val.typeDeclTLD);
+            break;
         case functionDeclK:
             weedFUNCTIONDECLARATION(tld->val.functionDeclTLD);
             break;
@@ -23,22 +32,54 @@ void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
     weedTOPLEVELDECLARATION(tld->next);
 }
 
-/*
 void weedVARDECLARATION(VARDECLARATION* vd) {
     if (vd == NULL) return;
+    weedVARDECLARATIONlist(vd);
+    weedVARDECLARATION(vd->nextDistributed);
+}
+
+void weedVARDECLARATIONlist(VARDECLARATION* vd) {
+    if (vd == NULL) return;
+    if (vd->isEmpty) return;
     switch (vd->kind) {
+        case typeOnlyK:
+            // nothing to do
+            break;
         case expOnlyK:
-            checkEqualLength_id_exp(vd->ids, vd->val.expVD, vd->lineno);
+            // make sure that the expression is not a blank identifier
+            checkForBlankIdentifier_exp(vd->val.expVD);
             break;
         case typeAndExpK:
-            checkEqualLength_id_exp(vd->ids, vd->val.typeAndExpVD.exp, vd->lineno);
+            // make sure the expression is not a blank identifier
+            checkForBlankIdentifier_exp(vd->val.typeAndExpVD.exp);
             break;
         default:
             break;
     }
-    weedVARDECLARATION(vd->next);
+    weedVARDECLARATIONlist(vd->next);
 }
-*/
+
+void weedTYPEDECLARATION(TYPEDECLARATION* td) {
+    if (td == NULL) return;
+    // TODO
+    weedTYPEDECLARATION(td->nextDistributed);
+}
+
+/*
+ * a type declaration
+ * type declarations have an identifier and a type
+ */
+/*
+ typedef struct TYPEDECLARATION {
+     int lineno;
+     struct ID* id;
+     int isEmpty;   // whether this is an empty type declaration, i.e. type ()
+     int isDistributed; // whether this declaration is part of a distributed statement
+     int isLocal;   // whether this declaration is local (as opposed to global)
+     struct TYPE* type;
+     struct TYPEDECLARATION* nextDistributed; // for distributed type declarations; else this is null
+ } TYPEDECLARATION;
+ */
 
 void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
     // we need to weed function statements, but nothing else
@@ -55,14 +96,19 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
     // short var decl statements
     if (s == NULL) return;
     switch (s->kind) {
+        case emptyK:
+            // nothing to be done
+            break;
         case expK:
             checkFunctionCallOrReceiveOp(s->val.expS, s->lineno);
             break;
         case incK:
             checkLvalue(s->val.incS, s->lineno);
+            checkForBlankIdentifier_exp(s->val.incS);
             break;
         case decK:
             checkLvalue(s->val.decS, s->lineno);
+            checkForBlankIdentifier_exp(s->val.decS);
             break;
         case regAssignK:
             checkLvalues(s->val.regAssignS.lvalue, s->lineno); // cheat and use linked list pointed to
@@ -73,6 +119,21 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             break;
         case shortDeclK:
             checkIDs(s->val.shortDeclS.id, s->lineno);  // cheat
+            break;
+        case varDeclK:
+            weedVARDECLARATION(s->val.varDeclS);
+            break;
+        case typeDeclK:
+            weedTYPEDECLARATION(s->val.typeDeclS);
+            break;
+        case printK:
+            // TODO
+            break;
+        case printlnK:
+            //TODO
+            break;
+        case returnK:
+            // TODO
             break;
         case ifK:
             weedSTATEMENT(s->val.ifS.initStatement, inLoop, inSwitchCase);
@@ -109,6 +170,9 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             if (!inLoop && !inSwitchCase) {
                 reportWeedError("continue is not in a loop", s->lineno);
             }
+            break;
+        case blockK:
+            weedSTATEMENT(s->val.blockS, inLoop, inSwitchCase);
             break;
         default:
             break;
@@ -439,5 +503,21 @@ void checkFunctionCallOrReceiveOp(EXP* exp, int lineno) {
         default:
             reportWeedError("invalid expression statement", lineno);
             break;
+    }
+}
+
+void checkForBlankIdentifier_exp(EXP* e) {
+    switch(e->kind) {
+        case idK:
+            checkForBlankIdentifier_string(e->val.idE->name, "cannot use _ as value", e->lineno);
+            break;
+        default:
+            break;
+    }
+}
+
+void checkForBlankIdentifier_string(char* s, char* message, int lineno) {
+    if (strcmp("_", s) == 0) {
+        reportWeedError(message, lineno);
     }
 }

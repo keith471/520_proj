@@ -1,12 +1,14 @@
-package cool;
+package main
 
 func main() {
     {
         {
-            var x int
+            var x int = 5
             var y float64
         }
     }
+
+    _++
 
     var ()
 }

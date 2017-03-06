@@ -293,9 +293,7 @@ typeAndExpVarDecl:
 
 distributedVarDecl:
       '(' varDeclList ')' ';'
-        {
-            printf("found a distributedVarDecl\n");
-            $$ = $2; }
+        { $$ = $2; }
     ;
 
 varDeclList:

@@ -20,7 +20,13 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Pretty printing
 
 ## Weeding
-- test
+- continue with regAssignK and below (line 113 in weed.c), making sure that _ is dealt with properly
+- then finish writing weedTYPEDECLARATION
+
+- blank identifiers:
+- I would take a look at the areas we disallow in the invalid tests, that might be easier than scanning the specs (although I do recommend taking a brief look).
+From an intuition pov, it is disallowed in any place which needs to be evaluated - RHS of assignments, if/for conditions, etc.
+- My takeaway was primary 'only on the LHS of declarations and assignments'.
 
 ## Symbol table
 - write symbol.c

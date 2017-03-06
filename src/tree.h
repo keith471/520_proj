@@ -14,19 +14,6 @@ typedef enum { decIL, octIL, hexIL } IntLiteralKind;
 typedef enum { packageDeclSym, typeDeclSym, varDeclSym, functionDeclSym, parameterSym, fieldSym } SymbolKind;
 
 /*
- * symbol
- */
-/*
-typedef struct SYMBOL {
-    char *name;
-    struct TYPE* type;
-    // this is a linked list in the SymbolTable hashmap, so we have to have this next field.
-    // it doesn't actually have anything to do with the 'current' symbol
-    struct SYMBOL *next;
-} SYMBOL;
-*/
-
-/*
  * The following have symbols:
  *  package declaration
  *  variable declarations
@@ -63,6 +50,7 @@ typedef struct PROGRAM {
  * a package just has a name
  */
 typedef struct PACKAGE {
+    int lineno;
     char* name;
 } PACKAGE;
 

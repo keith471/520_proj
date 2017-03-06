@@ -71,13 +71,13 @@ void parsePROGRAM(char* programFilename) {
     yyin = infile;
 
     // parse through the input until there is no more
-    printf("parsing program...");
+    printf("parsing program...\n");
     do {
         yyparse();
     } while (!feof(yyin));
     // we do some weeding in the parser; if there were any weeding errors, terminate
     terminateIfErrors();
-    printf("SUCCESS\n");
+    printf("    >>> SUCCESS\n");
     fclose(infile);
 }
 
@@ -114,17 +114,17 @@ int main(int argc, char* argv[]) {
         programName = getProgramName(programPath);
 
         // finish any weeding that we didn't do in the parser
-        printf("weeding the program...");
+        printf("weeding the program...\n");
         weedPROGRAM(theprogram);
         terminateIfErrors();
-        printf("SUCCESS\n");
+        printf("    >>> SUCCESS\n");
 
         // pretty print the program
-        printf("pretty printing program...");
+        printf("pretty printing program...\n");
         prettyPath = concat(outputPath, concat(programName, ".pretty.go"));
         prettyPROGRAM(theprogram, prettyPath);
-        printf("SUCCESS\n");
-        printf(">>> pretty printed program to %s\n", prettyPath);
+        printf("    >>> SUCCESS\n");
+        printf("    >>> pretty printed program to %s\n", prettyPath);
 
     #endif
 
