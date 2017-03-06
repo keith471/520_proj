@@ -2,104 +2,125 @@ grading/invalid/scanner//blockcomment1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before * at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//blockcomment2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before / at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//blockcomment3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before * at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//blockcomment4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before * at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//floatlit1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before . at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//floatlit2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//floatlit3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before . at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//integerdecimal1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 9 at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//integerhex1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before iwe at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//integerhex2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before x at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//interstring1.go: PARSER ERROR:
     *** message: "
     *** location: syntax error before " at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//interstring2.go: PARSER ERROR:
     *** message: "
     *** location: syntax error before " at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//interstring3.go: PARSER ERROR:
     *** message: "
     *** location: syntax error before " at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//interstring4.go: PARSER ERROR:
     *** message: "
     *** location: syntax error before " at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//rawstring1.go: PARSER ERROR:
     *** message: `
     *** location: syntax error before ` at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//rawstring2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before derp at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//rune1.go: PARSER ERROR:
     *** message: '
     *** location: syntax error before ' at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//rune2.go: PARSER ERROR:
     *** message: '
     *** location: syntax error before ' at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//rune3.go: PARSER ERROR:
     *** message: '
     *** location: syntax error before ' at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//rune4.go: PARSER ERROR:
     *** message: '
     *** location: syntax error before ' at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/scanner//symbol1.go: PARSER ERROR:
     *** message: $
     *** location: syntax error before $ at line 2
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]

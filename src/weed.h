@@ -5,10 +5,13 @@ void weedPROGRAM(PROGRAM* p);
 void weedPACKAGE(PACKAGE* p);
 void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
 void weedVARDECLARATION(VARDECLARATION* vd);
-void weedVARDECLARATIONlist(VARDECLARATION* vd);
 void weedTYPEDECLARATION(TYPEDECLARATION* td);
+void weedTYPE(TYPE* t);
+void weedFIELD(FIELD* f);
+void weedPARAMETER(PARAMETER* p);
 void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd);
 void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase);
+void weedCAST(CAST* c);
 void weedSWITCHCASE(SWITCHCASE* s, int defaultSeen, int inLoop, int inSwitchCase);
 
 /////////////////////////////////////////////////////////////////////////////////

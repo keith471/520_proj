@@ -34,56 +34,76 @@ void weedTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
 
 void weedVARDECLARATION(VARDECLARATION* vd) {
     if (vd == NULL) return;
-    weedVARDECLARATIONlist(vd);
-    weedVARDECLARATION(vd->nextDistributed);
-}
-
-void weedVARDECLARATIONlist(VARDECLARATION* vd) {
-    if (vd == NULL) return;
     if (vd->isEmpty) return;
     switch (vd->kind) {
         case typeOnlyK:
-            // nothing to do
+            weedTYPE(vd->val.typeVD);
             break;
         case expOnlyK:
-            // make sure that the expression is not a blank identifier
-            checkForBlankIdentifier_exp(vd->val.expVD);
+            // make sure that none of the expressions are blank identifiers
+            checkForBlankIdentifier_exp(vd->val.expVD); // cheat
             break;
         case typeAndExpK:
-            // make sure the expression is not a blank identifier
-            checkForBlankIdentifier_exp(vd->val.typeAndExpVD.exp);
+            // make sure that none of the expressions are blank identifiers
+            weedTYPE(vd->val.typeAndExpVD.type);
+            checkForBlankIdentifier_exp(vd->val.typeAndExpVD.exp); // cheat
             break;
         default:
             break;
     }
-    weedVARDECLARATIONlist(vd->next);
+    weedVARDECLARATION(vd->nextDistributed);
 }
 
 void weedTYPEDECLARATION(TYPEDECLARATION* td) {
     if (td == NULL) return;
-    // TODO
+    // the name of a type declaration can be _, i.e. type _ int is valid
+    weedTYPE(td->type);
     weedTYPEDECLARATION(td->nextDistributed);
 }
 
 /*
- * a type declaration
- * type declarations have an identifier and a type
+ * make sure that the type is never _
  */
-/*
- typedef struct TYPEDECLARATION {
-     int lineno;
-     struct ID* id;
-     int isEmpty;   // whether this is an empty type declaration, i.e. type ()
-     int isDistributed; // whether this declaration is part of a distributed statement
-     int isLocal;   // whether this declaration is local (as opposed to global)
-     struct TYPE* type;
-     struct TYPEDECLARATION* nextDistributed; // for distributed type declarations; else this is null
- } TYPEDECLARATION;
- */
+void weedTYPE(TYPE* t) {
+    if (t == NULL) return;
+    switch (t->kind) {
+        case idK:
+            checkForBlankIdentifier_string(t->val.idT->name, "type cannot be _", t->lineno);
+            break;
+        case structK:
+            weedFIELD(t->val.structT);
+            break;
+        case sliceK:
+            weedTYPE(t->val.sliceT);
+            break;
+        case arrayK:
+            // make sure that the size does not involve the blank identifier
+            checkForBlankIdentifier_exp(t->val.arrayT.size);
+            weedTYPE(t->val.arrayT.elementType);
+            break;
+        default:
+            break;
+    }
+}
+
+void weedFIELD(FIELD* f) {
+    if (f == NULL) return;
+    // the id can be _, but we need to weed the type
+    weedTYPE(f->type);
+    weedFIELD(f->nextFieldSet);
+}
 
 void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
-    // we need to weed function statements, but nothing else
+    checkForBlankIdentifier_string(fd->id->name, "function name cannot be _", fd->lineno);
+    weedPARAMETER(fd->parameters);
+    weedTYPE(fd->returnType);
     weedSTATEMENT(fd->statements, 0, 0);
+}
+
+void weedPARAMETER(PARAMETER* p) {
+    if (p == NULL) return;
+    weedTYPE(p->type);
+    weedPARAMETER(p->nextParamSet);
 }
 
 void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
@@ -100,7 +120,10 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             // nothing to be done
             break;
         case expK:
+            // check that the expression is a function call or recieve operation
             checkFunctionCallOrReceiveOp(s->val.expS, s->lineno);
+            // check that the expression does not contain a blank identifier
+            checkForBlankIdentifier_exp(s->val.expS);
             break;
         case incK:
             checkLvalue(s->val.incS, s->lineno);
@@ -113,12 +136,19 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
         case regAssignK:
             checkLvalues(s->val.regAssignS.lvalue, s->lineno); // cheat and use linked list pointed to
                                                                 // by lvalue
+            // blank identifier can be on the left of a regular assignment statement, but not the right
+            checkForBlankIdentifier_exp(s->val.regAssignS.exp); // cheat
             break;
         case binOpAssignK:
             checkLvalue(s->val.binOpAssignS.lvalue, s->lineno);
+            // blank identifier cannot be on either side of the assignment
+            checkForBlankIdentifier_exp(s->val.binOpAssignS.lvalue); // cheat
+            checkForBlankIdentifier_exp(s->val.binOpAssignS.exp); // cheat
             break;
         case shortDeclK:
             checkIDs(s->val.shortDeclS.id, s->lineno);  // cheat
+            // blank identifier cannot be used on right side of assignment
+            checkForBlankIdentifier_exp(s->val.shortDeclS.exp); // cheat
             break;
         case varDeclK:
             weedVARDECLARATION(s->val.varDeclS);
@@ -127,28 +157,35 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             weedTYPEDECLARATION(s->val.typeDeclS);
             break;
         case printK:
-            // TODO
+            // can't print a blank identifier
+            checkForBlankIdentifier_exp(s->val.printS);
             break;
         case printlnK:
-            //TODO
+            // can't print a blank identifier
+            checkForBlankIdentifier_exp(s->val.printlnS);
             break;
         case returnK:
-            // TODO
+            // cannot return a blank identifier
+            checkForBlankIdentifier_exp(s->val.returnS);
             break;
         case ifK:
             weedSTATEMENT(s->val.ifS.initStatement, inLoop, inSwitchCase);
+            checkForBlankIdentifier_exp(s->val.ifS.condition);
             weedSTATEMENT(s->val.ifS.body, inLoop, inSwitchCase);
             break;
         case ifElseK:
             weedSTATEMENT(s->val.ifElseS.initStatement, inLoop, inSwitchCase);
+            checkForBlankIdentifier_exp(s->val.ifElseS.condition);
             weedSTATEMENT(s->val.ifElseS.thenPart, inLoop, inSwitchCase);
             weedSTATEMENT(s->val.ifElseS.elsePart, inLoop, inSwitchCase);
             break;
         case switchK:
             weedSTATEMENT(s->val.switchS.initStatement, inLoop, inSwitchCase);
+            checkForBlankIdentifier_exp(s->val.switchS.condition);
             weedSWITCHCASE(s->val.switchS.cases, 0, inLoop, 1);
             break;
         case whileK:
+            checkForBlankIdentifier_exp(s->val.whileS.condition);
             weedSTATEMENT(s->val.whileS.body, 1, inSwitchCase);
             break;
         case infiniteLoopK:
@@ -156,6 +193,7 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             break;
         case forK:
             weedSTATEMENT(s->val.forS.initStatement, inLoop, inSwitchCase);
+            checkForBlankIdentifier_exp(s->val.forS.condition);
             weedSTATEMENT(s->val.forS.postStatement, inLoop, inSwitchCase);
             weedSTATEMENT(s->val.forS.body, 1, inSwitchCase);
             break;
@@ -179,6 +217,11 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
     }
     // weed the next statement
     weedSTATEMENT(s->next, inLoop, inSwitchCase);
+}
+
+void weedCAST(CAST* c) {
+    weedTYPE(c->type);
+    checkForBlankIdentifier_exp(c->exp);
 }
 
 void weedSWITCHCASE(SWITCHCASE* s, int defaultSeen, int inLoop, int inSwitchCase) {
@@ -507,13 +550,138 @@ void checkFunctionCallOrReceiveOp(EXP* exp, int lineno) {
 }
 
 void checkForBlankIdentifier_exp(EXP* e) {
+    if (e == NULL) return;
     switch(e->kind) {
-        case idK:
+        case identifierK:
             checkForBlankIdentifier_string(e->val.idE->name, "cannot use _ as value", e->lineno);
+            break;
+        case intLiteralK:
+            break;
+        case floatLiteralK:
+            break;
+        case runeLiteralK:
+            break;
+        case stringLiteralK:
+            break;
+        case plusK:
+            checkForBlankIdentifier_exp(e->val.plusE.left);
+            checkForBlankIdentifier_exp(e->val.plusE.right);
+            break;
+        case minusK:
+            checkForBlankIdentifier_exp(e->val.minusE.left);
+            checkForBlankIdentifier_exp(e->val.minusE.right);
+            break;
+        case timesK:
+            checkForBlankIdentifier_exp(e->val.timesE.left);
+            checkForBlankIdentifier_exp(e->val.timesE.right);
+            break;
+        case divK:
+            checkForBlankIdentifier_exp(e->val.divE.left);
+            checkForBlankIdentifier_exp(e->val.divE.right);
+            break;
+        case modK:
+            checkForBlankIdentifier_exp(e->val.modE.left);
+            checkForBlankIdentifier_exp(e->val.modE.right);
+            break;
+        case bitwiseOrK:
+            checkForBlankIdentifier_exp(e->val.bitwiseOrE.left);
+            checkForBlankIdentifier_exp(e->val.bitwiseOrE.right);
+            break;
+        case bitwiseAndK:
+            checkForBlankIdentifier_exp(e->val.bitwiseAndE.left);
+            checkForBlankIdentifier_exp(e->val.bitwiseAndE.right);
+            break;
+        case xorK:
+            checkForBlankIdentifier_exp(e->val.xorE.left);
+            checkForBlankIdentifier_exp(e->val.xorE.right);
+            break;
+        case ltK:
+            checkForBlankIdentifier_exp(e->val.ltE.left);
+            checkForBlankIdentifier_exp(e->val.ltE.right);
+            break;
+        case gtK:
+            checkForBlankIdentifier_exp(e->val.gtE.left);
+            checkForBlankIdentifier_exp(e->val.gtE.right);
+            break;
+        case eqK:
+            checkForBlankIdentifier_exp(e->val.eqE.left);
+            checkForBlankIdentifier_exp(e->val.eqE.right);
+            break;
+        case neqK:
+            checkForBlankIdentifier_exp(e->val.neqE.left);
+            checkForBlankIdentifier_exp(e->val.neqE.right);
+            break;
+        case leqK:
+            checkForBlankIdentifier_exp(e->val.leqE.left);
+            checkForBlankIdentifier_exp(e->val.leqE.right);
+            break;
+        case geqK:
+            checkForBlankIdentifier_exp(e->val.geqE.left);
+            checkForBlankIdentifier_exp(e->val.geqE.right);
+            break;
+        case orK:
+            checkForBlankIdentifier_exp(e->val.orE.left);
+            checkForBlankIdentifier_exp(e->val.orE.right);
+            break;
+        case andK:
+            checkForBlankIdentifier_exp(e->val.andE.left);
+            checkForBlankIdentifier_exp(e->val.andE.right);
+            break;
+        case leftShiftK:
+            checkForBlankIdentifier_exp(e->val.leftShiftE.left);
+            checkForBlankIdentifier_exp(e->val.leftShiftE.right);
+            break;
+        case rightShiftK:
+            checkForBlankIdentifier_exp(e->val.rightShiftE.left);
+            checkForBlankIdentifier_exp(e->val.rightShiftE.right);
+            break;
+        case bitClearK:
+            checkForBlankIdentifier_exp(e->val.bitClearE.left);
+            checkForBlankIdentifier_exp(e->val.bitClearE.right);
+            break;
+        case appendK:
+            // the slice to append to cannot be the blank identifier
+            checkForBlankIdentifier_exp(e->val.appendE.slice);
+            // the expression to append cannot be the blank identifier
+            checkForBlankIdentifier_exp(e->val.appendE.expToAppend);
+            break;
+        case castK:
+            weedCAST(e->val.castE);
+            break;
+        case selectorK:
+            // can't refer to a blank field
+            checkForBlankIdentifier_exp(e->val.selectorE.rest);
+            checkForBlankIdentifier_string(e->val.selectorE.lastSelector->name, "cannot refer to a blank field", e->lineno);
+            break;
+        case indexK:
+            // TODO some more checks of rest? Seems like we better check that the first thing in rest
+            // is an identifier
+            checkForBlankIdentifier_exp(e->val.indexE.rest);
+            checkForBlankIdentifier_exp(e->val.indexE.lastIndex);
+            break;
+        case argumentsK:
+            checkForBlankIdentifier_exp(e->val.argumentsE.rest);
+            checkForBlankIdentifier_exp(e->val.argumentsE.args);
+            break;
+        case uPlusK:
+            checkForBlankIdentifier_exp(e->val.uPlusE);
+            break;
+        case uMinusK:
+            checkForBlankIdentifier_exp(e->val.uMinusE);
+            break;
+        case uNotK:
+            checkForBlankIdentifier_exp(e->val.uNotE);
+            break;
+        case uXorK:
+            checkForBlankIdentifier_exp(e->val.uXorE);
+            break;
+        case uReceiveK:
+            checkForBlankIdentifier_exp(e->val.uReceiveE);
             break;
         default:
             break;
     }
+    checkForBlankIdentifier_exp(e->next);
 }
 
 void checkForBlankIdentifier_string(char* s, char* message, int lineno) {

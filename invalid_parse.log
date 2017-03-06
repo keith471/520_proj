@@ -2,301 +2,365 @@ grading/invalid/parser//2-package_declaration/empty1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 2
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/empty2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 2
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before package at line 2
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before main at line 1
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 1
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before func at line 1
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before var at line 1
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before chan at line 1
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//2-package_declaration/package8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 8 at line 1
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before x at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before a at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before return at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ; at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before print at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before for at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before switch at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before if at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//3-top-level_declaration/tld9.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before f at line 7
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec10.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec11.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec12.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
 ) 
  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec13.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before int at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec14.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before var at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec15.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec16.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec17.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec18.go: WEED ERROR:
     *** message: more identifiers than expressions
     *** location: line 3
 *** compilation terminated due to 1 errors
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec19.go: WEED ERROR:
     *** message: more expressions than identifiers
     *** location: line 3
 *** compilation terminated due to 1 errors
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
  
  at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec20.go: WEED ERROR:
     *** message: more identifiers than expressions
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...found a distributedVarDecl
+parsing program...
 [pass]
 grading/invalid/parser//4-variable_declaration/vardec21.go: WEED ERROR:
     *** message: more expressions than identifiers
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...found a distributedVarDecl
+parsing program...
 [pass]
 grading/invalid/parser//4-variable_declaration/vardec22.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec23.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
  at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec24.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 3
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//4-variable_declaration/vardec25.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/vardec25.pretty.go
+parsing program...
+[pass]
+grading/invalid/parser//4-variable_declaration/vardec25.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/vardec25.pretty.go
 [fail]
-grading/invalid/parser//4-variable_declaration/vardec26.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/vardec26.pretty.go
+grading/invalid/parser//4-variable_declaration/vardec26.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/vardec26.pretty.go
 [fail]
 grading/invalid/parser//4-variable_declaration/vardec27.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before . at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec28.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
 } 
  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec29.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before int at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before struct at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before x at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 1 at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before = at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec9.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before package at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec10.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before int at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec11.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec12.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before float64 at line 3
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//5-type_declaration/typedec13.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/typedec13.pretty.go
+parsing program...
+[pass]
+grading/invalid/parser//5-type_declaration/typedec13.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/typedec13.pretty.go
 [fail]
-grading/invalid/parser//5-type_declaration/typedec14.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/typedec14.pretty.go
+grading/invalid/parser//5-type_declaration/typedec14.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/typedec14.pretty.go
 [fail]
 grading/invalid/parser//5-type_declaration/typedec15.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before struct at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec16.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec17.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before point at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec18.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before = at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec19.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
@@ -305,13 +369,15 @@ grading/invalid/parser//5-type_declaration/typedec19.go: PARSER ERROR:
  
  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
  at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec20.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
@@ -320,828 +386,1072 @@ grading/invalid/parser//5-type_declaration/typedec20.go: PARSER ERROR:
  
  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 3 at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 3 at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before = at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before type at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//5-type_declaration/typedec9.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec10.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before func at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec11.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 3 at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec12.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ... at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec13.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ( at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
  at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ( at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//6-function_declaration/funcdec9.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before f at line 3
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-2-slices/slice1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-3-arrays/arrays1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ] at line 6
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//7-3-arrays/arrays10.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/arrays10.pretty.go
+parsing program...
+[pass]
+grading/invalid/parser//7-3-arrays/arrays10.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/arrays10.pretty.go
 [fail]
-grading/invalid/parser//7-3-arrays/arrays11.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/arrays11.pretty.go
+grading/invalid/parser//7-3-arrays/arrays11.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/arrays11.pretty.go
 [fail]
 grading/invalid/parser//7-3-arrays/arrays12.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-3-arrays/arrays2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-3-arrays/arrays3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ] at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-3-arrays/arrays4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-3-arrays/arrays5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 6
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//7-3-arrays/arrays6.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/arrays6.pretty.go
+parsing program...
+[pass]
+grading/invalid/parser//7-3-arrays/arrays6.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/arrays6.pretty.go
 [fail]
 grading/invalid/parser//7-3-arrays/arrays7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-3-arrays/arrays8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ] at line 6
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//7-3-arrays/arrays9.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/arrays9.pretty.go
+parsing program...
+[pass]
+grading/invalid/parser//7-3-arrays/arrays9.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/arrays9.pretty.go
 [fail]
 grading/invalid/parser//7-4-structs/structs1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 7
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-4-structs/structs2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before } 
  at line 11
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//7-4-structs/structs3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before . at line 10
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-10-switch_statements/switchstmt1.go: WEED ERROR:
     *** message: duplicate default case
     *** location: line 9
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-10-switch_statements/switchstmt2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before default at line 7
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-10-switch_statements/switchstmt3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before : at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-10-switch_statements/switchstmt4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 7
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//8-10-switch_statements/switchstmt5.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/switchstmt5.pretty.go
+parsing program...
+[pass]
+grading/invalid/parser//8-10-switch_statements/switchstmt5.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/switchstmt5.pretty.go
 [fail]
 grading/invalid/parser//8-10-switch_statements/switchstmt6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-10-switch_statements/switchstmt7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt1_1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt2_1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt2_2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt2_3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt2_4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before > at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt2_5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_10.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ; at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before var at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before print at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before print at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_8.go: WEED ERROR:
     *** message: invalid expression statement
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-11-for_statements/forstmt3_9.go: WEED ERROR:
     *** message: invalid expression statement
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-12-break_continue_statements/break1.go: WEED ERROR:
     *** message: break is not in a loop or switch-case statement
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-12-break_continue_statements/break2.go: WEED ERROR:
     *** message: break is not in a loop or switch-case statement
     *** location: line 5
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-12-break_continue_statements/continue1.go: WEED ERROR:
     *** message: continue is not in a loop
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
-grading/invalid/parser//8-12-break_continue_statements/continue2.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/continue2.pretty.go
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//8-12-break_continue_statements/continue2.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/continue2.pretty.go
 [fail]
 grading/invalid/parser//8-12-break_continue_statements/continue3.go: WEED ERROR:
     *** message: continue is not in a loop
     *** location: line 5
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-2-expression_statements/exprstmt1.go: WEED ERROR:
     *** message: invalid expression statement
     *** location: line 5
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-2-expression_statements/exprstmt2.go: WEED ERROR:
     *** message: invalid expression statement
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt1.go: WEED ERROR:
     *** message: more lvalues than expressions
     *** location: line 6
 *** compilation terminated due to 1 errors
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt2.go: WEED ERROR:
     *** message: more expressions than lvalues
     *** location: line 5
 *** compilation terminated due to 1 errors
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before += at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before += at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before = at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before } 
  at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt8.go: WEED ERROR:
     *** message: expected lvalue but found function call expression
     *** location: line 6
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-3-assignment_statements/assignstmt9.go: WEED ERROR:
     *** message: expected lvalue but found string literal
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
-grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt1.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/shortdecstmt1.pretty.go
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt1.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/shortdecstmt1.pretty.go
 [fail]
 grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt2.go: WEED ERROR:
     *** message: expected identifier but found array index
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt3.go: WEED ERROR:
     *** message: expected identifier but found field access
     *** location: line 8
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt4.go: WEED ERROR:
     *** message: expected identifier but found addition expression
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt5.go: WEED ERROR:
     *** message: more ids than expressions
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt6.go: WEED ERROR:
     *** message: more expressions than ids
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-6-inc_dec_statements/incdecstmt1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-6-inc_dec_statements/incdecstmt2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-6-inc_dec_statements/incdecstmt3.go: WEED ERROR:
     *** message: expected lvalue but found int literal
     *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//8-6-inc_dec_statements/incdecstmt4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-7-print_statements/printstmt1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before "main" at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-7-print_statements/printstmt2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-7-print_statements/printstmt3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before print at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-7-print_statements/printstmt4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
 } 
  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-7-print_statements/printstmt5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-8-return_statements/returnstmt1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before else at line 7
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt10.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before else at line 8
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt11.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt12.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt13.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt14.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt15.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before x at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt16.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before x at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt17.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before := at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt18.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before print at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before  at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before } at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before print at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before else at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before else at line 8
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before else at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//8-9-if_statements/ifstmt9.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before if at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-1-parenthesized_expressions/parenexpr1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-1-parenthesized_expressions/parenexpr2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 
 } 
  at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-1-parenthesized_expressions/parenexpr3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-2-identifiers/identifiers1.go: PARSER ERROR:
     *** message: Ä
     *** location: syntax error before Ä at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-2-identifiers/identifiers2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before 1 at line 4
 *** compilation terminated
-parsing program...[pass]
-grading/invalid/parser//9-2-identifiers/identifiersblank1.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank1.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank10.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank10.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank11.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank11.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank12.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank12.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank13.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank13.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank14.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank14.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank15.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank15.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank16.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank16.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank17.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank17.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank18.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank18.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank19.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank19.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank2.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank2.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank20.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank20.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank21.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank21.pretty.go
-[fail]
+parsing program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank1.go: WEED ERROR:
+    *** message: the package cannot be the blank identifier
+    *** location: line 1
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank10.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 10
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank11.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 8
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank12.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 6
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank13.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 6
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank14.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 5
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank15.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 5
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank16.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank17.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank18.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank19.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank2.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank20.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 6
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank21.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//9-2-identifiers/identifiersblank22.go: WEED ERROR:
     *** message: invalid expression statement
     *** location: line 4
+WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 2 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank23.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
-grading/invalid/parser//9-2-identifiers/identifiersblank23.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank23.pretty.go
-[fail]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//9-2-identifiers/identifiersblank24.go: WEED ERROR:
     *** message: invalid expression statement
     *** location: line 4
+WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 2 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank3.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
-grading/invalid/parser//9-2-identifiers/identifiersblank3.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank3.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank4.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank4.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank5.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank5.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank6.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank6.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank7.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank7.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank8.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank8.pretty.go
-[fail]
-grading/invalid/parser//9-2-identifiers/identifiersblank9.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/identifiersblank9.pretty.go
-[fail]
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank4.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 5
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank5.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 6
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank6.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 5
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank7.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank8.go: WEED ERROR:
+    *** message: cannot use _ as value
+    *** location: line 5
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-2-identifiers/identifiersblank9.go: WEED ERROR:
+    *** message: cannot refer to a blank field
+    *** location: line 10
+*** compilation terminated due to 1 errors
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ; at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before } 
  at line 7
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before % at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before } 
  at line 7
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr5.go: WEED ERROR:
     *** message: expected lvalue but found unary minus expression
     *** location: line 5
 *** compilation terminated due to 1 errors
-parsing program...SUCCESS
-weeding the program...[pass]
-grading/invalid/parser//9-4-unary_expressions/unaryexpr6.go: parsing program...SUCCESS
-weeding the program...SUCCESS
-pretty printing program...SUCCESS
->>> pretty printed program to ./src/output/unaryexpr6.pretty.go
+parsing program...
+    >>> SUCCESS
+weeding the program...
+[pass]
+grading/invalid/parser//9-4-unary_expressions/unaryexpr6.go: parsing program...
+    >>> SUCCESS
+weeding the program...
+    >>> SUCCESS
+pretty printing program...
+    >>> SUCCESS
+    >>> pretty printed program to ./src/output/unaryexpr6.pretty.go
 [fail]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before & at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before * at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before > at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before }
  
  at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr4.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ! at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr5.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before > at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before * at line 4
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before != at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr8.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before & at line 6
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-5-binary_expressions/binexpr9.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before >>= at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-6-function_calls/funccall1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before y at line 10
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-6-function_calls/funccall2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 8
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-7-append/append1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-7-append/append2.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ) at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
 grading/invalid/parser//9-7-append/append3.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before , at line 5
 *** compilation terminated
-parsing program...[pass]
+parsing program...
+[pass]
