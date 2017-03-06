@@ -219,22 +219,22 @@ grading/invalid/parser//4-variable_declaration/vardec24.go: PARSER ERROR:
 *** compilation terminated
 parsing program...
 [pass]
-grading/invalid/parser//4-variable_declaration/vardec25.go: parsing program...
+grading/invalid/parser//4-variable_declaration/vardec25.go: WEED ERROR:
+    *** message: invalid array bound 1.000000
+    *** location: line 3
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/vardec25.pretty.go
-[fail]
-grading/invalid/parser//4-variable_declaration/vardec26.go: parsing program...
+[pass]
+grading/invalid/parser//4-variable_declaration/vardec26.go: WEED ERROR:
+    *** message: non-constant array bound c
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/vardec26.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//4-variable_declaration/vardec27.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before . at line 3
@@ -321,22 +321,22 @@ grading/invalid/parser//5-type_declaration/typedec12.go: PARSER ERROR:
 *** compilation terminated
 parsing program...
 [pass]
-grading/invalid/parser//5-type_declaration/typedec13.go: parsing program...
+grading/invalid/parser//5-type_declaration/typedec13.go: WEED ERROR:
+    *** message: non-constant array bound c
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/typedec13.pretty.go
-[fail]
-grading/invalid/parser//5-type_declaration/typedec14.go: parsing program...
+[pass]
+grading/invalid/parser//5-type_declaration/typedec14.go: WEED ERROR:
+    *** message: invalid array bound 1.000000
+    *** location: line 3
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/typedec14.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//5-type_declaration/typedec15.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before struct at line 3
@@ -521,22 +521,22 @@ grading/invalid/parser//7-3-arrays/arrays1.go: PARSER ERROR:
 *** compilation terminated
 parsing program...
 [pass]
-grading/invalid/parser//7-3-arrays/arrays10.go: parsing program...
+grading/invalid/parser//7-3-arrays/arrays10.go: WEED ERROR:
+    *** message: invalid array bound "main"
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/arrays10.pretty.go
-[fail]
-grading/invalid/parser//7-3-arrays/arrays11.go: parsing program...
+[pass]
+grading/invalid/parser//7-3-arrays/arrays11.go: WEED ERROR:
+    *** message: invalid array bound '
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/arrays11.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//7-3-arrays/arrays12.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 4
@@ -567,14 +567,14 @@ grading/invalid/parser//7-3-arrays/arrays5.go: PARSER ERROR:
 *** compilation terminated
 parsing program...
 [pass]
-grading/invalid/parser//7-3-arrays/arrays6.go: parsing program...
+grading/invalid/parser//7-3-arrays/arrays6.go: WEED ERROR:
+    *** message: non-constant array bound x
+    *** location: line 5
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/arrays6.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//7-3-arrays/arrays7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before [ at line 6
@@ -587,14 +587,14 @@ grading/invalid/parser//7-3-arrays/arrays8.go: PARSER ERROR:
 *** compilation terminated
 parsing program...
 [pass]
-grading/invalid/parser//7-3-arrays/arrays9.go: parsing program...
+grading/invalid/parser//7-3-arrays/arrays9.go: WEED ERROR:
+    *** message: invalid array bound 1.000000
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/arrays9.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//7-4-structs/structs1.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before { at line 7

@@ -79,6 +79,8 @@ void weedTYPE(TYPE* t) {
         case arrayK:
             // make sure that the size does not involve the blank identifier
             checkForBlankIdentifier_exp(t->val.arrayT.size);
+            // make sure that the size expression consists only of int literals
+            checkArraySize(t->val.arrayT.size);
             weedTYPE(t->val.arrayT.elementType);
             break;
         default:
@@ -688,4 +690,140 @@ void checkForBlankIdentifier_string(char* s, char* message, int lineno) {
     if (strcmp("_", s) == 0) {
         reportWeedError(message, lineno);
     }
+}
+
+/*
+ * check that the expression only involves integer literals (or runes)
+ */
+void checkArraySize(EXP* e) {
+    switch (e->kind) {
+        case identifierK:
+            reportStrError("WEED", "non-constant array bound %s", e->val.idE->name, e->lineno);
+            break;
+        case intLiteralK:
+            // all good!
+            break;
+        case floatLiteralK:
+            reportFloatError("WEED", "invalid array bound %f", e->val.floatLiteralE, e->lineno);
+            break;
+        case runeLiteralK:
+            reportCharError("WEED", "invalid array bound %c", e->val.runeLiteralE, e->lineno);
+            break;
+        case stringLiteralK:
+            reportStrError("WEED", "invalid array bound %s", e->val.stringLiteralE, e->lineno);
+            break;
+        case plusK:
+            checkArraySize(e->val.plusE.left);
+            checkArraySize(e->val.plusE.right);
+            break;
+        case minusK:
+            checkArraySize(e->val.minusE.left);
+            checkArraySize(e->val.minusE.right);
+            break;
+        case timesK:
+            checkArraySize(e->val.timesE.left);
+            checkArraySize(e->val.timesE.right);
+            break;
+        case divK:
+            checkArraySize(e->val.divE.left);
+            checkArraySize(e->val.divE.right);
+            break;
+        case modK:
+            checkArraySize(e->val.modE.left);
+            checkArraySize(e->val.modE.right);
+            break;
+        case bitwiseOrK:
+            checkArraySize(e->val.bitwiseOrE.left);
+            checkArraySize(e->val.bitwiseOrE.right);
+            break;
+        case bitwiseAndK:
+            checkArraySize(e->val.bitwiseAndE.left);
+            checkArraySize(e->val.bitwiseAndE.right);
+            break;
+        case xorK:
+            checkArraySize(e->val.xorE.left);
+            checkArraySize(e->val.xorE.right);
+            break;
+        case ltK:
+            checkArraySize(e->val.ltE.left);
+            checkArraySize(e->val.ltE.right);
+            break;
+        case gtK:
+            checkArraySize(e->val.gtE.left);
+            checkArraySize(e->val.gtE.right);
+            break;
+        case eqK:
+            checkArraySize(e->val.eqE.left);
+            checkArraySize(e->val.eqE.right);
+            break;
+        case neqK:
+            checkArraySize(e->val.neqE.left);
+            checkArraySize(e->val.neqE.right);
+            break;
+        case leqK:
+            checkArraySize(e->val.leqE.left);
+            checkArraySize(e->val.leqE.right);
+            break;
+        case geqK:
+            checkArraySize(e->val.geqE.left);
+            checkArraySize(e->val.geqE.right);
+            break;
+        case orK:
+            checkArraySize(e->val.orE.left);
+            checkArraySize(e->val.orE.right);
+            break;
+        case andK:
+            checkArraySize(e->val.andE.left);
+            checkArraySize(e->val.andE.right);
+            break;
+        case leftShiftK:
+            checkArraySize(e->val.leftShiftE.left);
+            checkArraySize(e->val.leftShiftE.right);
+            break;
+        case rightShiftK:
+            checkArraySize(e->val.rightShiftE.left);
+            checkArraySize(e->val.rightShiftE.right);
+            break;
+        case bitClearK:
+            checkArraySize(e->val.bitClearE.left);
+            checkArraySize(e->val.bitClearE.right);
+            break;
+        case appendK:
+            // totally invalid to stick an append as an array size
+            reportWeedError("invalid array bound: append", e->lineno);
+            break;
+        case castK:
+            // all we can check for at this point is that the expression being casted should be an int literal
+            // in type checking phase, we'll need to check that the type being casted to is an int
+            checkArraySize(e->val.castE->exp);
+            break;
+        case selectorK:
+            // totally invalid (non-constant array bound)
+            reportWeedError("invalid (non-constant) array bound: field access", e->lineno);
+            break;
+        case indexK:
+            reportWeedError("invalid (non-constant) array bound: array access", e->lineno);
+            break;
+        case argumentsK:
+            reportWeedError("invalid (non-constant) array bound: function call", e->lineno);
+            break;
+        case uPlusK:
+            checkArraySize(e->val.uPlusE);
+            break;
+        case uMinusK:
+            checkArraySize(e->val.uMinusE);
+            break;
+        case uNotK:
+            reportWeedError("invalid array bound: unary not", e->lineno);
+            break;
+        case uXorK:
+            checkArraySize(e->val.uXorE);
+            break;
+        case uReceiveK:
+            reportWeedError("invalid array bound: unary receive", e->lineno);
+            break;
+        default:
+            break;
+    }
+
 }

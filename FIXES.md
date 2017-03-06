@@ -5,7 +5,4 @@
 - empty variable and type declarations
 - block statements
 - switch statements with no expression
-
-TODO
 - fix blank identifiers in weeder --> not allowed
-- mark interpreted vs raw string literals in scanner and beyond

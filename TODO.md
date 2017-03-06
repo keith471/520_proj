@@ -9,6 +9,8 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Now
 
 ## Later
+- check that the array size evaluates to a positive integer
+    i.e. `var y [-(-43)]int` and `var y [^-43]int` are acceptable
 
 ## Scanner
 
@@ -20,7 +22,9 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Pretty printing
 
 ## Weeding
-- test a string of expressions followed by an identifier (2+3).6.apple
+- make sure that array type declarations use int literals or expressions of all int literals (no identifiers) for sizes
+- test a string of expressions followed by an identifier `(2+3).6.apple`
+- mark interpreted vs raw string literals in scanner and beyond
 
 ## Symbol table
 - write symbol.c
@@ -38,6 +42,13 @@ is the element to add (though this probably should happen in the type phase)
 - casts will (likely) appear as function calls in your AST. It will be important in a later
 phase of the compiler to convert them to the proper cast nodes.
 - also pertaining to casts, the weeder only accepts function calls and receive operations as expression statements. However, the parser parser casts as function calls so the weeder will not catch a cast used as a statement. Thus, as soon as we know a function call is actually a cast, we need to check that it is not being used as an expression statement. If it is, we throw an error.
+- in type checking phase, we'll need to check that the type an array size is casted to is an int
+    - e.g. the following is acceptable
+        `type cool int
+        var x [cool(5)]int`
+    - but this isn't
+        `var x [float64(5)]`
+
 
 ## Sources
 http://stackoverflow.com/questions/10826744/semicolon-insertion-ala-google-go-with-flex

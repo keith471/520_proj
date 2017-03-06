@@ -27,3 +27,4 @@ void checkIDs(EXP* exps, int lineno);
 void checkFunctionCallOrReceiveOp(EXP* exp, int lineno);
 void checkForBlankIdentifier_exp(EXP* e);
 void checkForBlankIdentifier_string(char* s, char* message, int lineno);
+void checkArraySize(EXP* e);
