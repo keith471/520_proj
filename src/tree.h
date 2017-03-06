@@ -41,24 +41,15 @@ typedef struct SYMBOL {
     union {
         struct PACAKGE *packageDeclS;
         struct TYPEDECLARATION *typeDeclS;
-        struct SINGLEVAR *varDeclS;
+        struct VARDECLARATION *varDeclS;
         struct FUNCTIONDECLARATION *functionDeclS;
-        struct SINGLEPARAMETER *parameterS;
+        struct PARAMETER *parameterS;
         struct FIELD *fieldS;
     } val;
     // this is a linked list in the SymbolTable hashmap, so we have to have this next field.
     // it doesn't actually have anything to do with the 'current' symbol
     struct SYMBOL *next;
 } SYMBOL;
-
-/*
- * since a single VARDECLARATION can represent multiple variables, we create a
- * wrapper that pairs a VARDECLARATION with just one of its variables
- */
-typedef struct SINGLEVAR {
-    struct VARDECLARATION varDecl;
-    int varNum; // the number of the variable represented by VARDECLARATION, zero-indexed
-} SINGLEVAR;
 
 /*
  * a program consists of a package declaration and top-level declarations
@@ -94,27 +85,11 @@ typedef struct TOPLEVELDECLARATION {
  *  - expression specified but no type
  *  - both type and expression given
  */
-/*
-typedef struct VARDECLARATION {
-    int lineno;
-    enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
-    struct ID* ids; // weed to ensure matching length with exps, if expOnlyK or typeAndExpK
-    int isDistributed;  // whether this declaration is part of a distrubuted statement
-    int isLocal;    // whether this declaration is local (as opposed to global)
-    union {
-        struct TYPE* typeVD;
-        struct EXP* expVD;
-        struct {struct TYPE* type;
-                struct EXP* exp;} typeAndExpVD;
-    } val;
-    struct VARDECLARATION* next;    // for distributed variable declarations; else this is null
-} VARDECLARATION;
-*/
-
 typedef struct VARDECLARATION {
     int lineno;
     enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
     struct ID* id;
+    int isEmpty; // whether this is an empty variable declaration
     int isDistributed;  // whether this declaration is part of a distrubuted statement
     int isLocal;    // whether this declaration is local (as opposed to global)
     union {
@@ -134,6 +109,7 @@ typedef struct VARDECLARATION {
  typedef struct TYPEDECLARATION {
      int lineno;
      struct ID* id;
+     int isEmpty;   // whether this is an empty type declaration, i.e. type ()
      int isDistributed; // whether this declaration is part of a distributed statement
      int isLocal;   // whether this declaration is local (as opposed to global)
      struct TYPE* type;
@@ -163,15 +139,6 @@ typedef struct PARAMETER {
     struct PARAMETER* nextId;   // for the next parameter in the list, e.g. a, b, c int
     struct PARAMETER* nextParamSet; // for the next set of parameters, e.g. a, b, c int, d, e float64
 } PARAMETER;
-
-/*
- * since a single PARAMETER can represent multiple parameters of the same type,
- * we create a wrapper that pairs a PARAMETER with just one of the actual ids
- */
-typedef struct SINGLEPARAMETER {
-    struct PARAMETER parameter;
-    int parameterNum; // the number of the id represented by PARAMETER, zero-indexed
-} SINGLEPARAMETER;
 
 /*
  * an identifier
@@ -225,7 +192,7 @@ typedef struct STATEMENT {
     int lineno;
     enum { emptyK, expK, incK, decK, regAssignK, binOpAssignK, shortDeclK, varDeclK,
            typeDeclK, printK, printlnK, returnK, ifK, ifElseK, switchK, whileK,
-           infiniteLoopK, forK, breakK, continueK } kind;
+           infiniteLoopK, forK, breakK, continueK, blockK } kind;
     union{
         // break, continue, and empty statements have no associated val
         struct EXP* expS;
@@ -262,6 +229,7 @@ typedef struct STATEMENT {
         struct {struct EXP* id;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
                 struct EXP* exp;
                 struct STATEMENT* next;} shortDeclS;
+        struct STATEMENT* blockS;   // all the statements in the block
     } val;
     // points to the next statement at the same level as this one
     // nested statements are pointed to by the appropriate statement structs in val
@@ -401,6 +369,7 @@ VARDECLARATION* makeVARDECLARATIONtypeandexp(ID* ids, TYPE* type, EXP* exps);
 VARDECLARATION* makeVARDECLARATIONtypeandexphelper(ID* id, TYPE* type, EXP* exp, VARDECLARATION* next);
 VARDECLARATION* appendVARDECLARATION(VARDECLARATION *prevs, VARDECLARATION *curr);
 VARDECLARATION* markAsDistributedVarDecl(VARDECLARATION* v);
+VARDECLARATION* makeVARDECLARATIONempty();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TYPE DECLARATIONS
@@ -409,6 +378,7 @@ VARDECLARATION* markAsDistributedVarDecl(VARDECLARATION* v);
 TYPEDECLARATION* makeTYPEDECLARATION(ID* id, TYPE* type);
 TYPEDECLARATION* appendTYPEDECLARATION(TYPEDECLARATION* prevs, TYPEDECLARATION* curr);
 TYPEDECLARATION* markAsDistributedTypeDecl(TYPEDECLARATION* t);
+TYPEDECLARATION* makeTYPEDECLARATIONempty();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTION DECLARATIONS
@@ -449,6 +419,7 @@ STATEMENT* makeSTATEMENTswitch(STATEMENT* initStatement, EXP* condition, SWITCHC
 SWITCHCASE* makeSWITCHCASEcase(EXP* exps, STATEMENT* statements);
 SWITCHCASE* makeSWITCHCASEdefault(STATEMENT* statements);
 SWITCHCASE* appendSWITCHCASE(SWITCHCASE* prevs, SWITCHCASE* curr);
+STATEMENT* makeSTATEMENTblock(STATEMENT* stmts);
 //FUNCTIONCALL* makeFUNCTIONCALL(ID* id, EXP* arguments);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

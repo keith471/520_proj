@@ -47,9 +47,12 @@ void prettyTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
  * prints a new line and semicolon after
  */
 void prettyVARDECLARATION(VARDECLARATION* vd, int level) {
+    if (vd == NULL) return;
     printTabsToFile(level, emitFILE);
     fprintf(emitFILE, "var ");
-    if (vd->isDistributed) {
+    if (vd->isEmpty) {
+        fprintf(emitFILE, "();");
+    } else if (vd->isDistributed) {
         // distributed var decl
         fprintf(emitFILE, "(");
         newLineInFile(emitFILE);
@@ -94,6 +97,8 @@ void prettyVARDECLARATIONsingleline(VARDECLARATION* vd) {
             fprintf(emitFILE, " = ");
             prettyEXPs(vd->val.typeAndExpVD.exp);
             break;
+        default:
+            break;
     }
     fprintf(emitFILE, ";");
 }
@@ -121,9 +126,12 @@ void prettyID(ID* id) {
  * this prints the type declaration, followed by a new line
  */
 void prettyTYPEDECLARATION(TYPEDECLARATION* td, int level) {
+    if (td == NULL) return;
     printTabsToFile(level, emitFILE);
     fprintf(emitFILE, "type ");
-    if (td->isDistributed) {
+    if (td->isEmpty) {
+        fprintf(emitFILE, "();");
+    } else if (td->isDistributed) {
         // distributed type decl
         fprintf(emitFILE, "(");
         newLineInFile(emitFILE);
@@ -381,16 +389,25 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             prettySTATEMENT(s->val.ifElseS.thenPart, level + 1, 1, 0);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "} else ");
-            if (s->val.ifElseS.elsePart->kind == ifK || s->val.ifElseS.elsePart->kind == ifElseK) {
-                // if/else
-                // print at the same level, with a trailing semicolon
-                // and starting at rw-pointer
-                prettySTATEMENT(s->val.ifElseS.elsePart, level, 1, 1);
+            if (s->val.ifElseS.elsePart) {
+                if (s->val.ifElseS.elsePart->kind == ifK || s->val.ifElseS.elsePart->kind == ifElseK) {
+                    // if/else
+                    // print at the same level, with a trailing semicolon
+                    // and starting at rw-pointer
+                    prettySTATEMENT(s->val.ifElseS.elsePart, level, 1, 1);
+                } else {
+                    // else block
+                    fprintf(emitFILE, "{");
+                    newLineInFile(emitFILE);
+                    prettySTATEMENT(s->val.ifElseS.elsePart, level + 1, 1, 0);
+                    printTabsToFile(level, emitFILE);
+                    fprintf(emitFILE, "}");
+                    terminateSTATEMENT(level, semicolon);
+                }
             } else {
-                // else block
+                // empty else
                 fprintf(emitFILE, "{");
                 newLineInFile(emitFILE);
-                prettySTATEMENT(s->val.ifElseS.elsePart, level + 1, 1, 0);
                 printTabsToFile(level, emitFILE);
                 fprintf(emitFILE, "}");
                 terminateSTATEMENT(level, semicolon);
@@ -456,6 +473,16 @@ void prettySTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointe
             printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "continue");
             terminateSTATEMENT(level, semicolon);
+        case blockK:
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            fprintf(emitFILE, "{");
+            newLineInFile(emitFILE);
+            prettySTATEMENT(s->val.blockS, level + 1, 1, 0);
+            printTabsToFile(level, emitFILE);
+            fprintf(emitFILE, "}");
+            terminateSTATEMENT(level, semicolon);
+        default:
+            break;
     }
     // print the next statement
     prettySTATEMENT(s->next, level, 1, 0);

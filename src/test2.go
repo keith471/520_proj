@@ -1,7 +1,12 @@
 package cool;
 
-var x, y int = 1, 2
-
 func main() {
-    x++
+    {
+        {
+            var x int
+            var y float64
+        }
+    }
+
+    var ()
 }

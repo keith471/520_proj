@@ -66,6 +66,7 @@ void parsePROGRAM(char* programFilename) {
         exit(1);
     }
 
+
     // set lex to read from the external file instead of defaulting to STDIN
     yyin = infile;
 

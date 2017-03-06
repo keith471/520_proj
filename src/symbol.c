@@ -119,31 +119,32 @@ void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* symbolTable) 
     symTOPLEVELDECLARATION(tld->next, symbolTable);
 }
 
+// VARIABLE DECLARATIONS
+
 /*
  * add a symbol to the symbol table for every unique variable
  */
-void symVARDECLARATIONids(VARDECLARATION* vd, ID* ids, int varNum, SymbolTable* symbolTable) {
-    if (ids == NULL) return;
-    SYMBOL* s;
-    if (alreadyDefined(ids->name, symbolTable)) {
-        // report error
-        reportSymError("variable already exists", ids->name, vd->lineno);
-    } else {
-        s = putSymbol(ids->name, varDeclSym, symbolTable);
-        SINGLEVAR* sv;
-        sv = NEW(SINGLEVAR);
-        sv->varDecl = vd;
-        sv->varNum = varNum;
-        s->val.varDeclS = sv;
-        ids->symbol = s;
-    }
-    // recurse
-    symVARDECLARATIONids(vd, ids->next, varNum + 1);
-}
-
 void symVARDECLARATION(VARDECLARATION* vd, SymbolTable* symbolTable) {
     if (vd == NULL) return;
-    symVARDECLARATIONids(vd, vd->ids, 0, symbolTable);
+    symVARDECLARATIONlist(vd, symbolTable);
+    symVARDECLARATION(vd->nextDistributed, symbolTable);
+}
+
+void symVARDECLARATIONlist(VARDECLARATION* vd, SymbolTable* symbolTable) {
+    if (vd == NULL) return;
+    // check that a variable with the same name has not already been defined
+    if (alreadyDefined(vd->id->name, symbolTable)) {
+        // report error
+        reportSymError("invalid redeclaration", vd->id->name, vd->lineno);
+    } else {
+        // create a symbol for the id
+        SYMBOL* s;
+        s = putSymbol(vd->id->name, varDeclSym, symbolTable);
+        // set the symbol's value to this variable declaration
+        s->val.varDeclS = vd;
+        // set this variable declaration's id's symbol to the symbol we just made
+        vd->id->symbol = s;
+    }
     switch (vd->kind) {
         case typeOnlyK:
             // TODO make sure the type exists?
@@ -160,69 +161,180 @@ void symVARDECLARATION(VARDECLARATION* vd, SymbolTable* symbolTable) {
         default:
             break;
     }
-    symVARDECLARATION(vd->next, symbolTable);
+    symVARDECLARATIONlist(vd->next, symbolTable);
 }
+
+// TYPE DECLARATIONS
 
 void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* symbolTable) {
     if (td == NULL) return;
-    SYMBOL* s;
     // put a symbol for the id of the type
-    // TODO check if already defined
-    s = putSymbol(td->id->name, typeDeclSym, symbolTable);
-    s->val.typeDeclS = td;
+    if (alreadyDefined(td->id->name, symbolTable)) {
+        // report error
+        reportSymError("invalid redeclaration", td->id->name, td->lineno);
+    } else {
+        SYMBOL* s;
+        s = putSymbol(td->id->name, typeDeclSym, symbolTable);
+        s->val.typeDeclS = td;
+        td->id->symbol = s;
+    }
     // TODO check that the type already exists?
     symTYPEDECLARATION(td->next, symbolTable);
 }
 
+// FUNCTION DECLARATIONS
+
 void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd, SymbolTable* symbolTable) {
     // put a symbol for the id of the function
-    SYMBOL* s;
-    // TODO check if already defined?
-    s = putSymbol(fd->id->name, functionDeclSym, symbolTable);
-    s->val.functionDeclS = fd;
+    if (alreadyDefined(fd->id->name, symbolTable)) {
+        // report error
+        reportSymError("invalid redeclaration", fd->id->name, fd->lineno);
+    } else {
+        SYMBOL* s;
+        s = putSymbol(fd->id->name, functionDeclSym, symbolTable);
+        s->val.functionDeclS = fd;
+        fd->id->symbol = s;
+    }
     // TODO return type?
     // create a new scope
     SymbolTable* newScope = scopeSymbolTable(symbolTable);
-    // sym the parameters and statements
+    // sym the parameters and statements within the new scope
     symPARAMETER(fd->parameters, newScope);
     symSTATEMENT(fd->statements, newScope);
 }
 
-typedef struct PARAMETER {
-    int lineno;
-    struct ID* ids;
-    struct TYPE *type;
-    struct PARAMETER *next;
-} PARAMETER;
+// PARAMETERS
 
-void symPARAMETERids(PARAMETER* p, ID* ids, int parameterNum, SymbolTable* t) {
-    if (ids == NULL) return;
-    SYMBOL* s;
-    if (alreadyDefined(ids->name, symbolTable)) {
+void symPARAMETER(PARAMETER* p, SymbolTable* symbolTable) {
+    if (p == NULL) return;
+    symPARAMETERlist(p, symbolTable);
+    symPARAMETER(p->nextParamSet, symbolTable);
+}
+
+void symPARAMETERlist(PARAMETER* p, SymbolTable* t) {
+    if (p == NULL) return;
+    // check that a parameter with the same name has not already been defined
+    if (alreadyDefined(p->id->name, t)) {
         // report error
-        reportSymError("parameter already defined", ids->name, vd->lineno);
+        reportSymError("a parameter with this name already exists", p->id->name, p->lineno);
     } else {
-        s = putSymbol(ids->name, varDeclSym, symbolTable);
-        SINGLEVAR* sv;
-        sv = NEW(SINGLEVAR);
-        sv->varDecl = vd;
-        sv->varNum = varNum;
-        s->val.varDeclS = sv;
-        ids->symbol = s;
+        // create a symbol for the id
+        SYMBOL* s;
+        s = putSymbol(p->id->name, parameterSym, t);
+        // set the symbol's value to this parameter
+        s->val.parameterS = p;
+        // set this parameter's id's symbol to the symbol we just made
+        p->id->symbol = s;
     }
-    // recurse
-    symVARDECLARATIONids(vd, ids->next, varNum + 1);
+    // TODO check type exists?
+    symPARAMETERlist(p->nextId, t);
 }
 
-void symPARAMETER(PARAMETER* p, SymbolTable* t) {
-    // create a symbol for the id
-    SYMBOL* s;
-    s = putSymbol()
-    symPARAMETER(p->next, t);
-}
+// STATEMENTS
+
+typedef struct STATEMENT {
+    int lineno;
+    enum { emptyK, expK, incK, decK, regAssignK, binOpAssignK, shortDeclK, varDeclK,
+           typeDeclK, printK, printlnK, returnK, ifK, ifElseK, switchK, whileK,
+           infiniteLoopK, forK, breakK, continueK } kind;
+    union{
+        // break, continue, and empty statements have no associated val
+        struct EXP* expS;
+        struct EXP *returnS; // return expression
+        struct {struct STATEMENT* initStatement;
+                struct EXP *condition;
+                struct STATEMENT *body;} ifS;
+        struct {struct STATEMENT* initStatement;
+                struct EXP *condition;
+                struct STATEMENT *thenPart;
+                struct STATEMENT *elsePart; /* could be another if --> else if statement! */} ifElseS;
+        struct {struct EXP *condition;
+                struct STATEMENT *body;} whileS;
+        struct STATEMENT* infiniteLoopS; // the body of an infinite loop
+        struct {struct STATEMENT* initStatement;
+                struct EXP* condition;
+                struct STATEMENT* postStatement;
+                struct STATEMENT* body;} forS;
+        struct {struct STATEMENT* initStatement;
+                struct EXP* condition;
+                struct SWITCHCASE* cases;} switchS;
+        struct {struct EXP* lvalue;    // weed to ensure that all exps are lvalues
+                struct EXP* exp;
+                struct STATEMENT* next;} regAssignS;
+        struct {struct EXP* lvalue; // weed to ensure that exp is an lvalue (and that there is just one of them? should already only be one since matches with primaryExp)
+                OperationKind opKind;
+                struct EXP* exp;} binOpAssignS;
+        struct EXP* incS;   // weed to ensure exp is an lvalue
+        struct EXP* decS;   // weed to ensure exp is an lvalue
+        struct EXP* printS;     // linked-list of expressions
+        struct EXP* printlnS;   // linked-list of expressions
+        struct VARDECLARATION* varDeclS;
+        struct TYPEDECLARATION* typeDeclS;
+        struct {struct EXP* id;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
+                struct EXP* exp;
+                struct STATEMENT* next;} shortDeclS;
+    } val;
+    // points to the next statement at the same level as this one
+    // nested statements are pointed to by the appropriate statement structs in val
+    struct STATEMENT* next;
+} STATEMENT;
 
 void symSTATEMENT(STATEMENT* s, SymbolTable* t) {
-    // TODO
+    if (s == NULL) return;
+    switch (s->kind) {
+        case emptyK:
+            break;
+        case expK:
+            symEXP(s->val.expS, t);
+            break;
+        case incK:
+            symEXP(s->val.incS, t);
+            break;
+        case decK:
+            symEXP(s->val.decS, t);
+            break;
+        case regAssignK:
+            // sym lvalue
+            symEXP(s->val.regAssignS.lvalue, t);
+            // sym exp
+            symEXP(s->val.regAssignS.exp, t);
+            // recurse
+            symSTATEMENT(s->val.regAssignS.next, t);
+            break;
+        case binOpAssignK:
+            // TODO here
+            break;
+        case shortDeclK:
+            break;
+        case varDeclK:
+            break;
+        case typeDeclK:
+            break;
+        case printK:
+            break;
+        case printlnK:
+            break;
+        case returnK:
+            break;
+        case ifK:
+            break;
+        case ifElseK:
+            break;
+        case switchK:
+            break;
+        case whileK:
+            break;
+        case infiniteLoopK:
+            break;
+        case forK:
+            break;
+        case breakK:
+            break;
+        case continueK:
+            break;
+        default:
+            break;
+    }
     symSTATEMENT(s->next, t);
 }
 

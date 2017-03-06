@@ -314,7 +314,7 @@ append          {
                     shouldInsertBeforeRightBrace = 1;
                     return tIDENTIFIER;
                 }
-(0|[1-9][0-9]*)\.[0-9]* {
+((\.[0-9]+)|((0|[1-9][0-9]*)\.[0-9]*)) {
                     #ifdef FLEX_DEBUG
                         printf("found a float literal: %s\n", yytext);
                     #endif
@@ -368,9 +368,9 @@ append          {
                     shouldInsertBeforeRightBrace = 1;
                     return tSTRINGLITERAL;
                 }
-\'(?:\\[abfnrtv'\\]|[a-zA-Z0-9 ~#$%^&*\-+\/`<>=_|";:{}\[\]()@!?.,])*\' {
+`[a-zA-Z0-9 \\~#$%^&*\-+\/<>=_|'";:{}\[\]()@!?.,]*` {
                     #ifdef FLEX_DEBUG
-                        printf("found a string literal: %s\n", yytext);
+                        printf("found a raw string literal: %s\n", yytext);
                     #endif
                     yylval.stringLiteral = strdup(yytext);
                     shouldInsertBeforeNewLine = 1;

@@ -50,8 +50,8 @@ extern PROGRAM* theprogram;
 %type <package> packageDecl
 %type <topLevelDecl> topLevelDecls topLevelDecl decl
 %type <varDecl> varDecl varDeclRest regularVarDecl typeOnlyVarDecl expOnlyVarDecl
-                typeAndExpVarDecl distributedVarDecl varDeclList
-%type <typeDecl> typeDecl typeDeclRest regularTypeDecl distributedTypeDecl typeDeclList
+                typeAndExpVarDecl distributedVarDecl varDeclList neVarDeclList
+%type <typeDecl> typeDecl typeDeclRest regularTypeDecl distributedTypeDecl typeDeclList neTypeDeclList
 %type <functionDecl> functionDecl
 %type <parameter> parameterList neParameterList parameter
 %type <statement> statements statement simpleStatement printStatement printlnStatement
@@ -218,9 +218,16 @@ distributedTypeDecl:
     ;
 
 typeDeclList:
+      // epsilon
+        { $$ = makeTYPEDECLARATIONempty(); }
+    | neTypeDeclList
+        { $$ = $1; }
+    ;
+
+neTypeDeclList:
       regularTypeDecl
         { $$ = markAsDistributedTypeDecl($1); }
-    | typeDeclList regularTypeDecl
+    | neTypeDeclList regularTypeDecl
         { $$ = appendTYPEDECLARATION($1, $2); }
     ;
 
@@ -286,13 +293,22 @@ typeAndExpVarDecl:
 
 distributedVarDecl:
       '(' varDeclList ')' ';'
-        { $$ = $2; }
+        {
+            printf("found a distributedVarDecl\n");
+            $$ = $2; }
     ;
 
 varDeclList:
+      //epsilon
+        { $$ = makeVARDECLARATIONempty(); }
+    | neVarDeclList
+        { $$ = $1; }
+    ;
+
+neVarDeclList:
       regularVarDecl
         { $$ = markAsDistributedVarDecl($1); }
-    | varDeclList regularVarDecl
+    | neVarDeclList regularVarDecl
         { $$ = appendVARDECLARATION($1, $2); }
     ;
 
@@ -311,6 +327,7 @@ statement:
     | varDecl
         { $$ = makeSTATEMENTvardecl($1); }
     | typeDecl
+        // typeDecl could be null
         { $$ = makeSTATEMENTtypedecl($1); }
     | printStatement
         { $$ = $1; }
@@ -338,6 +355,8 @@ statement:
         { $$ = $1; }
     | continueStatement
         { $$ = $1; }
+    | block ';'
+        { $$ = makeSTATEMENTblock($1); }
     ;
 
 simpleStatement:
@@ -528,6 +547,10 @@ switchStatement:
         { $$ = makeSTATEMENTswitch($2, $4, $6); }
     | tSWITCH exp '{' switchClauses '}'
         { $$ = makeSTATEMENTswitch(NULL, $2, $4); }
+    | tSWITCH '{' switchClauses '}'
+        { $$ = makeSTATEMENTswitch(NULL, NULL, $3); }
+    | tSWITCH simpleStatement ';' '{' switchClauses '}'
+        { $$ = makeSTATEMENTswitch($2, NULL, $5); }
     ;
 
 switchClauses:

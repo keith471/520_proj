@@ -1,0 +1,134 @@
+grading/valid/parser//2-package.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/2-package.pretty.go
+[pass]
+grading/valid/parser//4-vardecs.go: parsing program...found a distributedVarDecl
+found a distributedVarDecl
+SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/4-vardecs.pretty.go
+[pass]
+grading/valid/parser//5-typedecs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/5-typedecs.pretty.go
+[pass]
+grading/valid/parser//6-funcdecs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/6-funcdecs.pretty.go
+[pass]
+grading/valid/parser//7-1-basic.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/7-1-basic.pretty.go
+[pass]
+grading/valid/parser//7-2-slices.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/7-2-slices.pretty.go
+[pass]
+grading/valid/parser//7-3-arrays.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/7-3-arrays.pretty.go
+[pass]
+grading/valid/parser//7-4-structs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/7-4-structs.pretty.go
+[pass]
+grading/valid/parser//8-0-blockstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-0-blockstmts.pretty.go
+[pass]
+grading/valid/parser//8-1-emptystmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-1-emptystmts.pretty.go
+[pass]
+grading/valid/parser//8-10-switchstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-10-switchstmts.pretty.go
+[pass]
+grading/valid/parser//8-11-forstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-11-forstmts.pretty.go
+[pass]
+grading/valid/parser//8-12-breakcontinuestmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-12-breakcontinuestmts.pretty.go
+[pass]
+grading/valid/parser//8-2-exprstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-2-exprstmts.pretty.go
+[pass]
+grading/valid/parser//8-3-assignstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-3-assignstmts.pretty.go
+[pass]
+grading/valid/parser//8-4-decstmts.go: parsing program...found a distributedVarDecl
+found a distributedVarDecl
+SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-4-decstmts.pretty.go
+[pass]
+grading/valid/parser//8-5-shortdecstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-5-shortdecstmts.pretty.go
+[pass]
+grading/valid/parser//8-6-incdecstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-6-incdecstmts.pretty.go
+[pass]
+grading/valid/parser//8-7-printstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-7-printstmts.pretty.go
+[pass]
+grading/valid/parser//8-8-returnstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-8-returnstmts.pretty.go
+[pass]
+grading/valid/parser//8-9-ifstmts.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/8-9-ifstmts.pretty.go
+[pass]
+grading/valid/parser//9-1-parenexprs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/9-1-parenexprs.pretty.go
+[pass]
+grading/valid/parser//9-4-unaryexprs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/9-4-unaryexprs.pretty.go
+[pass]
+grading/valid/parser//9-5-binexprs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/9-5-binexprs.pretty.go
+[pass]
+grading/valid/parser//9-6-funccallexprs.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/9-6-funccallexprs.pretty.go
+[pass]
+grading/valid/parser//9-8-typecastexpr.go: parsing program...SUCCESS
+weeding the program...SUCCESS
+pretty printing program...SUCCESS
+>>> pretty printed program to ./src/output/9-8-typecastexpr.pretty.go
+[pass]

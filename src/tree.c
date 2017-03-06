@@ -107,6 +107,7 @@ VARDECLARATION* makeVARDECLARATIONtypeonlyhelper(ID* id, TYPE* type, VARDECLARAT
     d->lineno = yylineno;
     d->kind = typeOnlyK;
     d->id = id;
+    d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
     d->val.typeVD = type;
@@ -136,6 +137,7 @@ VARDECLARATION* makeVARDECLARATIONexponlyhelper(ID* id, EXP* exp, VARDECLARATION
     d->lineno = yylineno;
     d->kind = expOnlyK;
     d->id = id;
+    d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
     d->val.expVD = exp;
@@ -165,11 +167,25 @@ VARDECLARATION* makeVARDECLARATIONtypeandexphelper(ID* id, TYPE* type, EXP* exp,
     d->lineno = yylineno;
     d->kind = typeAndExpK;
     d->id = id;
+    d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
     d->val.typeAndExpVD.type = type;
     d->val.typeAndExpVD.exp = exp;
     d->next = next;
+    d->nextDistributed = NULL;
+    return d;
+}
+
+VARDECLARATION* makeVARDECLARATIONempty() {
+    VARDECLARATION *d;
+    d = NEW(VARDECLARATION);
+    d->lineno = yylineno;
+    d->id = NULL;
+    d->isEmpty = 1;
+    d->isDistributed = 0;
+    d->isLocal = 0;
+    d->next = NULL;
     d->nextDistributed = NULL;
     return d;
 }
@@ -262,9 +278,23 @@ TYPEDECLARATION* makeTYPEDECLARATION(ID* id, TYPE* type) {
     t = NEW(TYPEDECLARATION);
     t->lineno = yylineno;
     t->id = id;
+    t->isEmpty = 0;
     t->isDistributed = 0;
     t->isLocal = 0;
     t->type = type;
+    t->nextDistributed = NULL;
+    return t;
+}
+
+TYPEDECLARATION* makeTYPEDECLARATIONempty() {
+    TYPEDECLARATION* t;
+    t = NEW(TYPEDECLARATION);
+    t->lineno = yylineno;
+    t->id = NULL;
+    t->isEmpty = 1;
+    t->isDistributed = 0;
+    t->isLocal = 0;
+    t->type = NULL;
     t->nextDistributed = NULL;
     return t;
 }
@@ -413,6 +443,7 @@ STATEMENT* makeSTATEMENTprint(EXP* exp) {
 }
 
 STATEMENT* makeSTATEMENTvardecl(VARDECLARATION* varDecl) {
+
     // mark the varDecl as local
     varDecl->isLocal = 1;
     // create the statement
@@ -636,6 +667,16 @@ SWITCHCASE* appendSWITCHCASE(SWITCHCASE* prevs, SWITCHCASE* curr) {
     t->next = curr;
     // return the head of the list
     return prevs;
+}
+
+STATEMENT* makeSTATEMENTblock(STATEMENT* stmts) {
+    STATEMENT* s;
+    s = NEW(STATEMENT);
+    s->lineno = yylineno;
+    s->kind = blockK;
+    s->val.blockS = stmts;
+    s->next = NULL;
+    return s;
 }
 
 /*

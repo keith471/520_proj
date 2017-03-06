@@ -92,7 +92,6 @@ func main() {
         print("in else\n");
     }
     if blah {
-        print(blah);
     } else {
         print(yeah);
     }
