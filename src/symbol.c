@@ -354,6 +354,8 @@ void symEXP(EXP* e, SymbolTable* t) {
             break;
         case stringLiteralK:
             break;
+        case rawStringLiteralK:
+            break;
         case plusK:
             symEXP(e->val.plusE.left, t);
             symEXP(e->val.plusE.right, t);

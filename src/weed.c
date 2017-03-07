@@ -148,7 +148,10 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             checkForBlankIdentifier_exp(s->val.binOpAssignS.exp); // cheat
             break;
         case shortDeclK:
+            // check that all of the expressions are ids
             checkIDs(s->val.shortDeclS.id, s->lineno);  // cheat
+            // check that none of the ids are parenthesized
+            checkForParentheses(s->val.shortDeclS.id); // cheat
             // blank identifier cannot be used on right side of assignment
             checkForBlankIdentifier_exp(s->val.shortDeclS.exp); // cheat
             break;
@@ -207,7 +210,7 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             break;
         case continueK:
             // only valid if we are in a loop
-            if (!inLoop && !inSwitchCase) {
+            if (!inLoop) {
                 reportWeedError("continue is not in a loop", s->lineno);
             }
             break;
@@ -337,6 +340,9 @@ void lvalueHelper(EXP* exp, int lineno) {
         case stringLiteralK:
             reportWeedError("expected lvalue but found string literal", lineno);
             break;
+        case rawStringLiteralK:
+            reportWeedError("expected lvalue but found raw string literal", lineno);
+            break;
         case plusK:
             reportWeedError("expected lvalue but found addition expression", lineno);
             break;
@@ -449,6 +455,9 @@ void checkIDs(EXP* exps, int lineno) {
         case stringLiteralK:
             reportWeedError("expected identifier but found string literal", lineno);
             break;
+        case rawStringLiteralK:
+            reportWeedError("expected identifier but found raw string literal", lineno);
+            break;
         case plusK:
             reportWeedError("expected identifier but found addition expression", lineno);
             break;
@@ -536,6 +545,12 @@ void checkIDs(EXP* exps, int lineno) {
     checkIDs(exps->next, lineno);
 }
 
+void checkForParentheses(EXP* exps) {
+    if (exps == NULL) return;
+    if (exps->isParenthesized) reportWeedError("non-name on left side of :=", exps->lineno);
+    checkForParentheses(exps->next);
+}
+
 /**
  * checks that the expression is a function call or receive op
  */
@@ -564,6 +579,8 @@ void checkForBlankIdentifier_exp(EXP* e) {
         case runeLiteralK:
             break;
         case stringLiteralK:
+            break;
+        case rawStringLiteralK:
             break;
         case plusK:
             checkForBlankIdentifier_exp(e->val.plusE.left);
@@ -711,6 +728,9 @@ void checkArraySize(EXP* e) {
             break;
         case stringLiteralK:
             reportStrError("WEED", "invalid array bound %s", e->val.stringLiteralE, e->lineno);
+            break;
+        case rawStringLiteralK:
+            reportStrError("WEED", "invalid array bound %s", e->val.rawStringLiteralE, e->lineno);
             break;
         case plusK:
             checkArraySize(e->val.plusE.left);

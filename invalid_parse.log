@@ -640,14 +640,12 @@ grading/invalid/parser//8-10-switch_statements/switchstmt4.go: PARSER ERROR:
 *** compilation terminated
 parsing program...
 [pass]
-grading/invalid/parser//8-10-switch_statements/switchstmt5.go: parsing program...
-    >>> SUCCESS
-weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/switchstmt5.pretty.go
-[fail]
+grading/invalid/parser//8-10-switch_statements/switchstmt5.go: PARSER ERROR:
+    *** message: syntax error
+    *** location: syntax error before : at line 5
+*** compilation terminated
+parsing program...
+[pass]
 grading/invalid/parser//8-10-switch_statements/switchstmt6.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before ++ at line 4
@@ -784,14 +782,14 @@ parsing program...
     >>> SUCCESS
 weeding the program...
 [pass]
-grading/invalid/parser//8-12-break_continue_statements/continue2.go: parsing program...
+grading/invalid/parser//8-12-break_continue_statements/continue2.go: WEED ERROR:
+    *** message: continue is not in a loop
+    *** location: line 6
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/continue2.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//8-12-break_continue_statements/continue3.go: WEED ERROR:
     *** message: continue is not in a loop
     *** location: line 5
@@ -875,14 +873,14 @@ parsing program...
     >>> SUCCESS
 weeding the program...
 [pass]
-grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt1.go: parsing program...
+grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt1.go: WEED ERROR:
+    *** message: non-name on left side of :=
+    *** location: line 4
+*** compilation terminated due to 1 errors
+parsing program...
     >>> SUCCESS
 weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/shortdecstmt1.pretty.go
-[fail]
+[pass]
 grading/invalid/parser//8-5-short_declaration_statements/shortdecstmt2.go: WEED ERROR:
     *** message: expected identifier but found array index
     *** location: line 4
@@ -1355,14 +1353,12 @@ parsing program...
     >>> SUCCESS
 weeding the program...
 [pass]
-grading/invalid/parser//9-4-unary_expressions/unaryexpr6.go: parsing program...
-    >>> SUCCESS
-weeding the program...
-    >>> SUCCESS
-pretty printing program...
-    >>> SUCCESS
-    >>> pretty printed program to ./src/output/unaryexpr6.pretty.go
-[fail]
+grading/invalid/parser//9-4-unary_expressions/unaryexpr6.go: PARSER ERROR:
+    *** message: syntax error
+    *** location: syntax error before <- at line 6
+*** compilation terminated
+parsing program...
+[pass]
 grading/invalid/parser//9-4-unary_expressions/unaryexpr7.go: PARSER ERROR:
     *** message: syntax error
     *** location: syntax error before & at line 6

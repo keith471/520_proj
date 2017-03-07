@@ -375,7 +375,7 @@ append          {
                     yylval.stringLiteral = strdup(yytext);
                     shouldInsertBeforeNewLine = 1;
                     shouldInsertBeforeRightBrace = 1;
-                    return tSTRINGLITERAL;
+                    return tRAWSTRINGLITERAL;
                 }
 .               {
                     #ifdef FLEX_DEBUG

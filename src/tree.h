@@ -244,11 +244,12 @@ typedef struct SWITCHCASE {
 typedef struct EXP {
     int lineno;
     struct TYPE* type;  // the type that this expression evaluates to
-    enum { identifierK, intLiteralK, floatLiteralK, runeLiteralK, stringLiteralK,
+    enum { identifierK, intLiteralK, floatLiteralK, runeLiteralK, stringLiteralK, rawStringLiteralK,
            plusK, minusK, timesK, divK, modK, bitwiseOrK, bitwiseAndK, xorK, ltK, gtK,
            eqK, neqK, leqK, geqK, orK, andK, leftShiftK, rightShiftK, bitClearK,
            appendK, castK, selectorK, indexK, argumentsK, uPlusK,
            uMinusK, uNotK, uXorK, uReceiveK} kind;
+    int isParenthesized;    // a flag that we check during weeding of short declaration statements
     union {
         struct ID *idE;  // identifier
         struct {int decValue; // value of integer
@@ -256,6 +257,7 @@ typedef struct EXP {
         float floatLiteralE;    // value of float
         char runeLiteralE;   // value of a rune
         char *stringLiteralE;   // value of string
+        char *rawStringLiteralE;
         struct CAST* castE;
         struct EXP* uPlusE;
         struct EXP* uMinusE;
@@ -456,12 +458,14 @@ EXP* makeEXPinthexliteral(int decValue);
 EXP* makeEXPfloatliteral(float floatLiteral);
 EXP* makeEXPruneliteral(char runeLiteral);
 EXP* makeEXPstringliteral(char* stringLiteral);
+EXP* makeEXPrawstringliteral(char* rawStringLiteral);
 EXP* makeEXPid(ID* id);
 EXP* makeEXPselector(EXP* rest, ID* lastSelector);
 EXP* makeEXPindex(EXP* rest, EXP* lastIndex);
 EXP* makeEXParguments(EXP* rest, EXP* args);
 CAST* makeCAST(TYPE* type, EXP* exp);
 EXP* makeEXPcast(CAST* c);
+EXP* markEXPparenthesized(EXP* e);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IDS AND TYPES

@@ -629,6 +629,9 @@ void prettyEXP(EXP* e) {
         case stringLiteralK:
             fprintf(emitFILE, "%s", e->val.stringLiteralE);
             break;
+        case rawStringLiteralK:
+            fprintf(emitFILE, "%s", e->val.rawStringLiteralE);
+            break;
         case uPlusK:
             fprintf(emitFILE, "(");
             fprintf(emitFILE, "+");

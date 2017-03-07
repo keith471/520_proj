@@ -24,6 +24,7 @@ void checkLvalues(EXP* exps, int lineno);
 void checkLvalue(EXP* exp, int lineno);
 void lvalueHelper(EXP* exp, int lineno);
 void checkIDs(EXP* exps, int lineno);
+void checkForParentheses(EXP* exps);
 void checkFunctionCallOrReceiveOp(EXP* exp, int lineno);
 void checkForBlankIdentifier_exp(EXP* e);
 void checkForBlankIdentifier_string(char* s, char* message, int lineno);

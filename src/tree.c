@@ -746,6 +746,7 @@ EXP* makeEXPappend(EXP* slice, EXP* expToAppend) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = appendK;
+    e->isParenthesized = 0;
     e->val.appendE.slice = slice;
     e->val.appendE.expToAppend = expToAppend;
     e->next = NULL;
@@ -758,6 +759,7 @@ EXP* makeEXPplus(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = plusK;
+    e->isParenthesized = 0;
     e->val.plusE.left = left;
     e->val.plusE.right = right;
     e->next = NULL;
@@ -770,6 +772,7 @@ EXP* makeEXPminus(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = minusK;
+    e->isParenthesized = 0;
     e->val.minusE.left = left;
     e->val.minusE.right = right;
     e->next = NULL;
@@ -782,6 +785,7 @@ EXP* makeEXPtimes(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = timesK;
+    e->isParenthesized = 0;
     e->val.timesE.left = left;
     e->val.timesE.right = right;
     e->next = NULL;
@@ -794,6 +798,7 @@ EXP* makeEXPdiv(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = divK;
+    e->isParenthesized = 0;
     e->val.divE.left = left;
     e->val.divE.right = right;
     e->next = NULL;
@@ -806,6 +811,7 @@ EXP* makeEXPmod(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = modK;
+    e->isParenthesized = 0;
     e->val.modE.left = left;
     e->val.modE.right = right;
     e->next = NULL;
@@ -818,6 +824,7 @@ EXP* makeEXPbitwiseor(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = bitwiseOrK;
+    e->isParenthesized = 0;
     e->val.bitwiseOrE.left = left;
     e->val.bitwiseOrE.right = right;
     e->next = NULL;
@@ -830,6 +837,7 @@ EXP* makeEXPbitwiseand(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = bitwiseAndK;
+    e->isParenthesized = 0;
     e->val.bitwiseAndE.left = left;
     e->val.bitwiseAndE.right = right;
     e->next = NULL;
@@ -842,6 +850,7 @@ EXP* makeEXPxor(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = xorK;
+    e->isParenthesized = 0;
     e->val.xorE.left = left;
     e->val.xorE.right = right;
     e->next = NULL;
@@ -854,6 +863,7 @@ EXP* makeEXPlt(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = ltK;
+    e->isParenthesized = 0;
     e->val.ltE.left = left;
     e->val.ltE.right = right;
     e->next = NULL;
@@ -866,6 +876,7 @@ EXP* makeEXPgt(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = gtK;
+    e->isParenthesized = 0;
     e->val.gtE.left = left;
     e->val.gtE.right = right;
     e->next = NULL;
@@ -878,6 +889,7 @@ EXP* makeEXPeq(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = eqK;
+    e->isParenthesized = 0;
     e->val.eqE.left = left;
     e->val.eqE.right = right;
     e->next = NULL;
@@ -890,6 +902,7 @@ EXP* makeEXPneq(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = neqK;
+    e->isParenthesized = 0;
     e->val.neqE.left = left;
     e->val.neqE.right = right;
     e->next = NULL;
@@ -902,6 +915,7 @@ EXP* makeEXPleq(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = leqK;
+    e->isParenthesized = 0;
     e->val.leqE.left = left;
     e->val.leqE.right = right;
     e->next = NULL;
@@ -914,6 +928,7 @@ EXP* makeEXPgeq(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = geqK;
+    e->isParenthesized = 0;
     e->val.geqE.left = left;
     e->val.geqE.right = right;
     e->next = NULL;
@@ -926,6 +941,7 @@ EXP* makeEXPor(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = orK;
+    e->isParenthesized = 0;
     e->val.orE.left = left;
     e->val.orE.right = right;
     e->next = NULL;
@@ -938,6 +954,7 @@ EXP* makeEXPand(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = andK;
+    e->isParenthesized = 0;
     e->val.andE.left = left;
     e->val.andE.right = right;
     e->next = NULL;
@@ -950,6 +967,7 @@ EXP* makeEXPleftshift(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = leftShiftK;
+    e->isParenthesized = 0;
     e->val.leftShiftE.left = left;
     e->val.leftShiftE.right = right;
     e->next = NULL;
@@ -962,6 +980,7 @@ EXP* makeEXPrightshift(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = rightShiftK;
+    e->isParenthesized = 0;
     e->val.rightShiftE.left = left;
     e->val.rightShiftE.right = right;
     e->next = NULL;
@@ -974,6 +993,7 @@ EXP* makeEXPbitclear(EXP* left, EXP* right) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = bitClearK;
+    e->isParenthesized = 0;
     e->val.bitClearE.left = left;
     e->val.bitClearE.right = right;
     e->next = NULL;
@@ -986,6 +1006,7 @@ EXP* makeEXPuplus(EXP* exp) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = uPlusK;
+    e->isParenthesized = 0;
     e->val.uPlusE = exp;
     e->next = NULL;
     return e;
@@ -997,6 +1018,7 @@ EXP* makeEXPuminus(EXP* exp) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = uMinusK;
+    e->isParenthesized = 0;
     e->val.uMinusE = exp;
     e->next = NULL;
     return e;
@@ -1008,6 +1030,7 @@ EXP* makeEXPunot(EXP* exp) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = uNotK;
+    e->isParenthesized = 0;
     e->val.uNotE = exp;
     e->next = NULL;
     return e;
@@ -1019,6 +1042,7 @@ EXP* makeEXPuxor(EXP* exp) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = uXorK;
+    e->isParenthesized = 0;
     e->val.uXorE = exp;
     e->next = NULL;
     return e;
@@ -1030,6 +1054,7 @@ EXP* makeEXPureceive(EXP* exp) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = uReceiveK;
+    e->isParenthesized = 0;
     e->val.uReceiveE = exp;
     e->next = NULL;
     return e;
@@ -1055,6 +1080,7 @@ EXP* makeEXPintdecliteral(int decValue) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = intLiteralK;
+    e->isParenthesized = 0;
     e->val.intLiteralE.decValue = decValue;
     e->val.intLiteralE.kind = decIL;
     e->next = NULL;
@@ -1067,6 +1093,7 @@ EXP* makeEXPintoctliteral(int decValue) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = intLiteralK;
+    e->isParenthesized = 0;
     e->val.intLiteralE.decValue = decValue;
     e->val.intLiteralE.kind = octIL;
     e->next = NULL;
@@ -1079,6 +1106,7 @@ EXP* makeEXPinthexliteral(int decValue) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = intLiteralK;
+    e->isParenthesized = 0;
     e->val.intLiteralE.decValue = decValue;
     e->val.intLiteralE.kind = hexIL;
     e->next = NULL;
@@ -1091,6 +1119,7 @@ EXP* makeEXPfloatliteral(float floatLiteral) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = floatLiteralK;
+    e->isParenthesized = 0;
     e->val.floatLiteralE = floatLiteral;
     e->next = NULL;
     return e;
@@ -1102,6 +1131,7 @@ EXP* makeEXPruneliteral(char runeLiteral) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = runeLiteralK;
+    e->isParenthesized = 0;
     e->val.runeLiteralE = runeLiteral;
     e->next = NULL;
     return e;
@@ -1113,7 +1143,20 @@ EXP* makeEXPstringliteral(char* stringLiteral) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = stringLiteralK;
+    e->isParenthesized = 0;
     e->val.stringLiteralE = stringLiteral;
+    e->next = NULL;
+    return e;
+}
+
+EXP* makeEXPrawstringliteral(char* rawStringLiteral) {
+    EXP* e;
+    e = NEW(EXP);
+    e->lineno = yylineno;
+    e->type = NULL; // for now
+    e->kind = rawStringLiteralK;
+    e->isParenthesized = 0;
+    e->val.rawStringLiteralE = rawStringLiteral;
     e->next = NULL;
     return e;
 }
@@ -1124,45 +1167,11 @@ EXP* makeEXPid(ID* id) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = identifierK;
+    e->isParenthesized = 0;
     e->val.idE = id;
     e->next = NULL;
     return e;
 }
-
-/*
-SLICE* makeSLICEwithstep(EXP* start, EXP* end, EXP* step) {
-    SLICE* s;
-    s = NEW(SLICE);
-    s->lineno = yylineno;
-    s->kind = withStepK;
-    s->val.withStepS.start = start;
-    s->val.withStepS.end = end;
-    s->val.withStepS.step = step;
-    return s;
-}
-
-SLICE* makeSLICEwithoutstep(EXP* start, EXP* end) {
-    SLICE* s;
-    s = NEW(SLICE);
-    s->lineno = yylineno;
-    s->kind = withoutStepK;
-    s->val.withoutStepS.start = start;
-    s->val.withoutStepS.end = end;
-    return s;
-}
-
-EXP* makeEXPslice(EXP* rest, SLICE* lastSlice) {
-    EXP* e;
-    e = NEW(EXP);
-    e->lineno = yylineno;
-    e->type = NULL; // for now
-    e->kind = sliceK;
-    e->val.sliceE.rest = rest;
-    e->val.sliceE.lastSlice = lastSlice;
-    e->next = NULL;
-    return e;
-}
-*/
 
 EXP* makeEXPselector(EXP* rest, ID* lastSelector) {
     EXP* e;
@@ -1170,6 +1179,7 @@ EXP* makeEXPselector(EXP* rest, ID* lastSelector) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = selectorK;
+    e->isParenthesized = 0;
     e->val.selectorE.rest = rest;
     e->val.selectorE.lastSelector = lastSelector;
     e->next = NULL;
@@ -1182,6 +1192,7 @@ EXP* makeEXPindex(EXP* rest, EXP* lastIndex) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = indexK;
+    e->isParenthesized = 0;
     e->val.indexE.rest = rest;
     e->val.indexE.lastIndex = lastIndex;
     e->next = NULL;
@@ -1194,6 +1205,7 @@ EXP* makeEXParguments(EXP* rest, EXP* args) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = argumentsK;
+    e->isParenthesized = 0;
     e->val.argumentsE.rest = rest;
     e->val.argumentsE.args = args;
     e->next = NULL;
@@ -1215,8 +1227,14 @@ EXP* makeEXPcast(CAST* c) {
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = castK;
+    e->isParenthesized = 0;
     e->val.castE = c;
     e->next = NULL;
+    return e;
+}
+
+EXP* markEXPparenthesized(EXP* e) {
+    e->isParenthesized = 1;
     return e;
 }
 

@@ -45,7 +45,7 @@ extern PROGRAM* theprogram;
 %token <intLiteral> tINTDECLITERAL tINTOCTLITERAL tINTHEXLITERAL
 %token <floatLiteral> tFLOAT64LITERAL
 %token <runeLiteral> tRUNELITERAL
-%token <stringLiteral> tSTRINGLITERAL tIDENTIFIER
+%token <stringLiteral> tSTRINGLITERAL tRAWSTRINGLITERAL tIDENTIFIER
 
 %type <package> packageDecl
 %type <topLevelDecl> topLevelDecls topLevelDecl decl
@@ -559,7 +559,7 @@ switchClauses:
     ;
 
 switchClause:
-      tCASE expList ':' statements
+      tCASE neExpList ':' statements
         { $$ = makeSWITCHCASEcase($2, $4); }
     | tDEFAULT ':' statements
         { $$ = makeSWITCHCASEdefault($3); }
@@ -696,6 +696,7 @@ unaryExp:
             #endif
             $$ = makeEXPuxor($2);
         }
+    /*
     | tLARROW unaryExp %prec UNARY
         {
             #ifdef BISON_DEBUG
@@ -703,6 +704,7 @@ unaryExp:
             #endif
             $$ = makeEXPureceive($2);
         }
+    */
     ;
 
 binaryExp:
@@ -867,7 +869,7 @@ operand:
             #ifdef BISON_DEBUG
                 printf("found a parenthesized expression operand\n");
             #endif
-            $$ = $2;
+            $$ = markEXPparenthesized($2);
         }
     ;
 
@@ -910,9 +912,16 @@ basicLiteral:
     | tSTRINGLITERAL
         {
             #ifdef BISON_DEBUG
-                printf("found a string literal\n");
+                printf("found an interpretted string literal\n");
             #endif
             $$ = makeEXPstringliteral($1);
+        }
+    | tRAWSTRINGLITERAL
+        {
+            #ifdef BISON_DEBUG
+                printf("found a raw string literal\n");
+            #endif
+            $$ = makeEXPrawstringliteral($1);
         }
     ;
 
