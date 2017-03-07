@@ -656,12 +656,6 @@ void prettyEXP(EXP* e) {
             prettyEXP(e->val.uXorE);
             fprintf(emitFILE, ")");
             break;
-        case uReceiveK:
-            fprintf(emitFILE, "(");
-            fprintf(emitFILE, "<-");
-            prettyEXP(e->val.uReceiveE);
-            fprintf(emitFILE, ")");
-            break;
         case plusK:
             fprintf(emitFILE, "(");
             prettyEXP(e->val.plusE.left);

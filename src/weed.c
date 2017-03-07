@@ -122,8 +122,8 @@ void weedSTATEMENT(STATEMENT* s, int inLoop, int inSwitchCase) {
             // nothing to be done
             break;
         case expK:
-            // check that the expression is a function call or recieve operation
-            checkFunctionCallOrReceiveOp(s->val.expS, s->lineno);
+            // check that the expression is a function call
+            checkFunctionCall(s->val.expS, s->lineno);
             // check that the expression does not contain a blank identifier
             checkForBlankIdentifier_exp(s->val.expS);
             break;
@@ -421,9 +421,6 @@ void lvalueHelper(EXP* exp, int lineno) {
         case uXorK:
             reportWeedError("expected lvalue but found unary xor expression", lineno);
             break;
-        case uReceiveK:
-            reportWeedError("expected lvalue but found receive expression", lineno);
-            break;
         default:
             break;
     }
@@ -536,9 +533,6 @@ void checkIDs(EXP* exps, int lineno) {
         case uXorK:
             reportWeedError("expected identifier but found unary xor expression", lineno);
             break;
-        case uReceiveK:
-            reportWeedError("expected identifier but found receive expression", lineno);
-            break;
         default:
             break;
     }
@@ -552,13 +546,11 @@ void checkForParentheses(EXP* exps) {
 }
 
 /**
- * checks that the expression is a function call or receive op
+ * checks that the expression is a function call
  */
-void checkFunctionCallOrReceiveOp(EXP* exp, int lineno) {
+void checkFunctionCall(EXP* exp, int lineno) {
     switch (exp->kind) {
         case argumentsK:
-            break;
-        case uReceiveK:
             break;
         default:
             reportWeedError("invalid expression statement", lineno);
@@ -693,9 +685,6 @@ void checkForBlankIdentifier_exp(EXP* e) {
             break;
         case uXorK:
             checkForBlankIdentifier_exp(e->val.uXorE);
-            break;
-        case uReceiveK:
-            checkForBlankIdentifier_exp(e->val.uReceiveE);
             break;
         default:
             break;
@@ -838,9 +827,6 @@ void checkArraySize(EXP* e) {
             break;
         case uXorK:
             checkArraySize(e->val.uXorE);
-            break;
-        case uReceiveK:
-            reportWeedError("invalid array bound: unary receive", e->lineno);
             break;
         default:
             break;

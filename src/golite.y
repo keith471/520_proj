@@ -696,15 +696,6 @@ unaryExp:
             #endif
             $$ = makeEXPuxor($2);
         }
-    /*
-    | tLARROW unaryExp %prec UNARY
-        {
-            #ifdef BISON_DEBUG
-                printf("found a unary receive expression\n");
-            #endif
-            $$ = makeEXPureceive($2);
-        }
-    */
     ;
 
 binaryExp:

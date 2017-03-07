@@ -248,7 +248,7 @@ typedef struct EXP {
            plusK, minusK, timesK, divK, modK, bitwiseOrK, bitwiseAndK, xorK, ltK, gtK,
            eqK, neqK, leqK, geqK, orK, andK, leftShiftK, rightShiftK, bitClearK,
            appendK, castK, selectorK, indexK, argumentsK, uPlusK,
-           uMinusK, uNotK, uXorK, uReceiveK} kind;
+           uMinusK, uNotK, uXorK } kind;
     int isParenthesized;    // a flag that we check during weeding of short declaration statements
     union {
         struct ID *idE;  // identifier
@@ -263,7 +263,6 @@ typedef struct EXP {
         struct EXP* uMinusE;
         struct EXP* uNotE;
         struct EXP* uXorE;
-        struct EXP* uReceiveE;
         struct {struct EXP *left;
                 struct EXP *right;} plusE;
         struct {struct EXP *left;
@@ -450,7 +449,6 @@ EXP* makeEXPuplus(EXP* exp);
 EXP* makeEXPuminus(EXP* exp);
 EXP* makeEXPunot(EXP* exp);
 EXP* makeEXPuxor(EXP* exp);
-EXP* makeEXPureceive(EXP* exp);
 EXP* appendEXP(EXP* prevs, EXP* curr);
 EXP* makeEXPintdecliteral(int decValue);
 EXP* makeEXPintoctliteral(int decValue);

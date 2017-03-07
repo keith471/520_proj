@@ -463,9 +463,6 @@ void symEXP(EXP* e, SymbolTable* t) {
         case uXorK:
             symEXP(e->val.uXorE, t);
             break;
-        case uReceiveK:
-            symEXP(e->val.uReceiveE, t);
-            break;
         default:
             break;
     }

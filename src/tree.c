@@ -1048,18 +1048,6 @@ EXP* makeEXPuxor(EXP* exp) {
     return e;
 }
 
-EXP* makeEXPureceive(EXP* exp) {
-    EXP* e;
-    e = NEW(EXP);
-    e->lineno = yylineno;
-    e->type = NULL; // for now
-    e->kind = uReceiveK;
-    e->isParenthesized = 0;
-    e->val.uReceiveE = exp;
-    e->next = NULL;
-    return e;
-}
-
 EXP* appendEXP(EXP* prevs, EXP* curr) {
     EXP *t;
     // prevs will be null for the first exp that we parse
