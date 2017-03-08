@@ -4,3 +4,4 @@ src/lex.yy.*
 valid.log
 invalid.log
 src/output/*
+!src/output/.gitkeep
