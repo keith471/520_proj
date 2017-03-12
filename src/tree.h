@@ -11,11 +11,13 @@ typedef enum { plusEqOp, minusEqOp, timesEqOp, divEqOp,
 
 typedef enum { decIL, octIL, hexIL } IntLiteralKind;
 
-typedef enum { packageDeclSym, typeDeclSym, varDeclSym, functionDeclSym, parameterSym, fieldSym } SymbolKind;
+/*
+ * typeSym and varSym are for system predefined types and variables, e.g. bool and true
+ */
+typedef enum { typeSym, typeDeclSym, varSym, varDeclSym, shortDeclSym, functionDeclSym, parameterSym, fieldSym } SymbolKind;
 
 /*
  * The following have symbols:
- *  package declaration
  *  variable declarations
  *  type declarations
  *  function declarations
@@ -23,15 +25,22 @@ typedef enum { packageDeclSym, typeDeclSym, varDeclSym, functionDeclSym, paramet
  *  struct fields
  */
 typedef struct SYMBOL {
-    char *name;
+    int lineno;
+    char* name;
     SymbolKind kind;
     union {
-        struct PACAKGE *packageDeclS;
-        struct TYPEDECLARATION *typeDeclS;
-        struct VARDECLARATION *varDeclS;
+        struct TYPE* typeS;
+        struct TYPE* varS;
         struct FUNCTIONDECLARATION *functionDeclS;
-        struct PARAMETER *parameterS;
-        struct FIELD *fieldS;
+        struct STATEMENT* shortDeclS;
+        struct {struct TYPEDECLARATION * typeDecl;
+                struct TYPE* type;} typeDeclS;
+        struct {struct VARDECLARATION* varDecl;
+                struct TYPE* type; /* could be NULL */} varDeclS;
+        struct {struct PARAMETER * param;
+                struct TYPE* type;} parameterS;
+        struct {struct FIELD* field;
+                struct TYPE* type;} fieldS;
     } val;
     // this is a linked list in the SymbolTable hashmap, so we have to have this next field.
     // it doesn't actually have anything to do with the 'current' symbol
@@ -56,14 +65,14 @@ typedef struct PACKAGE {
 
 
 typedef struct TOPLEVELDECLARATION {
-  int lineno;
-  enum { vDeclK, tDeclK, functionDeclK } kind;
-  union {
-      struct VARDECLARATION* varDeclTLD;
-      struct TYPEDECLARATION* typeDeclTLD;
-      struct FUNCTIONDECLARATION* functionDeclTLD;
-  } val;
-  struct TOPLEVELDECLARATION *next;
+    int lineno;
+    enum { vDeclK, tDeclK, functionDeclK } kind;
+    union {
+        struct VARDECLARATION* varDeclTLD;
+        struct TYPEDECLARATION* typeDeclTLD;
+        struct FUNCTIONDECLARATION* functionDeclTLD;
+    } val;
+    struct TOPLEVELDECLARATION *next;
 } TOPLEVELDECLARATION;
 
 /*
@@ -94,15 +103,15 @@ typedef struct VARDECLARATION {
  * a type declaration
  * type declarations have an identifier and a type
  */
- typedef struct TYPEDECLARATION {
-     int lineno;
-     struct ID* id;
-     int isEmpty;   // whether this is an empty type declaration, i.e. type ()
-     int isDistributed; // whether this declaration is part of a distributed statement
-     int isLocal;   // whether this declaration is local (as opposed to global)
-     struct TYPE* type;
-     struct TYPEDECLARATION* nextDistributed; // for distributed type declarations; else this is null
- } TYPEDECLARATION;
+typedef struct TYPEDECLARATION {
+    int lineno;
+    struct ID* id;
+    int isEmpty;   // whether this is an empty type declaration, i.e. type ()
+    int isDistributed; // whether this declaration is part of a distributed statement
+    int isLocal;   // whether this declaration is local (as opposed to global)
+    struct TYPE* type;
+    struct TYPEDECLARATION* nextDistributed; // for distributed type declarations; else this is null
+} TYPEDECLARATION;
 
 /*
  * a function declaration
@@ -114,7 +123,6 @@ typedef struct FUNCTIONDECLARATION {
     struct PARAMETER *parameters;
     struct TYPE* returnType;
     struct STATEMENT *statements;
-    // TODO do we need to record the signature as a string here?
 } FUNCTIONDECLARATION;
 
 /*
@@ -133,7 +141,6 @@ typedef struct PARAMETER {
  */
 typedef struct ID {
     char* name;
-    struct SYMBOL* symbol;
     struct ID* next;
 } ID;
 
@@ -142,25 +149,40 @@ typedef struct ID {
  */
 typedef struct CAST {
     int lineno;
-    struct TYPE* type;
+    struct TYPE* type; // the type we're casting to
     struct EXP* exp;
 } CAST;
 
 /*
  * type
  */
- typedef struct TYPE {
-     int lineno;
-     enum { idK, structK, sliceK, arrayK } kind;
-     union {
-         struct ID* idT;
-         struct {struct EXP* size;
-                 struct TYPE* elementType;} arrayT;
-         struct FIELD* structT;  // the fields in the struct
-         struct TYPE* sliceT;    // the type of the elements in the slice
-         //struct STRUCTT *structT;
-     } val;
- } TYPE;
+typedef struct TYPE {
+    int lineno;
+    enum { idK, structK, sliceK, arrayK, intK, float64K, runeK, boolK, stringK } kind;
+    union {
+        struct {struct ID* id;
+                // int isAlias; // whether this id is an alias to another type (only won't be when the id is int, float64, etc)
+                struct TYPE* underlyingType; /* set in symbol phase */} idT;
+        struct {struct EXP* size;
+                struct TYPE* elementType;} arrayT;
+        struct FIELD* structT;  // the fields in the struct
+        struct TYPE* sliceT;    // the type of the elements in the slice
+    } val;
+} TYPE;
+/*
+typedef struct TYPE {
+    int lineno;
+    enum { idK, structK, sliceK, arrayK, intK, float64K, runeK, boolK, stringK } kind;
+    union {
+        struct ID* idT;
+        struct {struct EXP* size;
+                struct TYPE* elementType;} arrayT;
+        struct FIELD* structT;  // the fields in the struct
+        struct TYPE* sliceT;    // the type of the elements in the slice
+        //struct STRUCTT *structT;
+    } val;
+} TYPE;
+*/
 
 /*
  * field
@@ -216,6 +238,13 @@ typedef struct STATEMENT {
         struct TYPEDECLARATION* typeDeclS;
         struct {struct EXP* id;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
                 struct EXP* exp;
+                int isRedecl; // whether this variable was redeclared in the short decl statement
+                struct SYMBOL* prevDeclSym; // the symbol for the variable's previous declaration
+                                        // (NOTE: we don't actually know that the SYMBOL has type varDeclSym!
+                                        // this should be the first thing that the type checker checks)
+                                        // NOTE 2: if it IS a varDeclSym but the sym has no type (NULL type) since the
+                                        // previous var decl was expOnly, then we can let the exp of this short decl
+                                        // dicate the type!
                 struct STATEMENT* next;} shortDeclS;
         struct STATEMENT* blockS;   // all the statements in the block
     } val;

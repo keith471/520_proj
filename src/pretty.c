@@ -6,7 +6,6 @@
 #include "pretty.h"
 #include "outputhelpers.h"
 
-// the number of times to indent before printing
 FILE* emitFILE;
 
 void prettyPROGRAM(PROGRAM *p, char* filePath) {

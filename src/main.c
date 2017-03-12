@@ -5,11 +5,15 @@
 #include "tree.h"
 #include "pretty.h"
 #include "weed.h"
+//#include "symbol.h"
 
 int yylex();
 void yyparse();
 
 PROGRAM* theprogram;
+
+int dumpsymtab = 0; // if true, the symbol table will be dumped
+int pptype = 0; // if true, the program will be pretty printed with types
 
 extern FILE* yyin;
 
@@ -96,12 +100,109 @@ int main(int argc, char* argv[]) {
         char* programName; // parsed from program name
         char* outputPath = "./src/output/"; // the path to the output folder
         char* prettyPath; // the path to the pretty printed file
+        char* symbolPath; // the path to the symbol table file
 
         if (argc == 2) {
             programPath = argv[1];
             parsePROGRAM(programPath);
-        } else if (argc > 2) {
-            printf("USAGE: <path_to_executable> <path_to_golite_file>\n");
+        } else if (argc == 3) {
+            int pathSet = 0;
+            int error = 0;
+
+            char* arg = argv[1];
+
+            if (strcmp(arg, "-dumpsymtab") == 0) {
+                dumpsymtab = 1;
+            } else if (strcmp(arg, "-pptype") = 0) {
+                pptype = 1;
+            } else {
+                // must be the path to the file
+                programPath = arg;
+                pathSet = 1;
+            }
+
+            arg = argv[2];
+
+            if (strcmp(arg, "-dumpsymtab") == 0) {
+                dumpsymtab = 1;
+            } else if (strcmp(arg, "-pptype") = 0) {
+                pptype = 1;
+            } else {
+                if (!pathSet) {
+                    // must be the path to the file
+                    programPath = arg;
+                    pathSet = 1;
+                } else {
+                    // two paths given?
+                    error = 1;
+                }
+            }
+
+            if (!pathSet || error) {
+                printf("USAGE: <path_to_executable> <path_to_golite_file> [-dumpsymtab, -pptype]\n");
+                exit(1);
+            }
+
+            parsePROGRAM(programPath);
+
+        } else if (argc == 4) {
+            int pathSet = 0;
+            int error = 0;
+
+            char* arg = argv[1];
+
+            if (strcmp(arg, "-dumpsymtab") == 0) {
+                dumpsymtab = 1;
+            } else if (strcmp(arg, "-pptype") = 0) {
+                pptype = 1;
+            } else {
+                // must be the path to the file
+                programPath = arg;
+                pathSet = 1;
+            }
+
+            arg = argv[2];
+
+            if (strcmp(arg, "-dumpsymtab") == 0) {
+                dumpsymtab = 1;
+            } else if (strcmp(arg, "-pptype") = 0) {
+                pptype = 1;
+            } else {
+                if (!pathSet) {
+                    // must be the path to the file
+                    programPath = arg;
+                    pathSet = 1;
+                } else {
+                    // two paths given?
+                    error = 1;
+                }
+            }
+
+            arg = argv[3];
+
+            if (strcmp(arg, "-dumpsymtab") == 0) {
+                dumpsymtab = 1;
+            } else if (strcmp(arg, "-pptype") = 0) {
+                pptype = 1;
+            } else {
+                if (!pathSet) {
+                    // must be the path to the file
+                    programPath = arg;
+                    pathSet = 1;
+                } else {
+                    // two or more paths given?
+                    error = 1;
+                }
+            }
+
+            if (!pathSet || error) {
+                printf("USAGE: <path_to_executable> <path_to_golite_file> [-dumpsymtab, -pptype]\n");
+                exit(1);
+            }
+
+            parsePROGRAM(programPath);
+        } else if (argc > 4) {
+            printf("USAGE: <path_to_executable> <path_to_golite_file> [-dumpsymtab, -pptype]\n");
             exit(1);
         } else {
             printf("Type some golite code folowed by one or two Ctrl-d's:\n");
@@ -125,6 +226,16 @@ int main(int argc, char* argv[]) {
         prettyPROGRAM(theprogram, prettyPath);
         printf("    >>> SUCCESS\n");
         printf("    >>> pretty printed program to %s\n", prettyPath);
+
+        // create a symbol table for the program
+        /*
+        printf("making a symbol table...");
+        symbolPath = concat(outputPath, concat(programName, ".symtab"));
+        symPROGRAM(theprogram, symbolPath);
+        printf("    >>> SUCCESS\n");
+        printf("    >>> wrote the symbol table to %s\n", symbolPath);
+        terminateIfErrors();
+        */
 
     #endif
 

@@ -56,7 +56,8 @@ void weedVARDECLARATION(VARDECLARATION* vd) {
 
 void weedTYPEDECLARATION(TYPEDECLARATION* td) {
     if (td == NULL) return;
-    // the name of a type declaration can be _, i.e. type _ int is valid
+    // the name of a type declaration cannot be _, i.e. type _ int is NOT valid
+    checkForBlankIdentifier_string(td->id->name, "type alias cannot be _", td->lineno)
     weedTYPE(td->type);
     weedTYPEDECLARATION(td->nextDistributed);
 }
@@ -96,7 +97,7 @@ void weedFIELD(FIELD* f) {
 }
 
 void weedFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
-    checkForBlankIdentifier_string(fd->id->name, "function name cannot be _", fd->lineno);
+    // the function name can be the blank identifier, but then there is no way to call it
     weedPARAMETER(fd->parameters);
     weedTYPE(fd->returnType);
     weedSTATEMENT(fd->statements, 0, 0);

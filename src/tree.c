@@ -492,6 +492,8 @@ STATEMENT* makeSTATEMENTshortdeclhelper(EXP* id, EXP* exp, STATEMENT* next) {
     s->kind = shortDeclK;
     s->val.shortDeclS.id = id;
     s->val.shortDeclS.exp = exp;
+    s->val.shortDeclS.isRedecl = 0;
+    s->val.shortDeclS.prevDeclSym = NULL;
     s->val.shortDeclS.next = next;
     s->next = NULL;
     return s;
@@ -1258,7 +1260,8 @@ TYPE *makeTYPEid(ID* id) {
     t = NEW(TYPE);
     t->lineno = yylineno;
     t->kind = idK;
-    t->val.idT = id;
+    t->val.idT.id = id;
+    t->val.idT.underlyingType = NULL; // this will be set in the symbol phase
     return t;
 }
 
