@@ -79,9 +79,7 @@
         ```
 
 ## TODO
-- try to get this compiling!
-    - after that is done, uncomment the symbol stuff in main and add the files to the Makefile
-    - try running and fix errors!
+- fix all calls to scopeSymbolTable to include lineno
 - in lastSelector in EXP, the last selector should not have to be an id! It could be an EXP! Make this modification
 to the ast and everything it affects
 - need to figure out where to save the symbols in the tree...

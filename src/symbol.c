@@ -6,17 +6,32 @@
 
 FILE* emitFILE;
 extern int dumpsymtab;
+int currLineno = 0;  // the current lineno we are at
 
 /////////////////////////////////////////////////////////////////////////////////
 // SYMBOL TABLE PRINTING
 /////////////////////////////////////////////////////////////////////////////////
 
 /*
+ * called when a scope is exited to print the scope to file
+ */
+void scopeExit(SymbolTable* t) {
+    t->endLineno = currLineno;
+    if (dumpsymtab) {
+        dumpFrame(t);
+    }
+}
+
+/*
  * dumps only what is in the current symbol table to file
  * lineno is the line at which the scope exited
  */
-void dumpFrame(SymbolTable* scope, int lineno) {
-    fprintf(emitFILE, "the following scope exited at line %d:\n", lineno);
+void dumpFrame(SymbolTable* scope) {
+    if (scope->isUniverseBlock) {
+        fprintf(emitFILE, "the universe block:\n");
+    } else {
+        fprintf(emitFILE, "the scope beginning at line %d and ending at line %d:\n", scope->startLineno, scope->endLineno);
+    }
     fprintf(emitFILE, "------------------------------------------------------------------------------------");
     fprintf(emitFILE, "lineno\t\tname\t\tkind\t\ttype\n");
     fprintf(emitFILE, "____________________________________________________________________________________");
@@ -136,6 +151,9 @@ SymbolTable* createUniverseBlock() {
     SymbolTable *t;
     int i;
     t = NEW(SymbolTable);
+    t->isUniverseBlock = 1;
+    t->startLineno = -1;
+    t->endLineno = -1;
     for (i=0; i < HashSize; i++) t->table[i] = NULL;
     // add all the defaults!
     addDefault(intD, typeSym, t);
@@ -215,10 +233,13 @@ void addDefault(DefaultSymbol defSym, SymbolKind kind, SymbolTable* symbolTable)
 /*
  * Initialize a fresh symbol table
  */
-SymbolTable* initSymbolTable() {
+SymbolTable* initSymbolTable(int startLineno) {
     SymbolTable *t;
     int i;
     t = NEW(SymbolTable);
+    t->isUniverseBlock = 0;
+    t->startLineno = startLineno;
+    t->endLineno = startLineno;
     for (i=0; i < HashSize; i++) t->table[i] = NULL;
     t->next = NULL;
     return t;
@@ -230,24 +251,14 @@ SymbolTable* initSymbolTable() {
  * i.e. creates the new inner scope t, and sets its next pointer to s
  * returns the newly created inner scope
  */
-SymbolTable* scopeSymbolTable(SymbolTable *s) {
+SymbolTable* scopeSymbolTable(SymbolTable *s, int startLineno) {
     SymbolTable *t;
     // create a new inner scope
-    t = initSymbolTable();
+    t = initSymbolTable(startLineno);
     // set the inner scope's outer scope to s
     t->next = s;
     // return the inner scope
     return t;
-}
-
-/*
- * executed upon exiting a scope -> prints the current symbol frame to file
- * lineno is the line at which the scope exited
- */
-void scopeExit(SymbolTable* scope, int lineno) {
-    if (dumpsymtab) {
-        dumpFrame(scope, lineno);
-    }
 }
 
 /*
@@ -347,8 +358,10 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
     }
 
     symbolTable = createUniverseBlock(); // create the universe block
-    symbolTable = scopeSymbolTable(symbolTable); // create the outermost scope for the program
+    scopeExit(symbolTable);
+    symbolTable = scopeSymbolTable(symbolTable, 0); // create the outermost scope for the program
     symTOPLEVELDECLARATION(p->topLevelDeclaration, symbolTable);
+    scopeExit(symbolTable);
 
     if (dumpsymtab) {
         fclose(emitFILE);
@@ -361,6 +374,7 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
  */
 void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* t) {
     if (tld == NULL) return;
+    currLineno = tld->lineno;
     switch (tld->kind) {
         case vDeclK:
             symVARDECLARATION(tld->val.varDeclTLD, t);
@@ -384,6 +398,7 @@ void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* t) {
  */
 void symVARDECLARATION(VARDECLARATION* v, SymbolTable* t) {
     if (v == NULL) return;  // no more distributed variable declarations
+    currLineno = v->lineno;
     if (v->isEmpty) return;
     symVARDECLARATIONlist(v, t, 0);
     symVARDECLARATION(v->nextDistributed, t);
@@ -452,6 +467,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
  */
 void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* t) {
     if (td == NULL) return;
+    currLineno = td->lineno;
     if (td->isEmpty) return;
     // verify the type
     verifyType(td->type, t);
@@ -470,6 +486,8 @@ void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* t) {
  * sym a function - the order in which we sym things is important
  */
 void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
+    currLineno = f->lineno;
+
     // sym the return type in the current scope (could be NULL)
     if (f->returnType != NULL) {
         verifyType(f->returnType, t);
@@ -485,17 +503,21 @@ void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
     }
 
     // create a new scope
-    SymbolTable* funcScope = scopeSymbolTable(t);
+    SymbolTable* funcScope = scopeSymbolTable(t, currLineno);
 
     // sym the parameters in the new scope
     symPARAMETER(f->parameters, funcScope);
 
     // sym the statements in the new scope
     symSTATEMENT(f->statements, funcScope);
+
+    // print out the scope
+    scopeExit(funcScope);
 }
 
 void symPARAMETER(PARAMETER* p, SymbolTable* t) {
     if (p == NULL) return;
+    currLineno = p->lineno;
     symPARAMETERlist(p, t, 0);
     symPARAMETER(p->nextParamSet, t);
 }
@@ -526,6 +548,7 @@ void symPARAMETERlist(PARAMETER* p, SymbolTable* t, int checkedType) {
 
 void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
     if (s == NULL) return;
+    currLineno = s->lineno;
     SymbolTable* ifScope;
     SymbolTable* bodyScope;
     SymbolTable* ifElseScope;
@@ -587,66 +610,84 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
         case ifK:
             // an if statement takes place within a new scope, including the init statement
             // create a new scope
-            ifScope = scopeSymbolTable(symbolTable);
+            ifScope = scopeSymbolTable(symbolTable, currLineno);
             // sym the initStatement within the new scope
             symSTATEMENT(s->val.ifS.initStatement, ifScope);
             // sym the condition within the new scope
             symEXP(s->val.ifS.condition, ifScope);
             // create another new scope for the body of the if statement
-            bodyScope = scopeSymbolTable(ifScope);
+            bodyScope = scopeSymbolTable(ifScope, currLineno);
             // sym the body within the body scope
             symSTATEMENT(s->val.ifS.body, bodyScope);
+            // scope exits
+            scopeExit(bodyScope);
+            scopeExit(ifScope);
             break;
         case ifElseK:
             // again, all of this takes place within a new scope
-            ifElseScope = scopeSymbolTable(symbolTable);
+            ifElseScope = scopeSymbolTable(symbolTable, currLineno);
             // sym the initStatement and condition within the new scope
             symSTATEMENT(s->val.ifElseS.initStatement, ifElseScope);
             symEXP(s->val.ifElseS.condition, ifElseScope);
             // the if body and else body have their own scopes
-            ifBody = scopeSymbolTable(ifElseScope);
+            ifBody = scopeSymbolTable(ifElseScope, currLineno);
             symSTATEMENT(s->val.ifElseS.thenPart, ifBody);
-            elseBody = scopeSymbolTable(ifElseScope);
+            // the scope of the if body ends here
+            scopeExit(ifBody);
+            elseBody = scopeSymbolTable(ifElseScope, currLineno);
             symSTATEMENT(s->val.ifElseS.elsePart, elseBody);
+            // the scope of the else body ends here
+            scopeExit(elseBody);
+            // the scope of the entire if/else ends here
+            scopeExit(ifElseScope);
             break;
         case switchK:
             // again, all of this takes place within a new scope
-            switchScope = scopeSymbolTable(symbolTable);
+            switchScope = scopeSymbolTable(symbolTable, currLineno);
             // sym the init statement and condition within the new scope
             symSTATEMENT(s->val.switchS.initStatement, switchScope);
             symEXP(s->val.switchS.condition, switchScope);
             // sym all the switch cases
             symSWITCHCASE(s->val.switchS.cases, switchScope);
+            // the scope of the entire switch-case block ends here
+            scopeExit(switchScope);
             break;
         case whileK:
             // again, all of this happens within a new scope
             // technically, we can sym the condition within the current scope but it works either way
-            whileScope = scopeSymbolTable(symbolTable);
+            whileScope = scopeSymbolTable(symbolTable, currLineno);
             symEXP(s->val.whileS.condition, whileScope);
-            // the body has its own scope -> this doesn't seem strictly necessary but the reference compiler does it
-            bodyScope = scopeSymbolTable(whileScope);
+            // the body has its own scope
+            bodyScope = scopeSymbolTable(whileScope, currLineno);
             symSTATEMENT(s->val.whileS.body, bodyScope);
+            // scope exits
+            scopeExit(bodyScope);
+            scopeExit(whileScope);
             break;
         case infiniteLoopK:
             // again, we nest this within some scopes, although it seems awfully silly to do so
             // we do it because the reference compiler does and to be consistent with the other kinds of for loops
-            //SymbolTable* infLoopScope = scopeSymbolTable(symbolTable);
-            //SymbolTable* bodyScope = scopeSymbolTable(infLoopScope);
+            //SymbolTable* infLoopScope = scopeSymbolTable(symbolTable, currLineno);
+            //SymbolTable* bodyScope = scopeSymbolTable(infLoopScope, currLineno);
             //symSTATEMENT(s->val.infiniteLoopS, bodyScope);
 
             // ^^ actually, fuck that, let's use only what we need
-            bodyScope = scopeSymbolTable(symbolTable);
+            bodyScope = scopeSymbolTable(symbolTable, currLineno);
             symSTATEMENT(s->val.infiniteLoopS, bodyScope);
+            scopeExit(bodyScope);
             break;
         case forK:
             // create a new scope for the initStatement, condition, and postStatement
-            forScope = scopeSymbolTable(symbolTable);
+            forScope = scopeSymbolTable(symbolTable, currLineno);
             symSTATEMENT(s->val.forS.initStatement, forScope);
             symEXP(s->val.forS.condition, forScope);
             symSTATEMENT(s->val.forS.postStatement, forScope);
             // create a new scope for the body
-            bodyScope = scopeSymbolTable(forScope);
+            bodyScope = scopeSymbolTable(forScope, currLineno);
             symSTATEMENT(s->val.forS.body, bodyScope);
+            // scope exits
+            scopeExit(bodyScope);
+            scopeExit(forScope);
             break;
         case breakK:
             // nothing to do
@@ -656,9 +697,10 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
             break;
         case blockK:
             // create a new scope
-            blockScope = scopeSymbolTable(symbolTable);
+            blockScope = scopeSymbolTable(symbolTable, currLineno);
             // sym all the statements within the new scope
             symSTATEMENT(s->val.blockS, blockScope);
+            scopeExit(blockScope);
             break;
         default:
             break;
@@ -668,8 +710,9 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
 
 void symSWITCHCASE(SWITCHCASE* sc, SymbolTable* switchScope) {
     if (sc == NULL) return;
+    currLineno = sc->lineno;
     // each case takes place within its own scope
-    SymbolTable* caseScope = scopeSymbolTable(switchScope);
+    SymbolTable* caseScope = scopeSymbolTable(switchScope, currLineno);
     // sym everything within the new scope
     switch (sc->kind) {
         case caseK:
@@ -680,6 +723,8 @@ void symSWITCHCASE(SWITCHCASE* sc, SymbolTable* switchScope) {
             symSTATEMENT(sc->val.defaultStatementsC, caseScope);
             break;
     }
+    // scope exit
+    scopeExit(caseScope);
     // sym the next switch case within the switchScope
     symSWITCHCASE(sc->next, switchScope);
 }
@@ -728,6 +773,7 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
 
 void symFIELD(FIELD* f, SymbolTable* t) {
     if (f == NULL) return;
+    currLineno = f->lineno;
     symFIELDlist(f, t, 0);
     symFIELD(f->nextFieldSet, t);
 }
@@ -769,6 +815,7 @@ void symEXPs(EXP* e, SymbolTable* t) {
  */
 void symEXP(EXP* e, SymbolTable* t) {
     if (e == NULL) return;
+    currLineno = e->lineno;
     SYMBOL* s;
     switch (e->kind) {
         case identifierK:
@@ -957,9 +1004,11 @@ void verifyType(TYPE* type, SymbolTable* t) {
             break;
         case structK:
             // create a new scope for the struct!
-            structScope = scopeSymbolTable(t);
+            structScope = scopeSymbolTable(t, currLineno);
             // sym the fields of the struct within the new scope
             symFIELD(type->val.structT, structScope);
+            // scope exit
+            scopeExit(structScope);
             break;
         default:
             break;

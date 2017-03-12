@@ -4,6 +4,9 @@
 #define HashSize 317
 
 typedef struct SymbolTable {
+    int isUniverseBlock; // whether this is the table for the universe block
+    int startLineno; // the lineno at which the scope of this symbol table begins
+    int endLineno;  // the lineno at which the scope of this symbol table ends
     SYMBOL *table[HashSize];
     struct SymbolTable *next;  // a pointer to the immediate outer scope of this scope (the current symbol table)
 } SymbolTable;
@@ -18,7 +21,8 @@ typedef enum { intD, float64D, runeD, boolD, stringD, trueD, falseD } DefaultSym
 
 SymbolTable *symbolTable;
 
-void dumpFrame(SymbolTable* scope, int lineno);
+void scopeExit(SymbolTable* t);
+void dumpFrame(SymbolTable* scope);
 void printSymbolTable(SYMBOL* table[]);
 void printSymbol(SYMBOL* s);
 char* getTypeAsString(TYPE* t);
@@ -26,9 +30,8 @@ char* getTypeAsString(TYPE* t);
 int Hash(char *str);
 SymbolTable* createUniverseBlock();
 void addDefault(DefaultSymbol defSym, SymbolKind kind, SymbolTable* symbolTable);
-SymbolTable* initSymbolTable();
-SymbolTable* scopeSymbolTable(SymbolTable *s);
-void scopeExit(SymbolTable* scope, int lineno);
+SymbolTable* initSymbolTable(int startLineno);
+SymbolTable* scopeSymbolTable(SymbolTable *s, int startLineno);
 PutSymbolWrapper* putSymbol(SymbolTable *t, char *name, SymbolKind kind, int lineno, int isShortVarDecl);
 SYMBOL *getSymbol(SymbolTable *t, char *name, int lineno);
 
