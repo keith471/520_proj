@@ -493,7 +493,7 @@ parsing program...
 [pass]
 grading/invalid/parser//6-function_declaration/funcdec7.go: PARSER ERROR:
     *** message: syntax error
-    *** location: syntax error before ( at line 3
+    *** location: syntax error before , at line 3
 *** compilation terminated
 parsing program...
 [pass]

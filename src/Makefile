@@ -19,6 +19,6 @@ flex: golite.l
 	flex golite.l; $(CC) lex.yy.c -o scanner -ll
 
 clean:
-	rm y.tab.* lex.yy.*; rm scanner; rm out; rm y.output
+	rm -f y.tab.* lex.yy.* y.output scanner out
 
 ## END

@@ -80,10 +80,8 @@
 
 ## TODO
 - try to get this compiling!
-    - first, try to compile as is, to make sure that there aren't errors based on changes you've made to the existing files
     - after that is done, uncomment the symbol stuff in main and add the files to the Makefile
     - try running and fix errors!
-- check that you need to support (and if so, that you have supported) parenthesize types
 - in lastSelector in EXP, the last selector should not have to be an id! It could be an EXP! Make this modification
 to the ast and everything it affects
 - need to figure out where to save the symbols in the tree...

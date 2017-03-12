@@ -937,6 +937,8 @@ type:
         { $$ = makeTYPEid($1); }
     | typeLit
         { $$ = $1; }
+    | '(' type ')'
+        { $$ = $2; }
     ;
 
 typeLit:
