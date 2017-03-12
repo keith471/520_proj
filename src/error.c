@@ -79,7 +79,7 @@ void reportRedeclError(char *msg, char* name, int prevLineno, int lineno) {
 
 void reportError(char* errType, char* msg, int lineno) {
     printf("%s ERROR:\n", errType);
-    printf("    *** message: %s\n", s);
+    printf("    *** message: %s\n", msg);
     printf("    *** location: at line %i\n", lineno);
     errors++;
 }

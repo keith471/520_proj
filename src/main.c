@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
 
             if (strcmp(arg, "-dumpsymtab") == 0) {
                 dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") = 0) {
+            } else if (strcmp(arg, "-pptype") == 0) {
                 pptype = 1;
             } else {
                 // must be the path to the file
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 
             if (strcmp(arg, "-dumpsymtab") == 0) {
                 dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") = 0) {
+            } else if (strcmp(arg, "-pptype") == 0) {
                 pptype = 1;
             } else {
                 if (!pathSet) {
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
 
             if (strcmp(arg, "-dumpsymtab") == 0) {
                 dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") = 0) {
+            } else if (strcmp(arg, "-pptype") == 0) {
                 pptype = 1;
             } else {
                 // must be the path to the file
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
 
             if (strcmp(arg, "-dumpsymtab") == 0) {
                 dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") = 0) {
+            } else if (strcmp(arg, "-pptype") == 0) {
                 pptype = 1;
             } else {
                 if (!pathSet) {
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
 
             if (strcmp(arg, "-dumpsymtab") == 0) {
                 dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") = 0) {
+            } else if (strcmp(arg, "-pptype") == 0) {
                 pptype = 1;
             } else {
                 if (!pathSet) {

@@ -383,6 +383,7 @@ void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* t) {
  */
 void symVARDECLARATION(VARDECLARATION* v, SymbolTable* t) {
     if (v == NULL) return;  // no more distributed variable declarations
+    if (v->isEmpty) return;
     symVARDECLARATIONlist(v, t);
     symVARDECLARATION(v->nextDistributed, t);
 }
@@ -450,6 +451,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
  */
 void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* t) {
     if (td == NULL) return;
+    if (td->isEmpty) return;
     // verify the type
     verifyType(td->type, t);
     // create a symbol for the id

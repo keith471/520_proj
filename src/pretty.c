@@ -176,7 +176,7 @@ void prettyTYPE(TYPE* type, int level) {
     if (type == NULL) return;
     switch (type->kind) {
         case idK:
-            prettyID(type->val.idT);
+            prettyID(type->val.idT.id);
             break;
         case structK:
             if (level == -1) {
@@ -204,6 +204,18 @@ void prettyTYPE(TYPE* type, int level) {
             fprintf(emitFILE, "]");
             // recurse to print the type of the elements in the array
             prettyTYPE(type->val.arrayT.elementType, level);
+            break;
+        case intK:
+            break;
+        case float64K:
+            break;
+        case runeK:
+            break;
+        case boolK:
+            break;
+        case stringK:
+            break;
+        default:
             break;
     }
 }

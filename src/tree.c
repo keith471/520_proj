@@ -1236,7 +1236,6 @@ ID* makeID(char* name) {
     ID* i;
     i = NEW(ID);
     i->name = name;
-    i->symbol = NULL;
     i->next = NULL;
     return i;
 }

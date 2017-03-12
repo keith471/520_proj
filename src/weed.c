@@ -56,8 +56,9 @@ void weedVARDECLARATION(VARDECLARATION* vd) {
 
 void weedTYPEDECLARATION(TYPEDECLARATION* td) {
     if (td == NULL) return;
+    if (td->isEmpty) return;
     // the name of a type declaration cannot be _, i.e. type _ int is NOT valid
-    checkForBlankIdentifier_string(td->id->name, "type alias cannot be _", td->lineno)
+    checkForBlankIdentifier_string(td->id->name, "type alias cannot be _", td->lineno);
     weedTYPE(td->type);
     weedTYPEDECLARATION(td->nextDistributed);
 }
@@ -69,7 +70,7 @@ void weedTYPE(TYPE* t) {
     if (t == NULL) return;
     switch (t->kind) {
         case idK:
-            checkForBlankIdentifier_string(t->val.idT->name, "type cannot be _", t->lineno);
+            checkForBlankIdentifier_string(t->val.idT.id->name, "type cannot be _", t->lineno);
             break;
         case structK:
             weedFIELD(t->val.structT);
