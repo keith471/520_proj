@@ -838,9 +838,19 @@ primaryExp:
       operand
         { $$ = $1; }
     | primaryExp '.' identifier // field access
-        { $$ = makeEXPselector($1, $3); }
+        {
+            #ifdef BISON_DEBUG
+                printf("found a selector\n");
+            #endif
+            $$ = makeEXPselector($1, $3);
+        }
     | primaryExp '[' exp ']' // array indexing
-        { $$ = makeEXPindex($1, $3); }
+        {
+            #ifdef BISON_DEBUG
+                printf("found an index into an array\n");
+            #endif
+            $$ = makeEXPindex($1, $3); 
+        }
     | primaryExp '(' expList ')' // function call
         { $$ = makeEXParguments($1, $3); }
     ;

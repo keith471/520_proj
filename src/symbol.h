@@ -12,7 +12,7 @@ typedef struct PutSymbolWrapper {
     SYMBOL* symbol;
     int isRedecl; // whether this symbol is a redeclaration
     SYMBOL* prevDeclSym; // the symbol corresponding to the previous declaration
-}
+} PutSymbolWrapper;
 
 typedef enum { intD, float64D, runeD, boolD, stringD, trueD, falseD } DefaultSymbol;
 
@@ -48,4 +48,4 @@ void symFIELDlist(FIELD* f, SymbolTable* t, int checkedType);
 void symEXPs(EXP* e, SymbolTable* t);
 void symEXP(EXP* e, SymbolTable* t);
 void verifyType(TYPE* type, SymbolTable* t);
-void notBlank(char* name);
+int notBlank(char* name);

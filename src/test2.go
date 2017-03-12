@@ -1,3 +1,6 @@
 package cool
 
-var x (bool)
+func main() {
+    var bean beans
+    bean.x[0] = 5
+}

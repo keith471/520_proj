@@ -809,6 +809,24 @@ void prettyEXP(EXP* e) {
             break;
         case selectorK:
             prettyEXP(e->val.selectorE.rest);
+            /*
+            switch (e->val.selectorE.rest->kind) {
+                case selectorK:
+                    printf("rest is a selector\n");
+                    printf("%s\n", e->val.selectorE.rest->val.selectorE.lastSelector->name);
+                    break;
+                case indexK:
+                    printf("rest is an index\n");
+                    //printf("%s\n", e->val.selectorE.rest->val.indexE.lastSelector->name);
+                    break;
+                case idK:
+                    printf("rest is an id: %s\n", e->val.selectorE.rest->val.idE->name);
+                    break;
+                default:
+                    printf("rest is something else\n");
+                    break;
+            }
+            */
             fprintf(emitFILE, ".");
             prettyID(e->val.selectorE.lastSelector);
             break;

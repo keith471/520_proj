@@ -1,4 +1,5 @@
-
+#include <stdio.h>
+#include <string.h>
 #include "memory.h"
 #include "symbol.h"
 #include "error.h"
@@ -15,10 +16,10 @@ extern int dumpsymtab;
  * lineno is the line at which the scope exited
  */
 void dumpFrame(SymbolTable* scope, int lineno) {
-    fprintf(emifFILE, "the following scope exited at line %s:\n", lineno);
-    fprintf(emitFILE, "------------------------------------------------------------------------------------")
+    fprintf(emitFILE, "the following scope exited at line %d:\n", lineno);
+    fprintf(emitFILE, "------------------------------------------------------------------------------------");
     fprintf(emitFILE, "lineno\t\tname\t\tkind\t\ttype\n");
-    fprintf(emitFILE, "____________________________________________________________________________________")
+    fprintf(emitFILE, "____________________________________________________________________________________");
     printSymbolTable(scope->table);
     fprintf(emitFILE, "\n");
 }
@@ -81,7 +82,7 @@ char* getTypeAsString(TYPE* t) {
         case idK:
             // TODO make fancier
             // returns id (alias to id2 (alias to id3(...)))
-            return t->val.id->name;
+            return t->val.idT.id->name;
             break;
         case structK:
             // TODO should we print the fields? Probably not --> could get very messy!
@@ -140,7 +141,7 @@ SymbolTable* createUniverseBlock() {
     addDefault(intD, typeSym, t);
     addDefault(float64D, typeSym, t);
     addDefault(runeD, typeSym, t);
-    addDefault(strinD, typeSym, t);
+    addDefault(stringD, typeSym, t);
     addDefault(boolD, typeSym, t);
     addDefault(trueD, varSym, t);
     addDefault(falseD, varSym, t);
@@ -166,7 +167,7 @@ void addDefault(DefaultSymbol defSym, SymbolKind kind, SymbolTable* symbolTable)
             break;
         case float64D:
             name = "float64";
-            t->kind = floatK;
+            t->kind = float64K;
             s->val.typeS = t;
             break;
         case runeD:
@@ -206,7 +207,7 @@ void addDefault(DefaultSymbol defSym, SymbolKind kind, SymbolTable* symbolTable)
     s->kind = kind;
 
     // add s to the hashtable
-    i = HASH(name);
+    i = Hash(name);
     s->next = symbolTable->table[i];
     symbolTable->table[i] = s;
 }
@@ -330,7 +331,7 @@ SYMBOL *getSymbol(SymbolTable *t, char *name, int lineno) {
         reportStrError("SYMBOL", "undefined: %s", name, lineno);
         return NULL;
     }
-    return getSymbol(t->next, name);
+    return getSymbol(t->next, name, lineno);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +351,7 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
     symTOPLEVELDECLARATION(p->topLevelDeclaration, symbolTable);
 
     if (dumpsymtab) {
-        fclose(filePath);
+        fclose(emitFILE);
     }
 }
 
@@ -362,7 +363,7 @@ void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* t) {
     if (tld == NULL) return;
     switch (tld->kind) {
         case vDeclK:
-            symVARDECLARATION(tld->val.varDeclTLD, t, 0);
+            symVARDECLARATION(tld->val.varDeclTLD, t);
             break;
         case tDeclK:
             symTYPEDECLARATION(tld->val.typeDeclTLD, t);
@@ -373,7 +374,7 @@ void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* t) {
         default:
             break;
     }
-    symTOPLEVELDECLARATION(tld->next);
+    symTOPLEVELDECLARATION(tld->next, t);
 }
 
 /*
@@ -384,7 +385,7 @@ void symTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld, SymbolTable* t) {
 void symVARDECLARATION(VARDECLARATION* v, SymbolTable* t) {
     if (v == NULL) return;  // no more distributed variable declarations
     if (v->isEmpty) return;
-    symVARDECLARATIONlist(v, t);
+    symVARDECLARATIONlist(v, t, 0);
     symVARDECLARATION(v->nextDistributed, t);
 }
 
@@ -426,10 +427,10 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
             break;
         case typeAndExpK:
             // check the expression
-            symEXP(v->val.typeAndExpVD.exp);
+            symEXP(v->val.typeAndExpVD.exp, t);
             // then check the type
             if (!checkedType) {
-                verifyType(v->val.typeAndExpVD.type);
+                verifyType(v->val.typeAndExpVD.type, t);
                 checkedType = 1;
             }
             // then create a symbol for the var decl (if it is not blank)
@@ -496,7 +497,7 @@ void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
 void symPARAMETER(PARAMETER* p, SymbolTable* t) {
     if (p == NULL) return;
     symPARAMETERlist(p, t, 0);
-    symPARAMETER(p->nextParamSet);
+    symPARAMETER(p->nextParamSet, t);
 }
 
 /*
@@ -525,6 +526,15 @@ void symPARAMETERlist(PARAMETER* p, SymbolTable* t, int checkedType) {
 
 void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
     if (s == NULL) return;
+    SymbolTable* ifScope;
+    SymbolTable* bodyScope;
+    SymbolTable* ifElseScope;
+    SymbolTable* ifBody;
+    SymbolTable* elseBody;
+    SymbolTable* switchScope;
+    SymbolTable* whileScope;
+    SymbolTable* forScope;
+    SymbolTable* blockScope;
     switch (s->kind) {
         case emptyK:
             // nothing to do
@@ -577,30 +587,31 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
         case ifK:
             // an if statement takes place within a new scope, including the init statement
             // create a new scope
-            SymbolTable* ifScope = scopeSymbolTable(symbolTable);
+            ifScope = scopeSymbolTable(symbolTable);
             // sym the initStatement within the new scope
             symSTATEMENT(s->val.ifS.initStatement, ifScope);
             // sym the condition within the new scope
             symEXP(s->val.ifS.condition, ifScope);
             // create another new scope for the body of the if statement
-            SymbolTable* bodyScope = scopeSymbolTable(ifScope);
+            bodyScope = scopeSymbolTable(ifScope);
             // sym the body within the body scope
             symSTATEMENT(s->val.ifS.body, bodyScope);
+            break;
         case ifElseK:
             // again, all of this takes place within a new scope
-            SymbolTable* ifElseScope = scopeSymbolTable(symbolTable);
+            ifElseScope = scopeSymbolTable(symbolTable);
             // sym the initStatement and condition within the new scope
             symSTATEMENT(s->val.ifElseS.initStatement, ifElseScope);
             symEXP(s->val.ifElseS.condition, ifElseScope);
             // the if body and else body have their own scopes
-            SymbolTable* ifBody = scopeSymbolTable(ifElseScope);
+            ifBody = scopeSymbolTable(ifElseScope);
             symSTATEMENT(s->val.ifElseS.thenPart, ifBody);
-            SymbolTable* elseBody = scopeSymbolTable(ifElseScope);
+            elseBody = scopeSymbolTable(ifElseScope);
             symSTATEMENT(s->val.ifElseS.elsePart, elseBody);
             break;
         case switchK:
             // again, all of this takes place within a new scope
-            SymbolTable* switchScope = scopeSymbolTable(symbolTable);
+            switchScope = scopeSymbolTable(symbolTable);
             // sym the init statement and condition within the new scope
             symSTATEMENT(s->val.switchS.initStatement, switchScope);
             symEXP(s->val.switchS.condition, switchScope);
@@ -610,10 +621,10 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
         case whileK:
             // again, all of this happens within a new scope
             // technically, we can sym the condition within the current scope but it works either way
-            SymbolTable* whileScope = scopeSymbolTable(symbolTable);
+            whileScope = scopeSymbolTable(symbolTable);
             symEXP(s->val.whileS.condition, whileScope);
             // the body has its own scope -> this doesn't seem strictly necessary but the reference compiler does it
-            SymbolTable* bodyScope = scopeSymbolTable(whileScope);
+            bodyScope = scopeSymbolTable(whileScope);
             symSTATEMENT(s->val.whileS.body, bodyScope);
             break;
         case infiniteLoopK:
@@ -624,17 +635,17 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
             //symSTATEMENT(s->val.infiniteLoopS, bodyScope);
 
             // ^^ actually, fuck that, let's use only what we need
-            SymbolTable* bodyScope = scopeSymbolTable(symbolTable);
+            bodyScope = scopeSymbolTable(symbolTable);
             symSTATEMENT(s->val.infiniteLoopS, bodyScope);
             break;
         case forK:
             // create a new scope for the initStatement, condition, and postStatement
-            SymbolTable* forScope = scopeSymbolTable(symbolTable);
+            forScope = scopeSymbolTable(symbolTable);
             symSTATEMENT(s->val.forS.initStatement, forScope);
             symEXP(s->val.forS.condition, forScope);
             symSTATEMENT(s->val.forS.postStatement, forScope);
             // create a new scope for the body
-            SymbolTable* bodyScope = scopeSymbolTable(forScope);
+            bodyScope = scopeSymbolTable(forScope);
             symSTATEMENT(s->val.forS.body, bodyScope);
             break;
         case breakK:
@@ -645,7 +656,7 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
             break;
         case blockK:
             // create a new scope
-            SymbolTable* blockScope = scopeSymbolTable(symbolTable);
+            blockScope = scopeSymbolTable(symbolTable);
             // sym all the statements within the new scope
             symSTATEMENT(s->val.blockS, blockScope);
             break;
@@ -690,8 +701,8 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
         symEXP(stmt->val.shortDeclS.exp, symbolTable);
 
         // then, create a symbol for the id (provided it is not blank)
-        if (notBlank(stmt->val.shortDeclS.id->name)) {
-            p = putSymbol(symbolTable, stmt->val.shortDeclS.id->name, shortDeclSym, stmt->lineno, 1);
+        if (notBlank(stmt->val.shortDeclS.id->val.idE->name)) {
+            p = putSymbol(symbolTable, stmt->val.shortDeclS.id->val.idE->name, shortDeclSym, stmt->lineno, 1);
 
             // check if the id was a redeclaration
             if (p->isRedecl) {
@@ -762,12 +773,12 @@ void symEXP(EXP* e, SymbolTable* t) {
     switch (e->kind) {
         case identifierK:
             // we need to check that this symbol exists
-            s = getSymbol(e->val.idE->name, t, e->lineno);
+            s = getSymbol(t, e->val.idE->name, e->lineno);
             // TODO we probably want to store this symbol somewhere for the type phase
             // identifiers in expressions had better be either fields, parameters, variables, or functions
             if (s != NULL) {
                 if ((s->kind != fieldSym) && (s->kind != parameterSym) && (s->kind != varDeclSym) && (s->kind != varSym) && (s->kind != functionDeclSym)) {
-                    reportStrError("SYMBOL", "%s is not a variable or function as expected", e->val.idE.name, e->lineno);
+                    reportStrError("SYMBOL", "%s is not a variable or function as expected", e->val.idE->name, e->lineno);
                 }
             }
             break;
@@ -870,7 +881,7 @@ void symEXP(EXP* e, SymbolTable* t) {
             symEXP(e->val.selectorE.rest, t);
             // TODO this will need to be modified after adjusting lastSelector to be an exp
             // and even if that isn't done we should take the symbol returned by getSymbol and save it in the ast
-            getSymbol(e->val.selectorE.lastSelector->name, t, e->lineno);
+            getSymbol(t, e->val.selectorE.lastSelector->name, e->lineno);
             break;
         case indexK:
             symEXP(e->val.indexE.rest, t);
@@ -907,11 +918,12 @@ void symEXP(EXP* e, SymbolTable* t) {
  * if the type is a composite type, then we verify the components of the type separately
 */
 void verifyType(TYPE* type, SymbolTable* t) {
+    SYMBOL* s;
+    SymbolTable* structScope;
     switch (type->kind) {
         case idK:
-            SYMBOL* s;
             // check that the id of the type has been defined (will produce an error if not)
-            s = getSymbol(type->val.idT->name, t, type->lineno);
+            s = getSymbol(t, type->val.idT.id->name, type->lineno);
             // ensure that the symbol we found is for a type
             if (s != NULL) {
                 switch (s->kind) {
@@ -945,7 +957,7 @@ void verifyType(TYPE* type, SymbolTable* t) {
             break;
         case structK:
             // create a new scope for the struct!
-            SymbolTable* structScope = scopeSymbolTable(t);
+            structScope = scopeSymbolTable(t);
             // sym the fields of the struct within the new scope
             symFIELD(type->val.structT, structScope);
             break;
@@ -958,7 +970,7 @@ void verifyType(TYPE* type, SymbolTable* t) {
 // HELPERS
 /////////////////////////////////////////////////////////////////////////////////
 
-void notBlank(char* name) {
+int notBlank(char* name) {
     if (strcmp("_", name) == 0) {
         return 0;
     }
