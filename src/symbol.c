@@ -27,14 +27,15 @@ void scopeExit(SymbolTable* t) {
  * lineno is the line at which the scope exited
  */
 void dumpFrame(SymbolTable* scope) {
+    fprintf(emitFILE, "____________________________________________________________________________________\n");
     if (scope->isUniverseBlock) {
         fprintf(emitFILE, "the universe block:\n");
     } else {
         fprintf(emitFILE, "the scope beginning at line %d and ending at line %d:\n", scope->startLineno, scope->endLineno);
     }
-    fprintf(emitFILE, "------------------------------------------------------------------------------------");
+    fprintf(emitFILE, "____________________________________________________________________________________\n");
     fprintf(emitFILE, "lineno\t\tname\t\tkind\t\ttype\n");
-    fprintf(emitFILE, "____________________________________________________________________________________");
+    fprintf(emitFILE, "---------------------------------------------------------\n");
     printSymbolTable(scope->table);
     fprintf(emitFILE, "\n");
 }
@@ -43,7 +44,7 @@ void printSymbolTable(SYMBOL* table[]) {
     SYMBOL* s;
     int i;
     for (i = 0; i < HashSize; i++) {
-        s = symbolTable->table[i];
+        s = table[i];
         while (s != NULL) {
             printSymbol(s);
             s = s->next;
@@ -286,7 +287,7 @@ PutSymbolWrapper* putSymbol(SymbolTable *t, char *name, SymbolKind kind, int lin
             // we need to indicate that this is a redeclaration so that the caller can determine if it is valid
             if (!isShortVarDecl) {
                 // invalid redeclaration
-                reportRedeclError("%s redeclared in this block; previous declaration at %d", name, curr->lineno, lineno);
+                reportRedeclError("%s redeclared in this block; previous declaration at line %d", name, curr->lineno, lineno);
             } else {
                 // this short variable declaration is a redeclaration
                 // we DO NOT want to add a new symbol to the table for it!!!
@@ -356,7 +357,7 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
     if (dumpsymtab) {
         emitFILE = fopen(filePath, "w");
     }
-
+    
     symbolTable = createUniverseBlock(); // create the universe block
     scopeExit(symbolTable);
     symbolTable = scopeSymbolTable(symbolTable, 0); // create the outermost scope for the program
@@ -824,7 +825,7 @@ void symEXP(EXP* e, SymbolTable* t) {
             // TODO we probably want to store this symbol somewhere for the type phase
             // identifiers in expressions had better be either fields, parameters, variables, or functions
             if (s != NULL) {
-                if ((s->kind != fieldSym) && (s->kind != parameterSym) && (s->kind != varDeclSym) && (s->kind != varSym) && (s->kind != functionDeclSym)) {
+                if ((s->kind != fieldSym) && (s->kind != parameterSym) && (s->kind != varDeclSym) && (s->kind != varSym) && (s->kind != functionDeclSym) && (s->kind != shortDeclSym)) {
                     reportStrError("SYMBOL", "%s is not a variable or function as expected", e->val.idE->name, e->lineno);
                 }
             }

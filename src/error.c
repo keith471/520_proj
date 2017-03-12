@@ -64,7 +64,7 @@ void reportSymbolError(char *s, char *name, int lineno) {
     printf("SYMBOL ERROR:\n");
     printf("    *** message: %s\n", s);
     printf("    *** identifier: %s\n", name);
-    printf("    *** location: at line %i\n", lineno);
+    printf("    *** location: line %i\n", lineno);
     errors++;
 }
 
@@ -73,14 +73,14 @@ void reportRedeclError(char *msg, char* name, int prevLineno, int lineno) {
     sprintf(str, msg, name, prevLineno);
     printf("SYMBOL ERROR:\n");
     printf("    *** message: %s\n", str);
-    printf("    *** location: at line %i\n", lineno);
+    printf("    *** location: line %i\n", lineno);
     errors++;
 }
 
 void reportError(char* errType, char* msg, int lineno) {
     printf("%s ERROR:\n", errType);
     printf("    *** message: %s\n", msg);
-    printf("    *** location: at line %i\n", lineno);
+    printf("    *** location: line %i\n", lineno);
     errors++;
 }
 

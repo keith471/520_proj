@@ -228,12 +228,14 @@ int main(int argc, char* argv[]) {
         printf("    >>> pretty printed program to %s\n", prettyPath);
 
         // create a symbol table for the program
-        printf("making a symbol table...");
+        printf("making a symbol table...\n");
         symbolPath = concat(outputPath, concat(programName, ".symtab"));
         symPROGRAM(theprogram, symbolPath);
-        printf("    >>> SUCCESS\n");
-        printf("    >>> wrote the symbol table to %s\n", symbolPath);
         terminateIfErrors();
+        printf("    >>> SUCCESS\n");
+        if (dumpsymtab) {
+            printf("    >>> wrote the symbol table to %s\n", symbolPath);
+        }
 
     #endif
 

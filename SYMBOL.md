@@ -79,11 +79,12 @@
         ```
 
 ## TODO
-- fix all calls to scopeSymbolTable to include lineno
-- in lastSelector in EXP, the last selector should not have to be an id! It could be an EXP! Make this modification
-to the ast and everything it affects
+- make printed output cleaner
 - need to figure out where to save the symbols in the tree...
     - I don't see that this needs doing yet. Let's hold off on it
+- in lastSelector in EXP, the last selector should not have to be an id! It could be an EXP! Make this modification
+to the ast and everything it affects
+
 
 ## Questions
 - where do we check if there are too many or too few args passed in a function call?

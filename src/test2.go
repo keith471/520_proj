@@ -1,6 +1,14 @@
 package cool
 
+var x int
+
+type beans bool
+
+var y beans
+
 func main() {
-    var bean beans
-    bean.x[0] = 5
+    if x := 4; true {
+        x = "hello"
+        var cool float64
+    }
 }

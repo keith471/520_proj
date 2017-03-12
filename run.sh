@@ -1,3 +1,3 @@
 #/bin/bash
 
-./src/out $1
+./src/out $1 $2 $3
