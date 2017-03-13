@@ -5,6 +5,8 @@
 #ifndef TREE_H
 #define TREE_H
 
+#define HashSize 317
+
 typedef enum { plusEqOp, minusEqOp, timesEqOp, divEqOp,
                modEqOp, andEqOp, orEqOp, xorEqOp, leftShiftEqOp, rightShiftEqOp,
                bitClearEqOp } OperationKind;
@@ -15,6 +17,14 @@ typedef enum { decIL, octIL, hexIL } IntLiteralKind;
  * typeSym and varSym are for system predefined types and variables, e.g. bool and true
  */
 typedef enum { typeSym, typeDeclSym, varSym, varDeclSym, shortDeclSym, functionDeclSym, parameterSym, fieldSym } SymbolKind;
+
+typedef struct SymbolTable {
+    int isUniverseBlock; // whether this is the table for the universe block
+    int startLineno; // the lineno at which the scope of this symbol table begins
+    int endLineno;  // the lineno at which the scope of this symbol table ends
+    struct SYMBOL *table[HashSize];
+    struct SymbolTable *next;  // a pointer to the immediate outer scope of this scope (the current symbol table)
+} SymbolTable;
 
 /*
  * The following have symbols:
@@ -165,7 +175,8 @@ typedef struct TYPE {
                 struct TYPE* underlyingType; /* set in symbol phase */} idT;
         struct {struct EXP* size;
                 struct TYPE* elementType;} arrayT;
-        struct FIELD* structT;  // the fields in the struct
+        //struct FIELD* structT;  // the fields in the struct
+        struct STRUCTTYPE* structT;
         struct TYPE* sliceT;    // the type of the elements in the slice
     } val;
 } TYPE;
@@ -183,6 +194,12 @@ typedef struct TYPE {
     } val;
 } TYPE;
 */
+
+typedef struct STRUCTTYPE {
+    int lineno;
+    struct FIELD* fields;
+    SymbolTable* symbolTable; // set in the symbol phase
+} STRUCTTYPE;
 
 /*
  * field
@@ -332,7 +349,7 @@ typedef struct EXP {
                 struct EXP *right;} bitClearE;
         struct {struct EXP *slice; /* expression that returns the slice to append to */
                 struct EXP *expToAppend; /* element to add */} appendE;
-        struct {struct EXP* rest;
+        struct {struct RECEIVER* receiver;
                 struct ID* lastSelector;} selectorE;
         struct {struct EXP* rest;
                 struct EXP* lastIndex;} indexE;
@@ -341,6 +358,11 @@ typedef struct EXP {
     } val;
     struct EXP* next; // for expression lists; null otherwise
  } EXP;
+
+ typedef struct RECEIVER {
+     int lineno;
+     struct EXP* receivingStruct; // this had better evaluate to a struct
+ } RECEIVER;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTION INVOKATIONS
@@ -487,7 +509,8 @@ EXP* makeEXPruneliteral(char runeLiteral);
 EXP* makeEXPstringliteral(char* stringLiteral);
 EXP* makeEXPrawstringliteral(char* rawStringLiteral);
 EXP* makeEXPid(ID* id);
-EXP* makeEXPselector(EXP* rest, ID* lastSelector);
+EXP* makeEXPselector(RECEIVER* receiver, ID* lastSelector);
+RECEIVER* makeRECEIVER(EXP* e);
 EXP* makeEXPindex(EXP* rest, EXP* lastIndex);
 EXP* makeEXParguments(EXP* rest, EXP* args);
 CAST* makeCAST(TYPE* type, EXP* exp);
@@ -502,7 +525,8 @@ ID* makeID(char* name);
 ID* appendID(ID *prevs, ID *curr);
 TYPE *makeTYPEid(ID* id);
 TYPE *makeTYPEarray(EXP* size, TYPE* elementType);
-TYPE *makeTYPEstruct(FIELD* fields);
+TYPE *makeTYPEstruct(STRUCTTYPE* structType);
+STRUCTTYPE* makeSTRUCTTYPE(FIELD* fields);
 TYPE *makeTYPEslice(TYPE* elementType);
 
 #endif /* !TREE_H */

@@ -357,7 +357,7 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
     if (dumpsymtab) {
         emitFILE = fopen(filePath, "w");
     }
-    
+
     symbolTable = createUniverseBlock(); // create the universe block
     scopeExit(symbolTable);
     symbolTable = scopeSymbolTable(symbolTable, 0); // create the outermost scope for the program
@@ -824,11 +824,12 @@ void symEXP(EXP* e, SymbolTable* t) {
             s = getSymbol(t, e->val.idE->name, e->lineno);
             // TODO we probably want to store this symbol somewhere for the type phase
             // identifiers in expressions had better be either fields, parameters, variables, or functions
+            /*
             if (s != NULL) {
                 if ((s->kind != fieldSym) && (s->kind != parameterSym) && (s->kind != varDeclSym) && (s->kind != varSym) && (s->kind != functionDeclSym) && (s->kind != shortDeclSym)) {
                     reportStrError("SYMBOL", "%s is not a variable or function as expected", e->val.idE->name, e->lineno);
                 }
-            }
+            }*/
             break;
         case intLiteralK:
             // nothing to do for literals
@@ -926,10 +927,9 @@ void symEXP(EXP* e, SymbolTable* t) {
             // won't have been converted to casts at this stage
             break;
         case selectorK:
-            symEXP(e->val.selectorE.rest, t);
-            // TODO this will need to be modified after adjusting lastSelector to be an exp
-            // and even if that isn't done we should take the symbol returned by getSymbol and save it in the ast
-            getSymbol(t, e->val.selectorE.lastSelector->name, e->lineno);
+            // there is a lot to do here, but we aren't fully equipped to do it at this stage
+            // we need to wait until the type checking phase
+            symRECEIVER(e->val.selectorE.receiver, t);
             break;
         case indexK:
             symEXP(e->val.indexE.rest, t);
@@ -954,6 +954,10 @@ void symEXP(EXP* e, SymbolTable* t) {
         default:
             break;
     }
+}
+
+void symRECEIVER(RECEIVER* r, SymbolTable* t) {
+    symEXP(r->receivingStruct, t);
 }
 
 /*
@@ -1004,16 +1008,23 @@ void verifyType(TYPE* type, SymbolTable* t) {
             verifyType(type->val.arrayT.elementType, t);
             break;
         case structK:
-            // create a new scope for the struct!
-            structScope = scopeSymbolTable(t, currLineno);
-            // sym the fields of the struct within the new scope
-            symFIELD(type->val.structT, structScope);
-            // scope exit
-            scopeExit(structScope);
+            symSTRUCTTYPE(type->val.structT, t);
             break;
         default:
             break;
     }
+}
+
+void symSTRUCTTYPE(STRUCTTYPE* s, SymbolTable *t) {
+    SymbolTable* structScope;
+    // create a new scope for the struct!
+    structScope = scopeSymbolTable(t, currLineno);
+    // save this scope on the struct so that we can use it later for field lookups
+    s->symbolTable = structScope;
+    // sym the fields of the struct within the new scope
+    symFIELD(s->fields, structScope);
+    // scope exit
+    scopeExit(structScope);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

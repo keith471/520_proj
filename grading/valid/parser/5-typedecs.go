@@ -44,4 +44,4 @@ type t12 [4]point		// type id
 type t13 [8]struct {		// composite type
 	a int
 }
-type t13 [3][3]float64	// matrix
+type t14 [3][3]float64	// matrix

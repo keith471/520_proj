@@ -20,6 +20,7 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Weeding
 - make sure that array type declarations use int literals or expressions of all int literals (no identifiers) for sizes
 - test a string of expressions followed by an identifier `(2+3).6.apple`
+    - can fix this by checking that each selector exp is either identifierK, selectorK, or indexK
 
 ## Symbol table
 

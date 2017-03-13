@@ -79,6 +79,7 @@
         ```
 
 ## TODO
+- fix issue with struct field look-up!! 
 - make printed output cleaner
 - need to figure out where to save the symbols in the tree...
     - I don't see that this needs doing yet. Let's hold off on it

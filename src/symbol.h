@@ -1,16 +1,6 @@
 
 #include "tree.h"
 
-#define HashSize 317
-
-typedef struct SymbolTable {
-    int isUniverseBlock; // whether this is the table for the universe block
-    int startLineno; // the lineno at which the scope of this symbol table begins
-    int endLineno;  // the lineno at which the scope of this symbol table ends
-    SYMBOL *table[HashSize];
-    struct SymbolTable *next;  // a pointer to the immediate outer scope of this scope (the current symbol table)
-} SymbolTable;
-
 typedef struct PutSymbolWrapper {
     SYMBOL* symbol;
     int isRedecl; // whether this symbol is a redeclaration
@@ -50,5 +40,7 @@ void symFIELD(FIELD* f, SymbolTable* t);
 void symFIELDlist(FIELD* f, SymbolTable* t, int checkedType);
 void symEXPs(EXP* e, SymbolTable* t);
 void symEXP(EXP* e, SymbolTable* t);
+void symRECEIVER(RECEIVER* r, SymbolTable* t);
 void verifyType(TYPE* type, SymbolTable* t);
+void symSTRUCTTYPE(STRUCTTYPE* s, SymbolTable *t);
 int notBlank(char* name);

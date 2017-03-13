@@ -73,7 +73,7 @@ void weedTYPE(TYPE* t) {
             checkForBlankIdentifier_string(t->val.idT.id->name, "type cannot be _", t->lineno);
             break;
         case structK:
-            weedFIELD(t->val.structT);
+            weedFIELD(t->val.structT->fields);
             break;
         case sliceK:
             weedTYPE(t->val.sliceT);
@@ -663,7 +663,7 @@ void checkForBlankIdentifier_exp(EXP* e) {
             break;
         case selectorK:
             // can't refer to a blank field
-            checkForBlankIdentifier_exp(e->val.selectorE.rest);
+            checkForBlankIdentifier_exp(e->val.selectorE.receiver->receivingStruct);
             checkForBlankIdentifier_string(e->val.selectorE.lastSelector->name, "cannot refer to a blank field", e->lineno);
             break;
         case indexK:

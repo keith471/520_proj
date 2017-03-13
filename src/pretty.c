@@ -182,13 +182,13 @@ void prettyTYPE(TYPE* type, int level) {
             if (level == -1) {
                 // print inline
                 fprintf(emitFILE, "struct { ");
-                prettyFIELD(type->val.structT, level);
+                prettyFIELD(type->val.structT->fields, level);
                 fprintf(emitFILE, " }");
             } else {
                 // print multiline
                 fprintf(emitFILE, "struct {");
                 newLineInFile(emitFILE);
-                prettyFIELD(type->val.structT, level + 1);
+                prettyFIELD(type->val.structT->fields, level + 1);
                 printTabsToFile(level, emitFILE);
                 fprintf(emitFILE, "}");
             }
@@ -808,7 +808,7 @@ void prettyEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case selectorK:
-            prettyEXP(e->val.selectorE.rest);
+            prettyEXP(e->val.selectorE.receiver->receivingStruct);
             /*
             switch (e->val.selectorE.rest->kind) {
                 case selectorK:

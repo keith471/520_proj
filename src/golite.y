@@ -29,6 +29,7 @@ extern PROGRAM* theprogram;
     struct EXP* exp;
     //struct CAST* cast;
     struct TYPE* type;
+    struct STRUCTTYPE* structType;
     struct ID* id;
     struct FIELD* field;
     int op;
@@ -65,7 +66,8 @@ extern PROGRAM* theprogram;
 //%type <cast> conversion
 %type <type> type typeLit arrayType structType sliceType returnType
 %type <id> identifier idList
-%type <field> fields field neFields
+%type <structType> fields
+%type <field> field neFields
 %type <op> binOp
 
 %start program
@@ -842,14 +844,14 @@ primaryExp:
             #ifdef BISON_DEBUG
                 printf("found a selector\n");
             #endif
-            $$ = makeEXPselector($1, $3);
+            $$ = makeEXPselector(makeRECEIVER($1), $3);
         }
     | primaryExp '[' exp ']' // array indexing
         {
             #ifdef BISON_DEBUG
                 printf("found an index into an array\n");
             #endif
-            $$ = makeEXPindex($1, $3); 
+            $$ = makeEXPindex($1, $3);
         }
     | primaryExp '(' expList ')' // function call
         { $$ = makeEXParguments($1, $3); }
@@ -994,9 +996,9 @@ sliceType:
 
 fields:
       //epsilon
-        { $$ = NULL; }
+        { $$ = makeSTRUCTTYPE(NULL); }
     | neFields
-        { $$ = $1; }
+        { $$ = makeSTRUCTTYPE($1); }
     ;
 
 neFields:

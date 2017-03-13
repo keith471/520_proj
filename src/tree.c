@@ -1163,17 +1163,25 @@ EXP* makeEXPid(ID* id) {
     return e;
 }
 
-EXP* makeEXPselector(EXP* rest, ID* lastSelector) {
+EXP* makeEXPselector(RECEIVER* receiver, ID* lastSelector) {
     EXP* e;
     e = NEW(EXP);
     e->lineno = yylineno;
     e->type = NULL; // for now
     e->kind = selectorK;
     e->isParenthesized = 0;
-    e->val.selectorE.rest = rest;
+    e->val.selectorE.receiver = receiver;
     e->val.selectorE.lastSelector = lastSelector;
     e->next = NULL;
     return e;
+}
+
+RECEIVER* makeRECEIVER(EXP* e) {
+    RECEIVER* r;
+    r = NEW(RECEIVER);
+    r->lineno = yylineno;
+    r->receivingStruct = e;
+    return r;
 }
 
 EXP* makeEXPindex(EXP* rest, EXP* lastIndex) {
@@ -1274,13 +1282,21 @@ TYPE *makeTYPEarray(EXP* size, TYPE* elementType) {
     return t;
 }
 
-TYPE *makeTYPEstruct(FIELD* fields) {
+TYPE *makeTYPEstruct(STRUCTTYPE* structType) {
     TYPE *t;
     t = NEW(TYPE);
     t->lineno = yylineno;
     t->kind = structK;
-    t->val.structT = fields;
+    t->val.structT = structType;
     return t;
+}
+
+STRUCTTYPE* makeSTRUCTTYPE(FIELD* fields) {
+    STRUCTTYPE* s;
+    s = NEW(STRUCTTYPE);
+    s->lineno = yylineno;
+    s->fields = fields;
+    return s;
 }
 
 TYPE *makeTYPEslice(TYPE* elementType) {
