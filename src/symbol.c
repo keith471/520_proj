@@ -336,7 +336,7 @@ SYMBOL *getSymbol(SymbolTable *t, char *name, int lineno) {
     int i = Hash(name);
     SYMBOL *s;
     for (s = t->table[i]; s; s = s->next) {
-        if (strcmp(s->name, name ) == 0) return s;
+        if (strcmp(s->name, name) == 0) return s;
     }
     if (t->next == NULL) {
         // the symbol doesn't exist :( --> error
@@ -970,7 +970,8 @@ void symRECEIVER(RECEIVER* r, SymbolTable* t) {
  *   it exists
  *   it is a type
  * if the symbol we find is a typeSym, then we update the type to have the same kind as the symbol's type
- * if the symbol we find is a typeDeclSym, then we set the underlying type on the type
+ * if the symbol we find is a typeDeclSym, then we set the underlying type on the type AND we set the
+ * reference to the type declaration on the type
  * else, we report an error
  * if the type is a composite type, then we verify the components of the type separately
 */
@@ -987,13 +988,15 @@ void verifyType(TYPE* type, SymbolTable* t) {
                     case typeSym:
                         // primitive!
                         // this type immediately refers to a predeclared primitive, so we update TYPE
-                        // to have the same kind as the primitive
+                        // to have the same kind as the primitive --> this is sufficient
                         type->kind = s->val.typeS->kind;
                         break;
                     case typeDeclSym:
                         // alias!
                         // set the given type's underlying type to this alias
                         type->val.idT.underlyingType = s->val.typeDeclS.type;
+                        // and the given type's reference to the type declaration
+                        type->val.idT.typeDecl = s->val.typeDeclS.typeDecl;
                         break;
                     default:
                         // error

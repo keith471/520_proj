@@ -117,6 +117,7 @@ typedef struct VARDECLARATION {
  */
 typedef struct TYPEDECLARATION {
     int lineno;
+    int number; // a number unique to this type declaration
     struct ID* id;
     int isEmpty;   // whether this is an empty type declaration, i.e. type ()
     int isDistributed; // whether this declaration is part of a distributed statement
@@ -173,9 +174,9 @@ typedef struct TYPE {
     enum { idK, structK, sliceK, arrayK, intK, float64K, runeK, boolK, stringK } kind;
     union {
         struct {struct ID* id;
-                // int isAlias; // whether this id is an alias to another type (only won't be when the id is int, float64, etc)
+                struct TYPEDECLARATION* typeDecl; // a reference to this type's type declaration, set in symbol phase
                 struct TYPE* underlyingType; /* set in symbol phase */} idT;
-        struct {struct EXP* size;
+        struct {struct EXP* size; // this will have to be an int literal expression (guaranteed by weeding)
                 struct TYPE* elementType;} arrayT;
         //struct FIELD* structT;  // the fields in the struct
         struct STRUCTTYPE* structT;

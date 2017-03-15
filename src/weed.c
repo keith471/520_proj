@@ -80,9 +80,11 @@ void weedTYPE(TYPE* t) {
             break;
         case arrayK:
             // make sure that the size does not involve the blank identifier
-            checkForBlankIdentifier_exp(t->val.arrayT.size);
+            // moved this to parser
+            //checkForBlankIdentifier_exp(t->val.arrayT.size);
             // make sure that the size expression consists only of int literals
-            checkArraySize(t->val.arrayT.size);
+            // moved this to parser
+            //checkArraySize(t->val.arrayT.size);
             weedTYPE(t->val.arrayT.elementType);
             break;
         default:
@@ -701,7 +703,7 @@ void checkForBlankIdentifier_string(char* s, char* message, int lineno) {
 }
 
 /*
- * check that the expression only involves integer literals (or runes)
+ * check that the expression only involves integer literals
  */
 void checkArraySize(EXP* e) {
     switch (e->kind) {

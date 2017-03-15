@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "type.h"
 #include "tree.h"
 #include "memory.h"
@@ -187,7 +188,7 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
             // type check the expression
             typeEXP(v->val.typeAndExpVD.exp);
             // check that the type of the expression is equal to the type of the variable
-            assertEqualTYPEs(v->val.typeAndExpVD.type, v->val.typeAndExpVD.exp->type, v->lineno);
+            assertIdenticalTYPEs(v->val.typeAndExpVD.type, v->val.typeAndExpVD.exp->type, v->lineno);
         default:
             break;
     }
@@ -230,7 +231,7 @@ void typeSTATEMENT(STATEMENT* s) {
             typeEXP(s->val.regAssignS.lvalue);
             typeEXP(s->val.regAssignS.exp);
             // assert that the types are equal
-            assertEqualTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type, s->lineno);
+            assertIdenticalTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type, s->lineno);
             // type check the next assignment
             typeSTATEMENT(s->val.regAssignS.next);
             break;
@@ -264,7 +265,7 @@ void typeSTATEMENT(STATEMENT* s) {
                         // will never execute
                         break;
                 }
-                assertEqualTYPEs(t, s->val.shortDeclS.exp->type, s->lineno);
+                assertIdenticalTYPEs(t, s->val.shortDeclS.exp->type, s->lineno);
             } else {
                 // we need to set the type on the symbol
                 s->val.shortDeclS.symbol->val.shortDeclS.type = s->val.shortDeclS.exp->type;
@@ -396,7 +397,7 @@ void typeEXP(EXP* e) {
     CASTCHECKRETURN* ctr;
     switch (e->kind) {
         case identifierK:
-            e->type = getSymbolType(e->val.idE.symbol);
+            e->type = getSymbolType(e->val.idE.symbol, e->lineno);
             break;
         case intLiteralK:
             e->type = intTYPE;
@@ -471,13 +472,13 @@ void typeEXP(EXP* e) {
             typeEXP(e->val.eqE.right);
             // all values that we support in golite are comparable, so all we have to do
             // is check that the types are equal
-            assertEqualTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, e->lineno);
+            assertIdenticalTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, e->lineno);
             e->type = boolTYPE;
             break;
         case neqK:
             typeEXP(e->val.neqE.left);
             typeEXP(e->val.neqE.right);
-            assertEqualTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, e->lineno);
+            assertIdenticalTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, e->lineno);
             e->type = boolTYPE;
             break;
         case leqK:
@@ -692,7 +693,7 @@ void matchArgsToParams(EXP* args, PARAMETER* currParam, PARAMETER* params, char*
         reportStrError("TYPE", "too many arguments passed to function %s", name, lineno);
         return;
     }
-    assertEqualTYPEs(currParam->type, args->type, args->lineno);
+    assertIdenticalTYPEs(currParam->type, args->type, args->lineno);
     // get the next current param
     if (currParam->nextId == NULL) {
         currParam = params->nextParamSet;
@@ -714,7 +715,7 @@ int countArgs(EXP* e) {
 
 TYPE* typePlus(TYPE* left, TYPE* right, int lineno) {
     // assert that the types are the same
-    assertEqualTYPEs(left, right, lineno);
+    assertIdenticalTYPEs(left, right, lineno);
     // assert that they are both numeric types or strings
     assertNumericOrString(left, lineno);
     assertNumericOrString(right, lineno);
@@ -723,7 +724,7 @@ TYPE* typePlus(TYPE* left, TYPE* right, int lineno) {
 
 TYPE* numericOp(TYPE* left, TYPE* right, int lineno) {
     // assert that the types are the same
-    assertEqualTYPEs(left, right, lineno);
+    assertIdenticalTYPEs(left, right, lineno);
     // assert that they are both numeric types
     assertNumeric(left, lineno);
     assertNumeric(right, lineno);
@@ -732,7 +733,7 @@ TYPE* numericOp(TYPE* left, TYPE* right, int lineno) {
 
 TYPE* boolOp(TYPE* left, TYPE* right, int lineno) {
     // assert that both types are the same
-    assertEqualTYPEs(left, right, lineno);
+    assertIdenticalTYPEs(left, right, lineno);
     // assert that both resolve to bools
     assertResolvesToBool(left, lineno);
     assertResolvesToBool(right, lineno);
@@ -741,7 +742,7 @@ TYPE* boolOp(TYPE* left, TYPE* right, int lineno) {
 
 TYPE* intOp(TYPE* left, TYPE* right, int lineno) {
     // assert that both types are the same
-    assertEqualTYPEs(left, right, lineno);
+    assertIdenticalTYPEs(left, right, lineno);
     // assert that both resolve to ints
     assertResolvesToInt(left, lineno);
     assertResolvesToInt(right, lineno);
@@ -751,13 +752,13 @@ TYPE* intOp(TYPE* left, TYPE* right, int lineno) {
 /*
  * returns the type associated with a symbol
  */
-TYPE* getSymbolType(SYMBOL *s) {
+TYPE* getSymbolType(SYMBOL *s, int lineno) {
     switch(s->kind) {
         case typeSym:
-            // should never hit this
+            reportError("TYPE", "expected variable or function but found type", lineno);
             break;
         case typeDeclSym:
-            // should never hit this
+            reportError("TYPE", "expected variable or function but found type", lineno);
             break;
         case varSym:
             return s->val.varS;
@@ -825,7 +826,7 @@ TYPE* getElementType(TYPE* t, int lineno) {
 
 void checkOrderedAndEqual(TYPE* left, TYPE* right, int lineno) {
     // assert that the types are equal
-    assertEqualTYPEs(left, right, lineno);
+    assertIdenticalTYPEs(left, right, lineno);
     // assert that both types are ordered
     assertOrdered(left, lineno);
     assertOrdered(right, lineno);
@@ -842,7 +843,7 @@ void checkAppendIsValid(TYPE* s, TYPE* t, int lineno) {
     if (elementType == NULL) {
         terminateIfErrors();
     }
-    assertEqualTYPEs(elementType, t, lineno);
+    assertIdenticalTYPEs(elementType, t, lineno);
 }
 
 TYPE* getSliceElementType(TYPE* t, int lineno) {
@@ -881,13 +882,6 @@ TYPE* getSliceElementType(TYPE* t, int lineno) {
             break;
     }
     return NULL;
-}
-
-/*
- * reports an error if two types are not equal
- */
-void assertEqualTYPEs(TYPE *expected, TYPE *actual, int lineno) {
-
 }
 
 /*
@@ -1015,7 +1009,7 @@ void assertCaseEXPsHaveType(EXP* exps, TYPE* t) {
         return;
     }
     if (exps == NULL) return;
-    assertEqualTYPEs(t, exps->type, exps->lineno);
+    assertIdenticalTYPEs(t, exps->type, exps->lineno);
     assertCaseEXPsHaveType(exps->next, t);
 }
 
@@ -1195,6 +1189,232 @@ void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right) {
         case bitClearEqOp:
             break;
         default:
+            break;
+    }
+}
+
+/*
+ * reports an error if two types are not equal
+ */
+void assertIdenticalTYPEs(TYPE *expected, TYPE *actual, int lineno) {
+    if (expected == NULL || actual == NULL) {
+        reportError("TYPE", "expected non-void type but found void type", lineno);
+    }
+    switch (expected->kind) {
+        case idK:
+            // two type names are identical if they were created in the same type declaration
+            // otherwise they are different
+            assertActualTypeIdentifier(expected->val.idT.typeDecl, actual, lineno);
+            break;
+        case structK:
+            // two struct types are identical if they have the same sequence of fields
+            // (same ordering), and if corresponding fields have the same names and identical types
+            // two anonymous fields are considered to have the same type
+            assertActualTypeStruct(expected->val.structT, actual, lineno);
+            break;
+        case sliceK:
+            // two slice types are identical if they have identical element types
+            assertActualTypeSlice(expected->val.sliceT, actual, lineno);
+            break;
+        case arrayK:
+            // two array types are identical if they have identical element types and the same
+            // array length
+            assertActualTypeArray(expected, actual, lineno);
+            break;
+        case intK:
+            assertActualTypeInt(actual, lineno);
+            break;
+        case float64K:
+            assertActualTypeFloat64(actual, lineno);
+            break;
+        case runeK:
+            assertActualTypeRune(actual, lineno);
+            break;
+        case boolK:
+            assertActualTypeBool(actual, lineno);
+            break;
+        case stringK:
+            assertActualTypeString(actual, lineno);
+            break;
+    }
+}
+
+TYPE* resolve(TYPE* t) {
+    switch (t->kind) {
+        case idK:
+            return resolve(t->val.idT.underlyingType);
+            break;
+        default:
+            return t;
+    }
+}
+
+void assertActualTypeInt(TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case intK:
+            break;
+        case idK:
+            reportStrError("TYPE", "expected type int but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected type int but found struct", lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "expected type int but found slice", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected type int but found array", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected type int but found float64", lineno);
+            break;
+        case runeK:
+            reportError("TYPE", "expected type int but found rune", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected type int but found bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected type int but found string", lineno);
+            break;
+    }
+}
+
+void assertActualTypeFloat64(TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case float64K:
+            break;
+        default:
+            reportError("TYPE", "expected type float but found another type", lineno);
+            break;
+    }
+}
+
+void assertActualTypeRune(TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case runeK:
+            break;
+        default:
+            reportError("TYPE", "expected type rune but found another type", lineno);
+            break;
+    }
+}
+
+void assertActualTypeBool(TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case boolK:
+            break;
+        default:
+            reportError("TYPE", "expected type bool but found another type", lineno);
+            break;
+    }
+}
+
+void assertActualTypeString(TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case stringK:
+            break;
+        default:
+            reportError("TYPE", "expected type string but found another type", lineno);
+            break;
+    }
+}
+
+void assertActualTypeStruct(STRUCTTYPE* expected, TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case structK:
+            assertIdenticalStructs(expected, actual->val.structT, lineno);
+            break;
+        default:
+            reportError("TYPE", "expected type struct but found another type", lineno);
+            break;
+    }
+}
+
+void assertIdenticalStructs(STRUCTTYPE* expected, STRUCTTYPE* actual, int lineno) {
+    assertIdenticalFIELDs(expected->fields, expected->fields, actual->fields, actual->fields, lineno);
+}
+
+void assertIdenticalFIELDs(FIELD* currExpected, FIELD* expected, FIELD* currActual, FIELD* actual, int lineno) {
+    if (currExpected == NULL && currActual == NULL) return;
+    if (currExpected == NULL) {
+        reportError("TYPE", "non-identical struct types", lineno);
+        return;
+    }
+    if (currActual == NULL) {
+        reportError("TYPE", "non-identical struct types", lineno);
+        return;
+    }
+
+    // check that the names are the same
+    if (strcmp(currExpected->id->name, currActual->id->name) != 0) {
+        reportError("TYPE", "non-identical struct types", lineno);
+        return;
+    }
+    // check that the types are identical
+    assertIdenticalTYPEs(currExpected->type, currActual->type, lineno);
+
+    // prepare for recursive case
+    if (currExpected->nextId == NULL) {
+        currExpected = expected->nextFieldSet;
+        expected = expected->nextFieldSet;
+    } else {
+        currExpected = currExpected->nextId;
+    }
+
+    if (currActual->nextId == NULL) {
+        currActual = actual->nextFieldSet;
+        actual = actual->nextFieldSet;
+    } else {
+        currActual = currActual->nextId;
+    }
+
+    // recurse
+    assertIdenticalFIELDs(currExpected, expected, currActual, actual, lineno);
+}
+
+void assertActualTypeArray(TYPE* expected, TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case arrayK:
+            assertIdenticalArrays(expected->val.arrayT.size, expected->val.arrayT.elementType, actual->val.arrayT.size, actual->val.arrayT.elementType, lineno);
+            break;
+        default:
+            reportError("TYPE", "expected type array but found another type", lineno);
+            break;
+    }
+}
+
+void assertIdenticalArrays(EXP* expectedSize, TYPE* expectedType, EXP* actualSize, TYPE* actualType, int lineno) {
+    // compare the sizes
+    if (expectedSize->val.intLiteralE.decValue != actualSize->val.intLiteralE.decValue) {
+        reportError("TYPE", "non-identical array types", lineno);
+        return;
+    }
+
+    // compare the types
+    assertIdenticalTYPEs(expectedType, actualType, lineno);
+}
+
+void assertActualTypeSlice(TYPE* expectedElementType, TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case sliceK:
+            assertIdenticalTYPEs(expectedElementType, actual->val.sliceT, lineno);
+            break;
+        default:
+            reportError("TYPE", "expected type slice but found another type", lineno);
+            break;
+    }
+}
+
+void assertActualTypeIdentifier(TYPEDECLARATION* expectedDecl, TYPE* actual, int lineno) {
+    switch (actual->kind) {
+        case idK:
+            if (expectedDecl->number != actual->val.idT.typeDecl->number) {
+                reportStrError("TYPE", "expected type %s but found another type", expectedDecl->id->name, lineno);
+            }
+            break;
+        default:
+            reportStrError("TYPE", "expected type %s but found another type", expectedDecl->id->name, lineno);
             break;
     }
 }

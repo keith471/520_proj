@@ -7,6 +7,9 @@
 
 extern int yylineno;
 
+// this is a bit of a hack...
+int typeDeclNo = 0;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PROGRAM
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -279,6 +282,8 @@ TYPEDECLARATION* makeTYPEDECLARATION(ID* id, TYPE* type) {
     TYPEDECLARATION* t;
     t = NEW(TYPEDECLARATION);
     t->lineno = yylineno;
+    t->number = typeDeclNo;
+    typeDeclNo++;
     t->id = id;
     t->isEmpty = 0;
     t->isDistributed = 0;

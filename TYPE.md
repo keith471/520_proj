@@ -3,14 +3,15 @@
 ## TODO
 - typeEXP
     selector
-- throw errors in typeVar
-- assertEqualTYPEs
+- throw errors in getSymbolType -->make sure this is complete
 - assertValidOpUsage
 - write test programs
 - write report
 - submit
 
 - improve assertion methods to print out alias to (alias to etc)
+- improve type error messages
+- make sure raw string literals are handled properly
 
 
 - when can we know whether something is a cast? probably in this phase - if we check an expression and we find it has kind argumentsK, then we have to check the symbols associated with it and their kinds. The leading symbol will have kind functionDeclSym if the expression is really a function call and typeDeclSym or typeSym if it is actually a cast

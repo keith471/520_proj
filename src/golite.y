@@ -62,7 +62,7 @@ extern PROGRAM* theprogram;
                   block
 %type <switchCase> switchClauses switchClause
 %type <exp> exp returnValue unaryExp binaryExp expList neExpList primaryExp
-            basicLiteral operand optionalExp
+            basicLiteral intLiteral operand optionalExp
 //%type <cast> conversion
 %type <type> type typeLit arrayType structType sliceType returnType
 %type <id> identifier idList
@@ -877,27 +877,8 @@ operand:
     ;
 
 basicLiteral:
-      tINTDECLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found an int dec literal\n");
-            #endif
-            $$ = makeEXPintdecliteral($1);
-        }
-    | tINTOCTLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found an int oct literal\n");
-            #endif
-            $$ = makeEXPintoctliteral($1);
-        }
-    | tINTHEXLITERAL
-        {
-            #ifdef BISON_DEBUG
-                printf("found an int hex literal\n");
-            #endif
-            $$ = makeEXPinthexliteral($1);
-        }
+      intLiteral
+        { $$ = $1; }
     | tFLOAT64LITERAL
         {
             #ifdef BISON_DEBUG
@@ -925,6 +906,30 @@ basicLiteral:
                 printf("found a raw string literal\n");
             #endif
             $$ = makeEXPrawstringliteral($1);
+        }
+    ;
+
+intLiteral:
+      tINTDECLITERAL
+        {
+            #ifdef BISON_DEBUG
+                printf("found an int dec literal\n");
+            #endif
+            $$ = makeEXPintdecliteral($1);
+        }
+    | tINTOCTLITERAL
+        {
+            #ifdef BISON_DEBUG
+                printf("found an int oct literal\n");
+            #endif
+            $$ = makeEXPintoctliteral($1);
+        }
+    | tINTHEXLITERAL
+        {
+            #ifdef BISON_DEBUG
+                printf("found an int hex literal\n");
+            #endif
+            $$ = makeEXPinthexliteral($1);
         }
     ;
 
@@ -978,7 +983,7 @@ typeLit:
     ;
 
 arrayType:
-      '[' exp ']' type
+      '[' intLiteral ']' type
         { $$ = makeTYPEarray($2, $4); }
     ;
 
