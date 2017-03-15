@@ -1,7 +1,9 @@
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "type.h"
 #include "tree.h"
 #include "memory.h"
+#include "error.h"
 
 /*
 type Person struct {
@@ -185,7 +187,7 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
             // type check the expression
             typeEXP(v->val.typeAndExpVD.exp);
             // check that the type of the expression is equal to the type of the variable
-            assertEqualTYPEs(v->val.typeAndExpVD.type, v->val.typeAndExpVD.exp->type);
+            assertEqualTYPEs(v->val.typeAndExpVD.type, v->val.typeAndExpVD.exp->type, v->lineno);
         default:
             break;
     }
@@ -204,6 +206,7 @@ void typeFUNCTIONDECLARATION(FUNCTIONDECLARATION* f) {
 
 void typeSTATEMENT(STATEMENT* s) {
     if (s == NULL) return;
+    TYPE* t;
     switch (s->kind) {
         case emptyK:
             // trivially well-typed
@@ -227,7 +230,7 @@ void typeSTATEMENT(STATEMENT* s) {
             typeEXP(s->val.regAssignS.lvalue);
             typeEXP(s->val.regAssignS.exp);
             // assert that the types are equal
-            assertEqualTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type);
+            assertEqualTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type, s->lineno);
             // type check the next assignment
             typeSTATEMENT(s->val.regAssignS.next);
             break;
@@ -247,7 +250,21 @@ void typeSTATEMENT(STATEMENT* s) {
                 // first, we better check that we can assign to this symbol (i.e. it is a variable!)
                 assertCanAssign(s->val.shortDeclS.prevDeclSym, s->lineno);
                 // then, we assert that the type of the expression is equal to the type of the variable
-                assertEqualTYPEs(s->val.shortDeclS.prevDeclSym->type, s->val.shortDeclS.exp->type);
+                switch (s->val.shortDeclS.prevDeclSym->kind) {
+                    case varSym:
+                        t = s->val.shortDeclS.prevDeclSym->val.varS;
+                        break;
+                    case varDeclSym:
+                        t = s->val.shortDeclS.prevDeclSym->val.varDeclS.type;
+                        break;
+                    case shortDeclSym:
+                        t = s->val.shortDeclS.prevDeclSym->val.shortDeclS.type;
+                        break;
+                    default:
+                        // will never execute
+                        break;
+                }
+                assertEqualTYPEs(t, s->val.shortDeclS.exp->type, s->lineno);
             } else {
                 // we need to set the type on the symbol
                 s->val.shortDeclS.symbol->val.shortDeclS.type = s->val.shortDeclS.exp->type;
@@ -356,7 +373,7 @@ void typeSTATEMENTswitch(STATEMENT* s) {
  */
 void typeSWITCHCASE(SWITCHCASE* sc, TYPE* t) {
     if (sc == NULL) return;
-    switch(s->kind) {
+    switch(sc->kind) {
         case caseK:
             typeEXPs(sc->val.caseC.exps);
             assertCaseEXPsHaveType(sc->val.caseC.exps, t);
@@ -376,11 +393,10 @@ void typeEXPs(EXP* e) {
 }
 
 void typeEXP(EXP* e) {
-    int err;
     CASTCHECKRETURN* ctr;
     switch (e->kind) {
         case identifierK:
-            e->type = typeVar(e->val.idE.symbol);
+            e->type = getSymbolType(e->val.idE.symbol);
             break;
         case intLiteralK:
             e->type = intTYPE;
@@ -455,19 +471,13 @@ void typeEXP(EXP* e) {
             typeEXP(e->val.eqE.right);
             // all values that we support in golite are comparable, so all we have to do
             // is check that the types are equal
-            err = assertEqualTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, lineno);
-            if (err) {
-                terminateIfErrors();
-            }
+            assertEqualTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, e->lineno);
             e->type = boolTYPE;
             break;
         case neqK:
             typeEXP(e->val.neqE.left);
             typeEXP(e->val.neqE.right);
-            err = assertEqualTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, lineno);
-            if (err) {
-                terminateIfErrors();
-            }
+            assertEqualTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, e->lineno);
             e->type = boolTYPE;
             break;
         case leqK:
@@ -512,7 +522,7 @@ void typeEXP(EXP* e) {
             typeEXP(e->val.appendE.expToAppend);
             // the slice exp needs to have type S which resolves to a slice with elements of type T
             // and the expToAppend needs to have type T
-            checkAppendIsValid(e->val.appendE.slice->type, e->val.appendE.expToAppend, e->lineno);
+            checkAppendIsValid(e->val.appendE.slice->type, e->val.appendE.expToAppend->type, e->lineno);
             e->type = e->val.appendE.slice->type;
             break;
         case castK:
@@ -546,7 +556,7 @@ void typeEXP(EXP* e) {
             ctr = checkCast(e);
             switch (ctr->kind) {
                 case castKind:
-                    prepTypeEXPcast(e, ctr->val.castType);
+                    prepTypeEXPcast(e, ctr->val.cast.type, ctr->val.cast.name);
                     break;
                 case functionCallKind:
                     typeEXPfunctioncall(e, ctr->val.functionDecl);
@@ -555,34 +565,22 @@ void typeEXP(EXP* e) {
             break;
         case uPlusK:
             typeEXP(e->val.uPlusE);
-            err = assertNumeric(e->val.uPlusE->type);
-            if (err) {
-                terminateIfErrors();
-            }
+            assertNumeric(e->val.uPlusE->type, e->lineno);
             e->type = e->val.uPlusE->type;
             break;
         case uMinusK:
             typeEXP(e->val.uMinusE);
-            err = assertNumeric(e->val.uMinusE->type);
-            if (err) {
-                terminateIfErrors();
-            }
+            assertNumeric(e->val.uMinusE->type, e->lineno);
             e->type = e->val.uMinusE->type;
             break;
         case uNotK:
             typeEXP(e->val.uNotE);
-            err = assertResolvesToBool(e->val.uNotE->type);
-            if (err) {
-                terminateIfErrors();
-            }
+            assertResolvesToBool(e->val.uNotE->type, e->lineno);
             e->type = e->val.uNotE->type;
             break;
         case uXorK:
             typeEXP(e->val.uXorE);
-            err = assertResolvesToInt(e->val.uXorE->type);
-            if (err) {
-                terminateIfErrors();
-            }
+            assertResolvesToInt(e->val.uXorE->type, e->lineno);
             e->type = e->val.uXorE->type;
             break;
         default:
@@ -641,25 +639,26 @@ CASTCHECKRETURN* checkCast(EXP* e) {
         ctr->val.functionDecl = f;
     } else {
         ctr->kind = castKind;
-        ctr->val.castType = t;
+        ctr->val.cast.type = t;
+        ctr->val.cast.name = s->name;
     }
 
     return ctr;
 }
 
-void prepTypeEXPcast(EXP* e, TYPE* t) {
+void prepTypeEXPcast(EXP* e, TYPE* t, char* name) {
     // firstly, we need to check that there is only one argument to the cast
     int numArgs = countArgs(e->val.argumentsE.args);
     if (numArgs == 0) {
-        reportStrError("TYPE", "missing argument to conversion to %s", s->name, e->lineno);
+        reportStrError("TYPE", "missing argument to conversion to %s", name, e->lineno);
     } else if (numArgs > 1) {
-        reportStrError("TYPE", "too many arguments to conversion to %s", s->name, e->lineno);
+        reportStrError("TYPE", "too many arguments to conversion to %s", name, e->lineno);
     }
     terminateIfErrors();
 
     // the cast is valid
     // repackage e as a cast expression, and then we re-type-check it :)
-    e->type = castK;
+    e->kind = castK;
     CAST* c = makeCAST(t, e->val.argumentsE.args);
     e->val.castE = c;
 
@@ -693,7 +692,7 @@ void matchArgsToParams(EXP* args, PARAMETER* currParam, PARAMETER* params, char*
         reportStrError("TYPE", "too many arguments passed to function %s", name, lineno);
         return;
     }
-    assertEqualTYPEs(currParam->type, args->type);
+    assertEqualTYPEs(currParam->type, args->type, args->lineno);
     // get the next current param
     if (currParam->nextId == NULL) {
         currParam = params->nextParamSet;
@@ -713,51 +712,39 @@ int countArgs(EXP* e) {
     return 1 + countArgs(e->next);
 }
 
-/*
-ok so left and right
-have to have the same type
-and that type has to resolve to something that the operator can accept
-*/
-
 TYPE* typePlus(TYPE* left, TYPE* right, int lineno) {
     // assert that the types are the same
-    int err1 = assertEqualTYPEs(left, right, lineno);
+    assertEqualTYPEs(left, right, lineno);
     // assert that they are both numeric types or strings
-    int err2 = assertNumericOrString(left, lineno);
+    assertNumericOrString(left, lineno);
     assertNumericOrString(right, lineno);
-
-    // we don't know what to return if there were errors, so we have to terminate
-    if (err1 || err2) {
-        terminateIfErrors();
-    }
     return left;
 }
 
 TYPE* numericOp(TYPE* left, TYPE* right, int lineno) {
     // assert that the types are the same
-    int err1 = assertEqualTYPEs(left, right, lineno);
+    assertEqualTYPEs(left, right, lineno);
     // assert that they are both numeric types
-    int err2 = assertNumeric(left, lineno);
+    assertNumeric(left, lineno);
     assertNumeric(right, lineno);
+    return left;
+}
 
-    // we don't know what to return if there were errors, so we have to terminate
-    if (err1 || err2) {
-        terminateIfErrors();
-    }
+TYPE* boolOp(TYPE* left, TYPE* right, int lineno) {
+    // assert that both types are the same
+    assertEqualTYPEs(left, right, lineno);
+    // assert that both resolve to bools
+    assertResolvesToBool(left, lineno);
+    assertResolvesToBool(right, lineno);
     return left;
 }
 
 TYPE* intOp(TYPE* left, TYPE* right, int lineno) {
     // assert that both types are the same
-    int err1 = assertEqualTYPEs(left, right, lineno);
+    assertEqualTYPEs(left, right, lineno);
     // assert that both resolve to ints
-    int err2 = assertResolvesToInt(left);
-    assertResolvesToInt(right);
-
-    // we don't know what to return if there were errors, so we have to terminate
-    if (err1 || err2) {
-        terminateIfErrors();
-    }
+    assertResolvesToInt(left, lineno);
+    assertResolvesToInt(right, lineno);
     return left;
 }
 
@@ -838,14 +825,10 @@ TYPE* getElementType(TYPE* t, int lineno) {
 
 void checkOrderedAndEqual(TYPE* left, TYPE* right, int lineno) {
     // assert that the types are equal
-    int err1 = assertEqualTYPEs(left, right, lineno);
+    assertEqualTYPEs(left, right, lineno);
     // assert that both types are ordered
-    int err2 = assertOrdered(left, lineno);
+    assertOrdered(left, lineno);
     assertOrdered(right, lineno);
-
-    if (err1 || err2) {
-        terminateIfErrors();
-    }
 }
 
 /*
@@ -859,13 +842,10 @@ void checkAppendIsValid(TYPE* s, TYPE* t, int lineno) {
     if (elementType == NULL) {
         terminateIfErrors();
     }
-    int err = assertEqualTYPEs(elementType, t, lineno);
-    if (err) {
-        terminateIfErrors();
-    }
+    assertEqualTYPEs(elementType, t, lineno);
 }
 
-TYPE* getSliceElementType(TYPE* t, lineno) {
+TYPE* getSliceElementType(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "expected slice but found void type", lineno);
         return NULL;
@@ -905,151 +885,123 @@ TYPE* getSliceElementType(TYPE* t, lineno) {
 
 /*
  * reports an error if two types are not equal
- * returns 1 if error and zero otherwise
  */
-int assertEqualTYPEs(TYPE *expected, TYPE *actual, int lineno) {
+void assertEqualTYPEs(TYPE *expected, TYPE *actual, int lineno) {
 
 }
 
 /*
  * reports an error if the type cannot be ordered
- * returns 0 if fine and 1 if error
  */
-int assertOrdered(TYPE* t, int lineno) {
+void assertOrdered(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "expected non-void type but found void type", lineno);
-        return 1;
+        return;
     }
     switch(t->kind) {
         case intK:
-            return 0;
             break;
         case float64K:
-            return 0;
             break;
         case runeK:
-            return 0;
             break;
         case boolK:
             reportError("TYPE", "type bool is not ordered", lineno);
-            return 1;
             break;
         case stringK:
-            return 0;
             break;
         case idK:
             // check the underlying type!
-            return assertOrdered(t->val.idT.underlyingType, lineno);
+            assertOrdered(t->val.idT.underlyingType, lineno);
             break;
         case structK:
             reportError("TYPE", "type struct is not ordered", lineno);
-            return 1;
             break;
         case sliceK:
             reportError("TYPE", "type slice is not ordered", lineno);
-            return 1;
             break;
         case arrayK:
             reportError("TYPE", "type array is not ordered", lineno);
-            return 1;
             break;
     }
 }
 
 /*
  * reports an error if a type is not numeric (int, float64, rune, or alias to one of the three)
- * returns 1 if error and zero otherwise
  */
-int assertNumeric(TYPE* t, int lineno) {
+void assertNumeric(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "expected non-void type but found void type", lineno);
-        return 1;
+        return;
     }
     switch(t->kind) {
         case intK:
-            return 0;
             break;
         case float64K:
-            return 0;
             break;
         case runeK:
-            return 0;
             break;
         case boolK:
             reportError("TYPE", "expected numeric type but found bool", lineno);
-            return 1;
             break;
         case stringK:
             reportError("TYPE", "expected numeric type but found string", lineno);
-            return 1;
             break;
         case idK:
             // check the underlying type!
-            return assertNumeric(t->val.idT.underlyingType, lineno);
+            assertNumeric(t->val.idT.underlyingType, lineno);
             break;
         case structK:
             reportError("TYPE", "expected numeric type but found struct", lineno);
-            return 1;
             break;
         case sliceK:
             reportError("TYPE", "expected numeric type but found slice", lineno);
-            return 1;
             break;
         case arrayK:
             reportError("TYPE", "expected numeric type but found array", lineno);
-            return 1;
             break;
     }
 }
 
-int assertNumericOrString(TYPE* t, int lineno) {
+void assertNumericOrString(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "expected non-void type but found void type", lineno);
-        return 1;
+        return;
     }
     switch(t->kind) {
         case intK:
-            return 0;
             break;
         case float64K:
-            return 0;
             break;
         case runeK:
-            return 0;
             break;
         case boolK:
             reportError("TYPE", "expected numeric or string type but found bool", lineno);
-            return 1;
             break;
         case stringK:
-            return 0;
             break;
         case idK:
             // check the underlying type!
-            return assertNumericOrString(t->val.idT.underlyingType, lineno);
+            assertNumericOrString(t->val.idT.underlyingType, lineno);
             break;
         case structK:
             reportError("TYPE", "expected numeric or string type but found struct", lineno);
-            return 1;
             break;
         case sliceK:
             reportError("TYPE", "expected numeric or string type but found slice", lineno);
-            return 1;
             break;
         case arrayK:
             reportError("TYPE", "expected numeric or string type but found array", lineno);
-            return 1;
             break;
     }
-
 }
 
 /*
  * a redeclaration is valid only if the symbol for the previous declaration has type
  * varDeclSym, varSym, or shortDeclSym
  */
-int assertCanAssign(SYMBOL* prevSym, int lineno) {
-    if ((prevSym->type != varSym) && (prevSym->type != varDeclSym) && (prevSym->type != shortDeclSym)) {
+void assertCanAssign(SYMBOL* prevSym, int lineno) {
+    if ((prevSym->kind != varSym) && (prevSym->kind != varDeclSym) && (prevSym->kind != shortDeclSym)) {
         reportStrError("TYPE", "cannot assign to %s", prevSym->name, lineno);
     }
 }
@@ -1059,18 +1011,18 @@ int assertCanAssign(SYMBOL* prevSym, int lineno) {
  */
 void assertCaseEXPsHaveType(EXP* exps, TYPE* t) {
     if (t == NULL) {
-        reportError("TYPE", "expected non-void type but found void type", lineno);
+        reportError("TYPE", "expected non-void type but found void type", exps->lineno);
         return;
     }
     if (exps == NULL) return;
-    assertEqualTYPEs(t, exps->type);
+    assertEqualTYPEs(t, exps->type, exps->lineno);
     assertCaseEXPsHaveType(exps->next, t);
 }
 
-void assertEXPsResolveToBaseType(EXP* e) {
+void assertEXPsResolveToBaseType(EXP* e, int lineno) {
     if (e == NULL) return;
-    assertResolvesToBaseType(e->type);
-    assertEXPsResolveToBaseType(e->next);
+    assertResolvesToBaseType(e->type, lineno);
+    assertEXPsResolveToBaseType(e->next, lineno);
 }
 
 /*
@@ -1147,53 +1099,45 @@ void assertResolvesToBool(TYPE* t, int lineno) {
 /*
  * checks that a type resolves to either int or rune (since rune is just an alias for int!)
  */
-int assertResolvesToInt(TYPE* t, int lineno) {
+void assertResolvesToInt(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "expected type int but found void type", lineno);
-        return 1;
+        return;
     }
     switch(t->kind) {
         case intK:
-            return 0;
             break;
         case float64K:
             reportError("TYPE", "expected type int but found float64", lineno);
-            return 1;
             break;
         case runeK:
-            return 0;
             break;
         case boolK:
             reportError("TYPE", "expected type int but found bool", lineno);
-            return 1;
             break;
         case stringK:
             reportError("TYPE", "expected type int but found string", lineno);
-            return 1;
             break;
         case idK:
             // check the underlying type!
-            return assertResolvesToInt(t->val.idT.underlyingType, lineno);
+            assertResolvesToInt(t->val.idT.underlyingType, lineno);
             break;
         case structK:
             reportError("TYPE", "expected type int but found struct", lineno);
-            return 1;
             break;
         case sliceK:
             reportError("TYPE", "expected type int but found slice", lineno);
-            return 1;
             break;
         case arrayK:
             reportError("TYPE", "expected type int but found array", lineno);
-            return 1;
             break;
     }
 }
 
-void assertCastResolution(EXP* e, int lineno) {
+void assertCastResolution(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "cannot cast to void type", lineno);
-        return 1;
+        return;
     }
     switch(t->kind) {
         case intK:

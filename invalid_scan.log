@@ -1,126 +1,42 @@
-grading/invalid/scanner//blockcomment1.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before * at line 5
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//blockcomment2.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before / at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//blockcomment3.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before * at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//blockcomment4.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before * at line 4
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//floatlit1.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before . at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//floatlit2.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before  at line 4
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//floatlit3.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before . at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//integerdecimal1.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before 9 at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//integerhex1.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before iwe at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//integerhex2.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before x at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//interstring1.go: PARSER ERROR:
-    *** message: "
-    *** location: syntax error before " at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//interstring2.go: PARSER ERROR:
-    *** message: "
-    *** location: syntax error before " at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//interstring3.go: PARSER ERROR:
-    *** message: "
-    *** location: syntax error before " at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//interstring4.go: PARSER ERROR:
-    *** message: "
-    *** location: syntax error before " at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//rawstring1.go: PARSER ERROR:
-    *** message: `
-    *** location: syntax error before ` at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//rawstring2.go: PARSER ERROR:
-    *** message: syntax error
-    *** location: syntax error before derp at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//rune1.go: PARSER ERROR:
-    *** message: '
-    *** location: syntax error before ' at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//rune2.go: PARSER ERROR:
-    *** message: '
-    *** location: syntax error before ' at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//rune3.go: PARSER ERROR:
-    *** message: '
-    *** location: syntax error before ' at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//rune4.go: PARSER ERROR:
-    *** message: '
-    *** location: syntax error before ' at line 3
-*** compilation terminated
-parsing program...
-[pass]
-grading/invalid/scanner//symbol1.go: PARSER ERROR:
-    *** message: $
-    *** location: syntax error before $ at line 2
-*** compilation terminated
-parsing program...
-[pass]
+grading/invalid/scanner//blockcomment1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//blockcomment2.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//blockcomment3.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//blockcomment4.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//floatlit1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//floatlit2.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//floatlit3.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//integerdecimal1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//integerhex1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//integerhex2.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//interstring1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//interstring2.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//interstring3.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//interstring4.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//rawstring1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//rawstring2.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//rune1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//rune2.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//rune3.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//rune4.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]
+grading/invalid/scanner//symbol1.go: ./run.sh: line 3: ./src/out: No such file or directory
+[fail]

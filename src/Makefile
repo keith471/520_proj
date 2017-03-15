@@ -1,7 +1,7 @@
 CC = gcc
 
-all: y.tab.c lex.yy.c main.c error.c error.h memory.c memory.h tree.c tree.h pretty.c pretty.h outputhelpers.c outputhelpers.h weed.c weed.h symbol.c symbol.h
-	$(CC) lex.yy.c y.tab.c main.c error.c memory.c tree.c pretty.c outputhelpers.c weed.c symbol.c -o out -ll
+all: y.tab.c lex.yy.c main.c error.c error.h memory.c memory.h tree.c tree.h pretty.c pretty.h outputhelpers.c outputhelpers.h weed.c weed.h symbol.c symbol.h type.c type.h
+	$(CC) lex.yy.c y.tab.c main.c error.c memory.c tree.c pretty.c outputhelpers.c weed.c symbol.c type.c -o out -ll
 
 bison_debug: y.tab.c lex.yy.c main.c error.c error.h memory.c memory.h tree.c tree.h pretty.c pretty.h outputhelpers.c outputhelpers.h weed.c weed.h
 	$(CC) lex.yy.c y.tab.c main.c error.c memory.c tree.c pretty.c outputhelpers.c weed.c -D BISON_DEBUG -o out -ll

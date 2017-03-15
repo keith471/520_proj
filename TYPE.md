@@ -3,13 +3,12 @@
 ## TODO
 - typeEXP
     selector
-- try compiling without type
-- try compiling with type
 - throw errors in typeVar
 - assertEqualTYPEs
 - assertValidOpUsage
--
-
+- write test programs
+- write report
+- submit
 
 - improve assertion methods to print out alias to (alias to etc)
 

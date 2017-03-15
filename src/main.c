@@ -6,6 +6,7 @@
 #include "pretty.h"
 #include "weed.h"
 #include "symbol.h"
+#include "type.h"
 
 int yylex();
 void yyparse();
@@ -236,6 +237,12 @@ int main(int argc, char* argv[]) {
         if (dumpsymtab) {
             printf("    >>> wrote the symbol table to %s\n", symbolPath);
         }
+
+        // create a symbol table for the program
+        printf("type checking program...\n");
+        typePROGRAM(theprogram);
+        terminateIfErrors();
+        printf("    >>> SUCCESS\n");
 
     #endif
 
