@@ -88,7 +88,7 @@ void prettyVARDECLARATIONsingleline(VARDECLARATION* vd) {
             break;
         case expOnlyK:
             fprintf(emitFILE, " = ");
-            prettyEXPs(vd->val.expVD);
+            prettyEXPs(vd->val.expVD.exp);
             break;
         case typeAndExpK:
             fprintf(emitFILE, " ");
@@ -626,7 +626,7 @@ void prettyEXPs(EXP* exp) {
 void prettyEXP(EXP* e) {
     switch (e->kind) {
         case identifierK:
-            prettyID(e->val.idE);
+            prettyID(e->val.idE.id);
             break;
         case intLiteralK:
             fprintf(emitFILE, "%d", e->val.intLiteralE.decValue);
@@ -820,7 +820,7 @@ void prettyEXP(EXP* e) {
                     //printf("%s\n", e->val.selectorE.rest->val.indexE.lastSelector->name);
                     break;
                 case idK:
-                    printf("rest is an id: %s\n", e->val.selectorE.rest->val.idE->name);
+                    printf("rest is an id: %s\n", e->val.selectorE.rest->val.idE.id->name);
                     break;
                 default:
                     printf("rest is something else\n");

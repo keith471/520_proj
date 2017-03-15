@@ -41,7 +41,7 @@ void weedVARDECLARATION(VARDECLARATION* vd) {
             break;
         case expOnlyK:
             // make sure that none of the expressions are blank identifiers
-            checkForBlankIdentifier_exp(vd->val.expVD); // cheat
+            checkForBlankIdentifier_exp(vd->val.expVD.exp); // cheat
             break;
         case typeAndExpK:
             // make sure that none of the expressions are blank identifiers
@@ -564,7 +564,7 @@ void checkForBlankIdentifier_exp(EXP* e) {
     if (e == NULL) return;
     switch(e->kind) {
         case identifierK:
-            checkForBlankIdentifier_string(e->val.idE->name, "cannot use _ as value", e->lineno);
+            checkForBlankIdentifier_string(e->val.idE.id->name, "cannot use _ as value", e->lineno);
             break;
         case intLiteralK:
             break;
@@ -706,7 +706,7 @@ void checkForBlankIdentifier_string(char* s, char* message, int lineno) {
 void checkArraySize(EXP* e) {
     switch (e->kind) {
         case identifierK:
-            reportStrError("WEED", "non-constant array bound %s", e->val.idE->name, e->lineno);
+            reportStrError("WEED", "non-constant array bound %s", e->val.idE.id->name, e->lineno);
             break;
         case intLiteralK:
             // all good!

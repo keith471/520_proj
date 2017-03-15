@@ -141,7 +141,8 @@ VARDECLARATION* makeVARDECLARATIONexponlyhelper(ID* id, EXP* exp, VARDECLARATION
     d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
-    d->val.expVD = exp;
+    d->val.expVD.exp = exp;
+    d->val.expVD.symbol = NULL;
     d->next = next;
     d->nextDistributed = NULL;
     return d;
@@ -492,6 +493,7 @@ STATEMENT* makeSTATEMENTshortdeclhelper(EXP* id, EXP* exp, STATEMENT* next) {
     s->kind = shortDeclK;
     s->val.shortDeclS.id = id;
     s->val.shortDeclS.exp = exp;
+    s->val.shortDeclS.symbol = NULL;
     s->val.shortDeclS.isRedecl = 0;
     s->val.shortDeclS.prevDeclSym = NULL;
     s->val.shortDeclS.next = next;
@@ -1158,7 +1160,8 @@ EXP* makeEXPid(ID* id) {
     e->type = NULL; // for now
     e->kind = identifierK;
     e->isParenthesized = 0;
-    e->val.idE = id;
+    e->val.idE.id = id;
+    e->val.idE.symbol = NULL;
     e->next = NULL;
     return e;
 }

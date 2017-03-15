@@ -30,6 +30,8 @@ type t5 struct {
 type t6 struct {
 }
 
+type point int
+
 // slices
 type t7 []int			// base type
 type t8 []point			// type id

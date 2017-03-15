@@ -42,7 +42,8 @@ typedef struct SYMBOL {
         struct TYPE* typeS;
         struct TYPE* varS;
         struct FUNCTIONDECLARATION *functionDeclS;
-        struct STATEMENT* shortDeclS;
+        struct {struct STATEMENT* statement;
+                struct TYPE* type; /* will be NULL until type checking */} shortDeclS;
         struct {struct TYPEDECLARATION * typeDecl;
                 struct TYPE* type;} typeDeclS;
         struct {struct VARDECLARATION* varDecl;
@@ -101,7 +102,8 @@ typedef struct VARDECLARATION {
     int isLocal;    // whether this declaration is local (as opposed to global)
     union {
         struct TYPE* typeVD;
-        struct EXP* expVD;
+        struct {struct EXP* exp; /* in later phases, can access the type through exp or the symbol */
+                struct SYMBOL* symbol; /* set in symbol phase */} expVD;
         struct {struct TYPE* type;
                 struct EXP* exp;} typeAndExpVD;
     } val;
@@ -254,6 +256,7 @@ typedef struct STATEMENT {
         struct VARDECLARATION* varDeclS;
         struct TYPEDECLARATION* typeDeclS;
         struct {struct EXP* id;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
+                struct SYMBOL* symbol; // the symbol for the id (not null if this is not a redecl)
                 struct EXP* exp;
                 int isRedecl; // whether this variable was redeclared in the short decl statement
                 struct SYMBOL* prevDeclSym; // the symbol for the variable's previous declaration
@@ -297,7 +300,8 @@ typedef struct EXP {
            uMinusK, uNotK, uXorK } kind;
     int isParenthesized;    // a flag that we check during weeding of short declaration statements
     union {
-        struct ID *idE;  // identifier
+        struct {struct ID* id;
+                struct SYMBOL* symbol; /* symbol of this identifier, set in the symbol phase */ } idE;  // identifier
         struct {int decValue; // value of integer
                 IntLiteralKind kind;} intLiteralE;
         float floatLiteralE;    // value of float

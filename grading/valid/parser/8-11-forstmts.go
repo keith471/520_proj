@@ -5,6 +5,8 @@ func for_stmts() {
 	for {
 	}
 
+    var a, b int
+
 	// "while" loop
 	for a < b {
 	}
@@ -41,4 +43,3 @@ func for_stmts() {
 	for a := 0; a < 10; a++ {
 	}
 }
- 

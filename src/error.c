@@ -28,6 +28,7 @@ void reportWeedError(char* s, int lineno) {
     fprintf(stderr, "    *** message: %s\n", s);
     fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
 
 void reportStrError(char* errType, char *s, char *name, int lineno) {
@@ -37,6 +38,7 @@ void reportStrError(char* errType, char *s, char *name, int lineno) {
     fprintf(stderr, "    *** message: %s\n", str);
     fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
 
 void reportFloatError(char* errType, char *s, float f, int lineno) {
@@ -46,6 +48,7 @@ void reportFloatError(char* errType, char *s, float f, int lineno) {
     fprintf(stderr, "    *** message: %s\n", str);
     fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
 
 void reportCharError(char* errType, char *s, char c, int lineno) {
@@ -55,6 +58,7 @@ void reportCharError(char* errType, char *s, char c, int lineno) {
     fprintf(stderr, "    *** message: %s\n", str);
     fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
 
 /*
@@ -66,6 +70,7 @@ void reportSymbolError(char *s, char *name, int lineno) {
     printf("    *** identifier: %s\n", name);
     printf("    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
 
 void reportRedeclError(char *msg, char* name, int prevLineno, int lineno) {
@@ -75,6 +80,7 @@ void reportRedeclError(char *msg, char* name, int prevLineno, int lineno) {
     printf("    *** message: %s\n", str);
     printf("    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
 
 void reportError(char* errType, char* msg, int lineno) {
@@ -82,7 +88,12 @@ void reportError(char* errType, char* msg, int lineno) {
     printf("    *** message: %s\n", msg);
     printf("    *** location: line %i\n", lineno);
     errors++;
+    exit(1);
 }
+
+//==============================================================================
+// Errors for which we terminate after printing
+//==============================================================================
 
 /**
  * this is called after each phase of the compiler

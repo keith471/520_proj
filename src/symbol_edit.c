@@ -941,8 +941,7 @@ void symEXP(EXP* e, SymbolTable* t) {
             symEXP(e->val.indexE.lastIndex, t);
             break;
         case argumentsK:
-            symEXP(e->val.argumentsE.rest, t);
-            symEXP(e->val.argumentsE.args, t);
+            symEXParguments(e, t);
             break;
         case uPlusK:
             symEXP(e->val.uPlusE, t);
@@ -959,6 +958,42 @@ void symEXP(EXP* e, SymbolTable* t) {
         default:
             break;
     }
+}
+
+void symEXParguments(EXP* e, SymbolTable* t) {
+    // e->val.argumentsE.rest should really be an exp of identifierK kind
+    if (e->val.argumentsE.rest->kind != identifierK) {
+        reportError("SYMBOL", "cannot call a non-function", e->lineno);
+        // let's just stop here...
+        terminateIfErrors();
+    } else {
+        // we need to lookup the identifier in the symbol table
+        // we can easily get the symbol by first syming rest
+        symEXP(e->val.argumentsE.rest, t);
+        SYMBOL* s = e->val.argumentsE.rest->val.idE.symbol;
+
+        // check the kind of the symbol to determine if this is a function call
+        int isFunctionCall = 0;
+        switch (s->kind) {
+            case typeSym:
+                break;
+            case typeDeclSym:
+                break;
+            case varSym:
+                break;
+            case varDeclSym:
+                break;
+            case shortDeclSym:
+                break;
+            case functionDeclSym:
+                break;
+            case parameterSym:
+                break;
+            case fieldSym:
+                break;
+        }
+    }
+
 }
 
 void symRECEIVER(RECEIVER* r, SymbolTable* t) {

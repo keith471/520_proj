@@ -432,12 +432,11 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
             break;
         case expOnlyK:
             // MUST check the expression first!
-            symEXP(v->val.expVD.exp, t);
+            symEXP(v->val.expVD, t);
             // create a symbol for the varDecl (if it is not blank)
             if (notBlank(v->id->name)) {
                 p = putSymbol(t, v->id->name, varDeclSym, v->lineno, 0);
                 s = p->symbol;
-                v->val.expVD.symbol = s; // important so we can set the type in the type checking phase
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = NULL;
             }
@@ -748,8 +747,8 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
         symEXP(stmt->val.shortDeclS.exp, symbolTable);
 
         // then, create a symbol for the id (provided it is not blank)
-        if (notBlank(stmt->val.shortDeclS.id->val.idE.id->name)) {
-            p = putSymbol(symbolTable, stmt->val.shortDeclS.id->val.idE.id->name, shortDeclSym, stmt->lineno, 1);
+        if (notBlank(stmt->val.shortDeclS.id->val.idE->name)) {
+            p = putSymbol(symbolTable, stmt->val.shortDeclS.id->val.idE->name, shortDeclSym, stmt->lineno, 1);
 
             // check if the id was a redeclaration
             if (p->isRedecl) {
@@ -758,9 +757,7 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
                 stmt->val.shortDeclS.prevDeclSym = p->prevDeclSym;
             } else {
                 s = p->symbol;
-                s->val.shortDeclS.statement = stmt;
-                s->val.shortDeclS.type = NULL;
-                stmt->val.shortDeclS.symbol = s;
+                s->val.shortDeclS = stmt;
                 newCount += 1;
             }
         }
@@ -824,17 +821,15 @@ void symEXP(EXP* e, SymbolTable* t) {
     switch (e->kind) {
         case identifierK:
             // we need to check that this symbol exists
-            s = getSymbol(t, e->val.idE.id->name, e->lineno);
-            // store the symbol on the exp for the type phase
-            e->val.idE.symbol = s;
+            s = getSymbol(t, e->val.idE->name, e->lineno);
+            // TODO we probably want to store this symbol somewhere for the type phase
             // identifiers in expressions had better be either fields, parameters, variables, or functions
             /*
             if (s != NULL) {
-                if ((s->kind != fieldSym) && (s->kind != parameterSym) && (s->kind != varDeclSym) && (s->kind != varSym) && (s->kind != shortDeclSym) && (s->kind != functionDeclSym)) {
-                    reportStrError("SYMBOL", "%s is not a variable or function as expected", e->val.idE.id->name, e->lineno);
+                if ((s->kind != fieldSym) && (s->kind != parameterSym) && (s->kind != varDeclSym) && (s->kind != varSym) && (s->kind != functionDeclSym) && (s->kind != shortDeclSym)) {
+                    reportStrError("SYMBOL", "%s is not a variable or function as expected", e->val.idE->name, e->lineno);
                 }
-            }
-            */
+            }*/
             break;
         case intLiteralK:
             // nothing to do for literals

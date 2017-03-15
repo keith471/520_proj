@@ -60,6 +60,8 @@ func dec_stmts() {
 	type t6 struct {
 	}
 
+    type point int
+
 	// slices
 	type t7 []int			// base type
 	type t8 []point			// type id
@@ -74,5 +76,5 @@ func dec_stmts() {
 	type t13 [8]struct {		// composite type
 		a int
 	}
-	type t13 [3][3]float64	// matrix
-} 
+	type t14 [3][3]float64	// matrix
+}
