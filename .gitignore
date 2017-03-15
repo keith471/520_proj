@@ -1,7 +1,6 @@
 src/y.*
 src/out
 src/lex.yy.*
-valid.log
-invalid.log
+*.log
 src/output/*
 !src/output/.gitkeep
