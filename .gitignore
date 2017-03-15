@@ -4,3 +4,4 @@ src/lex.yy.*
 *.log
 src/output/*
 !src/output/.gitkeep
+output.txt
