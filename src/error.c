@@ -65,10 +65,10 @@ void reportCharError(char* errType, char *s, char c, int lineno) {
  * for symbol errors
  */
 void reportSymbolError(char *s, char *name, int lineno) {
-    printf("SYMBOL ERROR:\n");
-    printf("    *** message: %s\n", s);
-    printf("    *** identifier: %s\n", name);
-    printf("    *** location: line %i\n", lineno);
+    fprintf(stderr, "SYMBOL ERROR:\n");
+    fprintf(stderr, "    *** message: %s\n", s);
+    fprintf(stderr, "    *** identifier: %s\n", name);
+    fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
     exit(1);
 }
@@ -76,17 +76,17 @@ void reportSymbolError(char *s, char *name, int lineno) {
 void reportRedeclError(char *msg, char* name, int prevLineno, int lineno) {
     char str[256];
     sprintf(str, msg, name, prevLineno);
-    printf("SYMBOL ERROR:\n");
-    printf("    *** message: %s\n", str);
-    printf("    *** location: line %i\n", lineno);
+    fprintf(stderr, "SYMBOL ERROR:\n");
+    fprintf(stderr, "    *** message: %s\n", str);
+    fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
     exit(1);
 }
 
 void reportError(char* errType, char* msg, int lineno) {
-    printf("%s ERROR:\n", errType);
-    printf("    *** message: %s\n", msg);
-    printf("    *** location: line %i\n", lineno);
+    fprintf(stderr, "%s ERROR:\n", errType);
+    fprintf(stderr, "    *** message: %s\n", msg);
+    fprintf(stderr, "    *** location: line %i\n", lineno);
     errors++;
     exit(1);
 }
