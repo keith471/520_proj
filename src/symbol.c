@@ -480,7 +480,15 @@ void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* t) {
     SYMBOL* s = p->symbol;
     // set val on the symbol
     s->val.typeDeclS.typeDecl = td;
-    s->val.typeDeclS.type = td->type;
+    // create a new type with kind idK
+    TYPE* idType = NEW(TYPE);
+    idType->lineno = td->lineno;
+    idType->kind = idK;
+    idType->val.idT.id = td->id;
+    idType->val.idT.typeDecl = td;
+    idType->val.idT.underlyingType = td->type;
+    // this id type is the type we save on the symbol for this type declaration
+    s->val.typeDeclS.type = idType;
     symTYPEDECLARATION(td->nextDistributed, t);
 }
 
@@ -994,7 +1002,9 @@ void verifyType(TYPE* type, SymbolTable* t) {
                     case typeDeclSym:
                         // alias!
                         // set the given type's underlying type to this alias
-                        type->val.idT.underlyingType = s->val.typeDeclS.type;
+                        //type->val.idT.underlyingType = s->val.typeDeclS.type;
+                        // set the given type's underlying type to the type of the typeDeclaration
+                        type->val.idT.underlyingType = s->val.typeDeclS.typeDecl->type;
                         // and the given type's reference to the type declaration
                         type->val.idT.typeDecl = s->val.typeDeclS.typeDecl;
                         break;
