@@ -49,7 +49,7 @@ void assertResolvesToBaseType(TYPE* t, int lineno);
 void assertResolvesToBool(TYPE* t, int lineno);
 void assertResolvesToInt(TYPE* t, int lineno);
 void assertCastResolution(TYPE* t, int lineno);
-void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right);
+void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right, int lineno);
 void assertIdenticalTYPEs(TYPE *expected, TYPE *actual, int lineno);
 TYPE* resolve(TYPE* t);
 void assertActualTypeInt(TYPE* actual, int lineno);

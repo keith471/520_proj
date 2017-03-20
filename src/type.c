@@ -240,7 +240,7 @@ void typeSTATEMENT(STATEMENT* s) {
             // expressions of type(lvalue) and type(exp) and returns a value of type(lvalue)
             typeEXP(s->val.binOpAssignS.lvalue);
             typeEXP(s->val.binOpAssignS.exp);
-            assertValidOpUsage(s->val.binOpAssignS.opKind, s->val.binOpAssignS.lvalue->type, s->val.binOpAssignS.exp->type);
+            assertValidOpUsage(s->val.binOpAssignS.opKind, s->val.binOpAssignS.lvalue->type, s->val.binOpAssignS.exp->type, s->lineno);
             break;
         case shortDeclK:
             // type checks if the exp type checks
@@ -1164,31 +1164,51 @@ void assertCastResolution(TYPE* t, int lineno) {
 /*
  * checks that opKind accepts types left and right and returns a value of type left
  */
-void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right) {
+void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right, int lineno) {
     switch (opKind) {
         case plusEqOp:
+            // assert that both left and right are either strings or numeric and that they have the same type
+            typePlus(left, right, lineno);
             break;
         case minusEqOp:
+            // assert that both left and right are numeric and have the same type
+            numericOp(left, right, lineno);
             break;
         case timesEqOp:
+            // assert that both left and right are numeric and have the same type
+            numericOp(left, right, lineno);
             break;
         case divEqOp:
+            // assert that both left and right are numeric and have the same type
+            numericOp(left, right, lineno);
             break;
         case modEqOp:
+            // assert that both left and right are numeric and have the same type
+            numericOp(left, right, lineno);
             break;
         case andEqOp:
+            // assert that both left and right are the same type and both resolve to int
+            intOp(left, right, lineno);
             break;
         case orEqOp:
+            // assert that both left and right are the same type and both resolve to int
+            intOp(left, right, lineno);
             break;
         case xorEqOp:
+            // assert that both left and right are the same type and both resolve to int
+            intOp(left, right, lineno);
             break;
         case leftShiftEqOp:
+            // assert that both left and right are the same type and both resolve to int
+            intOp(left, right, lineno);
             break;
         case rightShiftEqOp:
+            // assert that both left and right are the same type and both resolve to int
+            intOp(left, right, lineno);
             break;
         case bitClearEqOp:
-            break;
-        default:
+            // assert that both left and right are the same type and both resolve to int
+            intOp(left, right, lineno);
             break;
     }
 }
