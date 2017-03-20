@@ -5,6 +5,7 @@
 #include "tree.h"
 #include "memory.h"
 #include "error.h"
+#include "symbol.h" // only for Hash
 
 /*
 type Person struct {
@@ -395,6 +396,8 @@ void typeEXPs(EXP* e) {
 
 void typeEXP(EXP* e) {
     CASTCHECKRETURN* ctr;
+    STRUCTTYPE* structType;
+    SYMBOL* symbol;
     switch (e->kind) {
         case identifierK:
             e->type = getSymbolType(e->val.idE.symbol, e->lineno);
@@ -538,8 +541,15 @@ void typeEXP(EXP* e) {
             e->type = e->val.castE->type;
             break;
         case selectorK:
-            //
-            //symRECEIVER(e->val.selectorE.receiver, t);
+            // type the receiving expression; it should end up having a type that resolves to structK
+            typeRECEIVER(e->val.selectorE.receiver);
+            // assert that the receiver resolves to a stuct literal
+            structType = assertResolvesToStruct(e->val.selectorE.receiver->receivingStruct->type, e->lineno);
+            // search the symbol table of the structType for the last selector
+            symbol = getSymbolInSymbolTable(structType->symbolTable, e->val.selectorE.lastSelector->name, e->lineno);
+            // the type of this expression is the type of the symbol
+            // this symbol will definitely have kind fieldSym, so we can access its type directly
+            e->type = symbol->val.fieldS.type;
             break;
         case indexK:
             // an index into an array or slice is well-typed if
@@ -587,6 +597,13 @@ void typeEXP(EXP* e) {
         default:
             break;
     }
+}
+
+/*
+ * A receiver is well-typed if its receiving expression is well-typed
+ */
+void typeRECEIVER(RECEIVER* r) {
+    typeEXP(r->receivingStruct);
 }
 
 /*
@@ -1128,6 +1145,46 @@ void assertResolvesToInt(TYPE* t, int lineno) {
     }
 }
 
+/*
+ * checks that a type resolves to a struct literal
+ */
+STRUCTTYPE* assertResolvesToStruct(TYPE* t, int lineno) {
+    if (t == NULL) {
+        reportError("TYPE", "expected struct type but found void type", lineno);
+        return NULL;
+    }
+    switch(t->kind) {
+        case intK:
+            reportError("TYPE", "expected struct type but found int", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected struct type but found float64", lineno);
+            break;
+        case runeK:
+            break;
+        case boolK:
+            reportError("TYPE", "expected struct type but found bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected struct type but found string", lineno);
+            break;
+        case idK:
+            // check the underlying type!
+            return assertResolvesToStruct(t->val.idT.underlyingType, lineno);
+            break;
+        case structK:
+            return t->val.structT;
+            break;
+        case sliceK:
+            reportError("TYPE", "expected struct type but found slice", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected struct type but found array", lineno);
+            break;
+    }
+    return NULL;
+}
+
 void assertCastResolution(TYPE* t, int lineno) {
     if (t == NULL) {
         reportError("TYPE", "cannot cast to void type", lineno);
@@ -1437,4 +1494,17 @@ void assertActualTypeIdentifier(TYPEDECLARATION* expectedDecl, TYPE* actual, int
             reportStrError("TYPE", "expected type %s but found another type", expectedDecl->id->name, lineno);
             break;
     }
+}
+
+/*
+ * Get a symbol in the given symbol table, if it exists
+ */
+SYMBOL* getSymbolInSymbolTable(SymbolTable* t, char *name, int lineno) {
+    int i = Hash(name);
+    SYMBOL *s;
+    for (s = t->table[i]; s; s = s->next) {
+        if (strcmp(s->name, name) == 0) return s;
+    }
+    reportStrError("TYPE", "no such field: %s", name, lineno);
+    return NULL;
 }
