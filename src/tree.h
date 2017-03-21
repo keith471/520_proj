@@ -101,10 +101,10 @@ typedef struct VARDECLARATION {
     int isDistributed;  // whether this declaration is part of a distrubuted statement
     int isLocal;    // whether this declaration is local (as opposed to global)
     union {
-        struct TYPE* typeVD;
+        struct TYPE* typeVD; // cannot be NULL
         struct {struct EXP* exp; /* in later phases, can access the type through exp or the symbol */
                 struct SYMBOL* symbol; /* set in symbol phase */} expVD;
-        struct {struct TYPE* type;
+        struct {struct TYPE* type; // cannot be NULL
                 struct EXP* exp;} typeAndExpVD;
     } val;
     struct VARDECLARATION* next; // for when multiple variables are declared in one line
@@ -122,7 +122,7 @@ typedef struct TYPEDECLARATION {
     int isEmpty;   // whether this is an empty type declaration, i.e. type ()
     int isDistributed; // whether this declaration is part of a distributed statement
     int isLocal;   // whether this declaration is local (as opposed to global)
-    struct TYPE* type;
+    struct TYPE* type; // cannot be NULL
     struct TYPEDECLARATION* nextDistributed; // for distributed type declarations; else this is null
 } TYPEDECLARATION;
 
@@ -134,7 +134,7 @@ typedef struct FUNCTIONDECLARATION {
     int lineno;
     struct ID* id;  // the name of the function
     struct PARAMETER *parameters;
-    struct TYPE* returnType;
+    struct TYPE* returnType; // can be NULL
     struct STATEMENT *statements;
 } FUNCTIONDECLARATION;
 
@@ -144,7 +144,7 @@ typedef struct FUNCTIONDECLARATION {
 typedef struct PARAMETER {
     int lineno;
     struct ID* id;
-    struct TYPE *type;
+    struct TYPE *type; // cannot be NULL
     struct PARAMETER* nextId;   // for the next parameter in the list, e.g. a, b, c int
     struct PARAMETER* nextParamSet; // for the next set of parameters, e.g. a, b, c int, d, e float64
 } PARAMETER;

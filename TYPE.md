@@ -1,8 +1,6 @@
 
 
 ## TODO
-- fix casting issue
-- make sure you're dealing with void types properly
 - throw errors in getSymbolType --> make sure this is complete
 - perform a second pass to check for function returns
 

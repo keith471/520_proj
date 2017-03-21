@@ -171,7 +171,7 @@ void typeSTATEMENT(STATEMENT* s) {
                 }
                 assertIdenticalTYPEs(t, s->val.shortDeclS.exp->type, s->lineno);
             } else {
-                // we need to set the type on the symbol
+                // we need to set the type on the symbol to be the type of the expression
                 s->val.shortDeclS.symbol->val.shortDeclS.type = s->val.shortDeclS.exp->type;
             }
             break;
@@ -461,9 +461,6 @@ void typeEXP(EXP* e) {
             // rest is well typed and resolves to a slice or array
             typeEXP(e->val.indexE.rest);
             e->type = getElementType(e->val.indexE.rest->type, e->lineno);
-            if (e->type == NULL) {
-                terminateIfErrors();
-            }
             break;
         case argumentsK:
             // here, we can FINALLY check whether or not this is actually supposed to be a cast
@@ -706,10 +703,6 @@ TYPE* getSymbolType(SYMBOL *s, int lineno) {
  * the elements in the slice or array if so
  */
 TYPE* getElementType(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected slice or array but found void type", lineno);
-        return NULL;
-    }
     switch (t->kind) {
         case intK:
             reportError("TYPE", "expected slice or array but found int", lineno);
@@ -759,17 +752,10 @@ void checkOrderedAndEqual(TYPE* left, TYPE* right, int lineno) {
  */
 void checkAppendIsValid(TYPE* s, TYPE* t, int lineno) {
     TYPE* elementType = getSliceElementType(s, lineno);
-    if (elementType == NULL) {
-        terminateIfErrors();
-    }
     assertIdenticalTYPEs(elementType, t, lineno);
 }
 
 TYPE* getSliceElementType(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected slice but found void type", lineno);
-        return NULL;
-    }
     switch(t->kind) {
         case intK:
             reportError("TYPE", "expected slice but found int", lineno);
@@ -807,10 +793,6 @@ TYPE* getSliceElementType(TYPE* t, int lineno) {
  * reports an error if the type cannot be ordered
  */
 void assertOrdered(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected non-void type but found void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             break;
@@ -843,10 +825,6 @@ void assertOrdered(TYPE* t, int lineno) {
  * reports an error if a type is not numeric (int, float64, rune, or alias to one of the three)
  */
 void assertNumeric(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected non-void type but found void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             break;
@@ -877,10 +855,6 @@ void assertNumeric(TYPE* t, int lineno) {
 }
 
 void assertNumericOrString(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected non-void type but found void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             break;
@@ -923,10 +897,6 @@ void assertCanAssign(SYMBOL* prevSym, int lineno) {
  * asserts that all exressions of a switch case have type t
  */
 void assertCaseEXPsHaveType(EXP* exps, TYPE* t) {
-    if (t == NULL) {
-        reportError("TYPE", "expected non-void type but found void type", exps->lineno);
-        return;
-    }
     if (exps == NULL) return;
     assertIdenticalTYPEs(t, exps->type, exps->lineno);
     assertCaseEXPsHaveType(exps->next, t);
@@ -942,10 +912,6 @@ void assertEXPsResolveToBaseType(EXP* e, int lineno) {
  * asserts that a type resolves to int, float64, rune, bool, or string
  */
 void assertResolvesToBaseType(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected base type but found void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             break;
@@ -974,10 +940,6 @@ void assertResolvesToBaseType(TYPE* t, int lineno) {
 }
 
 void assertResolvesToBool(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected type bool but found void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             reportError("TYPE", "expected type bool but found int", lineno);
@@ -1013,10 +975,6 @@ void assertResolvesToBool(TYPE* t, int lineno) {
  * checks that a type resolves to either int or rune (since rune is just an alias for int!)
  */
 void assertResolvesToInt(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected type int but found void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             break;
@@ -1051,10 +1009,6 @@ void assertResolvesToInt(TYPE* t, int lineno) {
  * checks that a type resolves to a struct literal
  */
 STRUCTTYPE* assertResolvesToStruct(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "expected struct type but found void type", lineno);
-        return NULL;
-    }
     switch(t->kind) {
         case intK:
             reportError("TYPE", "expected struct type but found int", lineno);
@@ -1088,10 +1042,6 @@ STRUCTTYPE* assertResolvesToStruct(TYPE* t, int lineno) {
 }
 
 void assertCastResolution(TYPE* t, int lineno) {
-    if (t == NULL) {
-        reportError("TYPE", "cannot cast to void type", lineno);
-        return;
-    }
     switch(t->kind) {
         case intK:
             break;
@@ -1176,9 +1126,6 @@ void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right, int linen
  * reports an error if two types are not equal
  */
 void assertIdenticalTYPEs(TYPE *expected, TYPE *actual, int lineno) {
-    if (expected == NULL || actual == NULL) {
-        reportError("TYPE", "expected non-void type but found void type", lineno);
-    }
     switch (expected->kind) {
         case idK:
             // two type names are identical if they were created in the same type declaration

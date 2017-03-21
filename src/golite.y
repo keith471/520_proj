@@ -327,7 +327,6 @@ statement:
     | varDecl
         { $$ = makeSTATEMENTvardecl($1); }
     | typeDecl
-        // typeDecl could be null
         { $$ = makeSTATEMENTtypedecl($1); }
     | printStatement
         { $$ = $1; }
