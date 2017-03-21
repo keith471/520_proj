@@ -1,11 +1,21 @@
 package main
 
 func test(a, b float64) int {
-    return 1;
+    if (true) {
+        {
+        return 1
+    }
+    } else {
+        switch (true) {
+        case false:
+        default: return 1
+        }
+    }
 }
 
 func main() {
 
+    type cool int
     var x int
-    x = test(3., 4.0)
+    cool(x)
 }

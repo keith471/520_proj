@@ -53,7 +53,6 @@ STRUCTTYPE* assertResolvesToStruct(TYPE* t, int lineno);
 void assertCastResolution(TYPE* t, int lineno);
 void assertValidOpUsage(OperationKind opKind, TYPE* left, TYPE* right, int lineno);
 void assertIdenticalTYPEs(TYPE *expected, TYPE *actual, int lineno);
-TYPE* resolve(TYPE* t);
 void assertActualTypeInt(TYPE* actual, int lineno);
 void assertActualTypeFloat64(TYPE* actual, int lineno);
 void assertActualTypeRune(TYPE* actual, int lineno);
@@ -67,3 +66,8 @@ void assertIdenticalArrays(EXP* expectedSize, TYPE* expectedType, EXP* actualSiz
 void assertActualTypeSlice(TYPE* expectedElementType, TYPE* actual, int lineno);
 void assertActualTypeIdentifier(TYPEDECLARATION* expectedDecl, TYPE* actual, int lineno);
 SYMBOL* getSymbolInSymbolTable(SymbolTable* t, char *name, int lineno);
+void assertReturnOnEveryPath(STATEMENT* s, TYPE* returnType, char* name, int lineno);
+int hasReturnOnEveryPath(STATEMENT* s, TYPE* returnType);
+int hasOuterReturn(STATEMENT* s, TYPE* returnType);
+int hasInnerReturn(STATEMENT* s, TYPE* returnType);
+int switchHasReturn(SWITCHCASE* sc, TYPE* returnType);

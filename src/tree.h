@@ -176,27 +176,13 @@ typedef struct TYPE {
         struct {struct ID* id;
                 struct TYPEDECLARATION* typeDecl; // a reference to this type's type declaration, set in symbol phase
                 struct TYPE* underlyingType; /* set in symbol phase */} idT;
-        struct {struct EXP* size; // this will have to be an int literal expression (guaranteed by weeding)
+        struct {struct EXP* size; // this will be an int literal expression
                 struct TYPE* elementType;} arrayT;
         //struct FIELD* structT;  // the fields in the struct
         struct STRUCTTYPE* structT;
         struct TYPE* sliceT;    // the type of the elements in the slice
     } val;
 } TYPE;
-/*
-typedef struct TYPE {
-    int lineno;
-    enum { idK, structK, sliceK, arrayK, intK, float64K, runeK, boolK, stringK } kind;
-    union {
-        struct ID* idT;
-        struct {struct EXP* size;
-                struct TYPE* elementType;} arrayT;
-        struct FIELD* structT;  // the fields in the struct
-        struct TYPE* sliceT;    // the type of the elements in the slice
-        //struct STRUCTT *structT;
-    } val;
-} TYPE;
-*/
 
 typedef struct STRUCTTYPE {
     int lineno;
@@ -226,7 +212,7 @@ typedef struct STATEMENT {
     union{
         // break, continue, and empty statements have no associated val
         struct EXP* expS;
-        struct EXP *returnS; // return expression
+        struct EXP* returnS; // return expression
         struct {struct STATEMENT* initStatement;
                 struct EXP *condition;
                 struct STATEMENT *body;} ifS;

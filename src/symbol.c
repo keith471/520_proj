@@ -1020,8 +1020,7 @@ void verifyType(TYPE* type, SymbolTable* t) {
             verifyType(type->val.sliceT, t);
             break;
         case arrayK:
-            // sym the size expression
-            symEXP(type->val.arrayT.size, t);
+            // no need to sym the size expression since we know it is an int literal
             // sym the type of the array elements
             verifyType(type->val.arrayT.elementType, t);
             break;
