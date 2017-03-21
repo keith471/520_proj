@@ -1,7 +1,6 @@
 
 
 ## TODO
-- throw errors in getSymbolType --> make sure this is complete
 - perform a second pass to check for function returns
 
 - improve assertion methods to print out alias to (alias to etc)

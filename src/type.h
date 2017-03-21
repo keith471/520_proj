@@ -35,7 +35,7 @@ TYPE* typePlus(TYPE* left, TYPE* right, int lineno);
 TYPE* numericOp(TYPE* left, TYPE* right, int lineno);
 TYPE* boolOp(TYPE* left, TYPE* right, int lineno);
 TYPE* intOp(TYPE* left, TYPE* right, int lineno);
-TYPE* getSymbolType(SYMBOL *s, int lineno);
+TYPE* getSymbolType(char* name, SYMBOL *s, int lineno);
 TYPE* getElementType(TYPE* t, int lineno);
 void checkOrderedAndEqual(TYPE* left, TYPE* right, int lineno);
 void checkAppendIsValid(TYPE* s, TYPE* t, int lineno);

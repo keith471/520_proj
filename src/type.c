@@ -303,7 +303,7 @@ void typeEXP(EXP* e) {
     SYMBOL* symbol;
     switch (e->kind) {
         case identifierK:
-            e->type = getSymbolType(e->val.idE.symbol, e->lineno);
+            e->type = getSymbolType(e->val.idE.symbol->name, e->val.idE.symbol, e->lineno);
             break;
         case intLiteralK:
             e->type = intTYPE;
@@ -668,13 +668,13 @@ TYPE* intOp(TYPE* left, TYPE* right, int lineno) {
 /*
  * returns the type associated with a symbol
  */
-TYPE* getSymbolType(SYMBOL *s, int lineno) {
+TYPE* getSymbolType(char* name, SYMBOL *s, int lineno) {
     switch(s->kind) {
         case typeSym:
-            reportError("TYPE", "expected variable or function but found type", lineno);
+            reportStrError("TYPE", "%s is not a variable as expected", name, lineno);
             break;
         case typeDeclSym:
-            reportError("TYPE", "expected variable or function but found type", lineno);
+            reportStrError("TYPE", "%s is not a variable as expected", name, lineno);
             break;
         case varSym:
             return s->val.varS;
@@ -686,6 +686,7 @@ TYPE* getSymbolType(SYMBOL *s, int lineno) {
             return s->val.shortDeclS.type;
             break;
         case functionDeclSym:
+            reportStrError("TYPE", "%s is not a variable as expected", name, lineno);
             break;
         case parameterSym:
             return s->val.parameterS.type;
