@@ -7,6 +7,7 @@
 #include "weed.h"
 #include "symbol.h"
 #include "type.h"
+#include "codegen.h"
 
 int yylex();
 void yyparse();
@@ -102,6 +103,7 @@ int main(int argc, char* argv[]) {
         char* outputPath = "./src/output/"; // the path to the output folder
         char* prettyPath; // the path to the pretty printed file
         char* symbolPath; // the path to the symbol table file
+        char* cppPath; // the path to the generated c++ code
 
         if (argc == 2) {
             programPath = argv[1];
@@ -243,6 +245,13 @@ int main(int argc, char* argv[]) {
         typePROGRAM(theprogram);
         terminateIfErrors();
         printf("    >>> SUCCESS\n");
+
+        // generate c++ code
+        printf("generating c++ code...\n");
+        cppPath = concat(outputPath, concat(programName, ".cpp"));
+        genPROGRAM(theprogram, cppPath);
+        printf("    >>> SUCCESS\n");
+        printf("    >>> successfully compiled the program as %s\n", cppPath);
 
     #endif
 

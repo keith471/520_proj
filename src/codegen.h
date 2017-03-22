@@ -1,0 +1,9 @@
+
+void addHeaderCode();
+void genPROGRAM(PROGRAM* p, char* fname);
+void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
+void genVARDECLARATION(VARDECLARATION* vd, int level);
+void genTYPEDECLARATION(TYPEDECLARATION* td, int level);
+void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd);
+
+int isMain(FUNCTIONDECLARATION* fd);

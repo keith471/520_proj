@@ -32,13 +32,43 @@ void genPROGRAM(PROGRAM* p, char* fname) {
 }
 
 void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
+    if (tld == NULL) return;
+    switch (tld->kind) {
+        case vDeclK:
+            genVARDECLARATION(tld->val.varDeclTLD, 0);
+            break;
+        case tDeclK:
+            genTYPEDECLARATION(tld->val.typeDeclTLD, 0);
+            break;
+        case functionDeclK:
+            genFUNCTIONDECLARATION(tld->val.functionDeclTLD);
+            break;
+    }
+    genTOPLEVELDECLARATION(tld->next);
+}
+
+void genVARDECLARATION(VARDECLARATION* vd, int level) {
 
 }
 
-/*
- We need to recognize the main function! If there is a function called main that has no arguments
- and either no return type or int return type, then this is main :) We should mark this function
- in the type phase
+void genTYPEDECLARATION(TYPEDECLARATION* td, int level) {
 
- TODO mark main function!!
-*/
+}
+
+void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
+    /*
+     We need to recognize the main function! If there is a function called main that has no arguments
+     and either no return type or int return type, then this is main :)
+    */
+    if (isMain(fd)) {
+
+    }
+}
+
+/*
+ * returns 1 if the function declaration is for the main function (program entry point)
+ * and 0 otherwise
+ */
+int isMain(FUNCTIONDECLARATION* fd) {
+
+}
