@@ -7,27 +7,6 @@
 #include "error.h"
 #include "symbol.h" // only for Hash
 
-/*
-type Person struct {
-    x [10]int
-}
-
-var keith Person
-
-keith.x[0]
-
-     [
-    / \
-   .   0
-  / \
-kei  x
-
-1. keith
-2. keith '.'
-3. keith '.' x -> primaryExp
-4. (primaryExp) '[' exp ']'
-*/
-
 TYPE *intTYPE, *float64TYPE, *stringTYPE, *runeTYPE, *boolTYPE;
 
 void initTypes() {
@@ -107,8 +86,11 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
 void typeFUNCTIONDECLARATION(FUNCTIONDECLARATION* f) {
     typeSTATEMENT(f->statements);
     if (f->returnType != NULL) {
+        // make sure every execution path has a return statement
         assertReturnOnEveryPath(f->statements, f->returnType, f->id->name, f->lineno);
     }
+    // make sure the type of any return statement is identical to the return type of the function
+    assertNoInvalidReturns(f->statements, f->returnType, f->id->name);
 }
 
 void typeSTATEMENT(STATEMENT* s) {
@@ -643,7 +625,7 @@ int countArgs(EXP* e) {
 }
 
 void assertReturnOnEveryPath(STATEMENT* s, TYPE* returnType, char* name, int lineno) {
-    if (!hasReturnOnEveryPath(s, returnType)) {
+    if (!hasReturnOnEveryPath(s, returnType, name)) {
         // error
         reportStrError("TYPE", "missing return at end of function: %s", name, lineno);
     }
@@ -653,14 +635,14 @@ void assertReturnOnEveryPath(STATEMENT* s, TYPE* returnType, char* name, int lin
  * returns 1 if a series of statements has a return along every path through the statements
  * and 0 otherwise
  */
-int hasReturnOnEveryPath(STATEMENT* s, TYPE* returnType) {
+int hasReturnOnEveryPath(STATEMENT* s, TYPE* returnType, char* name) {
     // firstly, we sheck the outermost scope of statements for a return statement
     // all execution paths will reach such a return statement if they don't reach one before,
     // so if there is such a return statement we are done
-    if (!hasOuterReturn(s, returnType)) {
+    if (!hasOuterReturn(s, returnType, name)) {
         // we have to check that at least one of the if/else statements and switch
         // statements have returns along every path
-        return hasInnerReturn(s, returnType);
+        return hasInnerReturn(s, returnType, name);
     }
     return 1;
 }
@@ -671,41 +653,13 @@ int hasReturnOnEveryPath(STATEMENT* s, TYPE* returnType) {
  * even if we find a return statement, continue the search to look for additional return statements
  * to make sure they have the correct type
  */
-int hasOuterReturn(STATEMENT* s, TYPE* returnType) {
+int hasOuterReturn(STATEMENT* s, TYPE* returnType, char* name) {
     int outerReturn = 0;
     while (s != NULL) {
         if (s->kind == returnK) {
             // check that the return type is correct
             if (s->val.returnS == NULL) {
-                switch(returnType->kind) {
-                    case idK:
-                        reportStrError("TYPE", "expected type %s but found void", returnType->val.idT.id->name, s->lineno);
-                        break;
-                    case structK:
-                        reportError("TYPE", "expected struct type but found void", s->lineno);
-                        break;
-                    case sliceK:
-                        reportError("TYPE", "expected slice type but found void", s->lineno);
-                        break;
-                    case arrayK:
-                        reportError("TYPE", "expected array type but found void", s->lineno);
-                        break;
-                    case intK:
-                        reportError("TYPE", "expected type int but found void", s->lineno);
-                        break;
-                    case float64K:
-                        reportError("TYPE", "expected type float64 but found void", s->lineno);
-                        break;
-                    case runeK:
-                        reportError("TYPE", "expected type rune but found void", s->lineno);
-                        break;
-                    case boolK:
-                        reportError("TYPE", "expected type bool but found void", s->lineno);
-                        break;
-                    case stringK:
-                        reportError("TYPE", "expected type string but found void", s->lineno);
-                        break;
-                }
+                handleVoidReturnError(returnType, name, s->lineno);
             }
             assertIdenticalTYPEs(returnType, s->val.returnS->type, s->lineno);
             outerReturn = 1;
@@ -720,31 +674,31 @@ int hasOuterReturn(STATEMENT* s, TYPE* returnType) {
  * within the set of statements has a return along every path,
  * and that this return is of the correct type
  */
-int hasInnerReturn(STATEMENT* s, TYPE* returnType) {
+int hasInnerReturn(STATEMENT* s, TYPE* returnType, char* name) {
     int innerReturn = 0;
     while (s != NULL) {
         switch (s->kind) {
             case ifElseK:
                 // check that both the thenPart and the elsePart have returns on every path
-                if (hasReturnOnEveryPath(s->val.ifElseS.thenPart, returnType) && hasReturnOnEveryPath(s->val.ifElseS.elsePart, returnType)) {
+                if (hasReturnOnEveryPath(s->val.ifElseS.thenPart, returnType, name) && hasReturnOnEveryPath(s->val.ifElseS.elsePart, returnType, name)) {
                     innerReturn = 1;
                 }
                 break;
             case switchK:
                 // check that each case has a return and that there is a default case
-                if (switchHasReturn(s->val.switchS.cases, returnType)) {
+                if (switchHasReturn(s->val.switchS.cases, returnType, name)) {
                     innerReturn = 1;
                 }
                 break;
             case infiniteLoopK:
                 // check that the loop body has a return on every path
-                if (hasReturnOnEveryPath(s->val.infiniteLoopS, returnType)) {
+                if (hasReturnOnEveryPath(s->val.infiniteLoopS, returnType, name)) {
                     innerReturn = 1;
                 }
                 break;
             case blockK:
                 // check that the block has a return on every path
-                if (hasReturnOnEveryPath(s->val.blockS, returnType)) {
+                if (hasReturnOnEveryPath(s->val.blockS, returnType, name)) {
                     innerReturn = 1;
                 }
                 break;
@@ -760,7 +714,7 @@ int hasInnerReturn(STATEMENT* s, TYPE* returnType) {
  * returns 1 if each case in the switch case has a return and there is a default case
  * with a return, and 0 otherwise
  */
-int switchHasReturn(SWITCHCASE* sc, TYPE* returnType) {
+int switchHasReturn(SWITCHCASE* sc, TYPE* returnType, char* name) {
     int defaultCovered = 0;
     int casesCovered = 1; // innocent until proven guilty
 
@@ -769,15 +723,15 @@ int switchHasReturn(SWITCHCASE* sc, TYPE* returnType) {
             case caseK:
                 if (casesCovered) {
                     // check another case
-                    casesCovered = hasReturnOnEveryPath(sc->val.caseC.statements, returnType);
+                    casesCovered = hasReturnOnEveryPath(sc->val.caseC.statements, returnType, name);
                 } else {
                     // regardless, check the next case for improperly typed returns, but casesCovered
                     // cannot be changed from zero
-                    hasReturnOnEveryPath(sc->val.caseC.statements, returnType);
+                    hasReturnOnEveryPath(sc->val.caseC.statements, returnType, name);
                 }
                 break;
             case defaultK:
-                defaultCovered = hasReturnOnEveryPath(sc->val.defaultStatementsC, returnType);
+                defaultCovered = hasReturnOnEveryPath(sc->val.defaultStatementsC, returnType, name);
                 break;
         }
         sc = sc->next;
@@ -785,6 +739,128 @@ int switchHasReturn(SWITCHCASE* sc, TYPE* returnType) {
     return defaultCovered && casesCovered;
 }
 
+void assertNoInvalidReturns(STATEMENT* s, TYPE* expected, char* name) {
+    if (s == NULL) return;
+    switch (s->kind) {
+        case returnK:
+            if (expected == NULL) {
+                // expect a void return
+                if (s->val.returnS != NULL) {
+                    handleNonVoidReturnError(s->val.returnS->type, name, s->lineno);
+                }
+            } else {
+                // expect a non-void return
+                if (s->val.returnS == NULL) {
+                    handleVoidReturnError(expected, name, s->lineno);
+                } else {
+                    assertIdenticalTYPEs(expected, s->val.returnS->type, s->lineno);
+                }
+            }
+            break;
+        case ifK:
+            assertNoInvalidReturns(s->val.ifS.body, expected, name);
+            break;
+        case ifElseK:
+            assertNoInvalidReturns(s->val.ifElseS.thenPart, expected, name);
+            assertNoInvalidReturns(s->val.ifElseS.elsePart, expected, name);
+            break;
+        case switchK:
+            assertNoInvalidReturnsSWITCHCASE(s->val.switchS.cases, expected, name);
+            break;
+        case whileK:
+            assertNoInvalidReturns(s->val.whileS.body, expected, name);
+            break;
+        case infiniteLoopK:
+            assertNoInvalidReturns(s->val.infiniteLoopS, expected, name);
+            break;
+        case forK:
+            assertNoInvalidReturns(s->val.forS.body, expected, name);
+            break;
+        case blockK:
+            assertNoInvalidReturns(s->val.blockS, expected, name);
+            break;
+        default:
+            break;
+    }
+    assertNoInvalidReturns(s->next, expected, name);
+}
+
+void handleNonVoidReturnError(TYPE* actual, char* funcName, int lineno) {
+    switch (actual->kind) {
+        case intK:
+            reportStrError("TYPE", "%s has void return type, but found int", funcName, lineno);
+            break;
+        case float64K:
+            reportStrError("TYPE", "%s has void return type, but found float64", funcName, lineno);
+            break;
+        case runeK:
+            reportStrError("TYPE", "%s has void return type, but found rune", funcName, lineno);
+            break;
+        case boolK:
+            reportStrError("TYPE", "%s has void return type, but found bool", funcName, lineno);
+            break;
+        case stringK:
+            reportStrError("TYPE", "%s has void return type, but found string", funcName, lineno);
+            break;
+        case idK:
+            reportDoubleStrError("TYPE", "%s has void return type, but found %s", funcName, actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportStrError("TYPE", "%s has void return type, but found struct", funcName, lineno);
+            break;
+        case sliceK:
+            reportStrError("TYPE", "%s has void return type, but found slice", funcName, lineno);
+            break;
+        case arrayK:
+            reportStrError("TYPE", "%s has void return type, but found array", funcName, lineno);
+            break;
+    }
+}
+
+void handleVoidReturnError(TYPE* expected, char* funcName, int lineno) {
+    switch(expected->kind) {
+        case idK:
+            reportDoubleStrError("TYPE", "%s has %s return type, but found void", funcName, expected->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportStrError("TYPE", "%s has struct return type, but found void", funcName, lineno);
+            break;
+        case sliceK:
+            reportStrError("TYPE", "%s has slice return type, but found void", funcName, lineno);
+            break;
+        case arrayK:
+            reportStrError("TYPE", "%s has array return type, but found void", funcName, lineno);
+            break;
+        case intK:
+            reportStrError("TYPE", "%s has int return type, but found void", funcName, lineno);
+            break;
+        case float64K:
+            reportStrError("TYPE", "%s has float64 return type, but found void", funcName, lineno);
+            break;
+        case runeK:
+            reportStrError("TYPE", "%s has rune return type, but found void", funcName, lineno);
+            break;
+        case boolK:
+            reportStrError("TYPE", "%s has bool return type, but found void", funcName, lineno);
+            break;
+        case stringK:
+            reportStrError("TYPE", "%s has string return type, but found void", funcName, lineno);
+            break;
+    }
+}
+
+void assertNoInvalidReturnsSWITCHCASE(SWITCHCASE* sc, TYPE* expected, char* name) {
+    if (sc == NULL) return;
+    switch (sc->kind) {
+        case caseK:
+            assertNoInvalidReturns(sc->val.caseC.statements, expected, name);
+            break;
+        case defaultK:
+            assertNoInvalidReturns(sc->val.defaultStatementsC, expected, name);
+            break;
+    }
+    assertNoInvalidReturnsSWITCHCASE(sc->next, expected, name);
+}
 
 // operation-specific
 
