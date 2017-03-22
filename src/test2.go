@@ -8,6 +8,7 @@ func test(a, b float64) int {
     } else {
         switch (true) {
         case false:
+            return 4
         default: return 1
         }
     }

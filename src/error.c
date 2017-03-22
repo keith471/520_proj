@@ -41,6 +41,16 @@ void reportStrError(char* errType, char *s, char *name, int lineno) {
     exit(1);
 }
 
+void reportDoubleStrError(char* errType, char *s, char *n, char* m, int lineno) {
+    char str[256];
+    sprintf(str, s, n, m);
+    fprintf(stderr, "%s ERROR:\n", errType);
+    fprintf(stderr, "    *** message: %s\n", str);
+    fprintf(stderr, "    *** location: line %i\n", lineno);
+    errors++;
+    exit(1);
+}
+
 void reportFloatError(char* errType, char *s, float f, int lineno) {
     char str[256];
     sprintf(str, s, f);

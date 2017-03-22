@@ -980,10 +980,30 @@ void assertActualTypeInt(TYPE* actual, int lineno) {
 
 void assertActualTypeFloat64(TYPE* actual, int lineno) {
     switch (actual->kind) {
+        case intK:
+            break;
+        case idK:
+            reportStrError("TYPE", "expected type float64 but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected type float64 but found struct type", lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "expected type float64 but found slice type", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected type float64 but found array type", lineno);
+            break;
         case float64K:
             break;
-        default:
-            reportError("TYPE", "expected type float but found another type", lineno);
+        case runeK:
+            reportError("TYPE", "expected type float64 but found type rune", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected type float64 but found type bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected type float64 but found type string", lineno);
             break;
     }
 }
@@ -1015,8 +1035,29 @@ void assertActualTypeRune(TYPE* actual, int lineno) {
     switch (actual->kind) {
         case runeK:
             break;
-        default:
-            reportError("TYPE", "expected type rune but found another type", lineno);
+        case intK:
+            reportError("TYPE", "expected type rune but found type int", lineno);
+            break;
+        case idK:
+            reportStrError("TYPE", "expected type float64 but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected type rune but found struct type", lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "expected type rune but found slice type", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected type rune but found array type", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected type rune but found type float64", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected type rune but found type bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected type rune but found type string", lineno);
             break;
     }
 }
@@ -1025,10 +1066,31 @@ void assertActualTypeRune(TYPE* actual, int lineno) {
 
 void assertActualTypeString(TYPE* actual, int lineno) {
     switch (actual->kind) {
-        case stringK:
+        case intK:
+            reportError("TYPE", "expected type string but found type int", lineno);
             break;
-        default:
-            reportError("TYPE", "expected type string but found another type", lineno);
+        case idK:
+            reportStrError("TYPE", "expected type string but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected type string but found struct type", lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "expected type string but found slice type", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected type string but found array type", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected type string but found type float64", lineno);
+            break;
+        case runeK:
+            reportError("TYPE", "expected type string but found type rune", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected type string but found type bool", lineno);
+            break;
+        case stringK:
             break;
     }
 }
@@ -1078,10 +1140,31 @@ void assertResolvesToBool(TYPE* t, int lineno) {
 
 void assertActualTypeBool(TYPE* actual, int lineno) {
     switch (actual->kind) {
+        case intK:
+            reportError("TYPE", "expected type bool but found int", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected type bool but found float64", lineno);
+            break;
+        case runeK:
+            reportError("TYPE", "expected type bool but found rune", lineno);
+            break;
         case boolK:
             break;
-        default:
-            reportError("TYPE", "expected type bool but found another type", lineno);
+        case stringK:
+            reportError("TYPE", "expected type bool but found string", lineno);
+            break;
+        case idK:
+            reportStrError("TYPE", "expected type bool but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected type bool but found struct", lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "expected type bool but found slice", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected type bool but found array", lineno);
             break;
     }
 }
@@ -1173,11 +1256,32 @@ TYPE* getElementType(TYPE* t, int lineno) {
 
 void assertActualTypeArray(TYPE* expected, TYPE* actual, int lineno) {
     switch (actual->kind) {
+        case intK:
+            reportError("TYPE", "expected array but found int", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected array but found float64", lineno);
+            break;
+        case runeK:
+            reportError("TYPE", "expected array but found rune", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected array but found bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected array but found string", lineno);
+            break;
+        case idK:
+            reportStrError("TYPE", "expected array but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected array but found struct", lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "expected array but found slice", lineno);
+            break;
         case arrayK:
             assertIdenticalArrays(expected->val.arrayT.size, expected->val.arrayT.elementType, actual->val.arrayT.size, actual->val.arrayT.elementType, lineno);
-            break;
-        default:
-            reportError("TYPE", "expected type array but found another type", lineno);
             break;
     }
 }
@@ -1195,11 +1299,32 @@ void assertIdenticalArrays(EXP* expectedSize, TYPE* expectedType, EXP* actualSiz
 
 void assertActualTypeSlice(TYPE* expectedElementType, TYPE* actual, int lineno) {
     switch (actual->kind) {
+        case intK:
+            reportError("TYPE", "expected type slice but found int", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected type slice but found float64", lineno);
+            break;
+        case runeK:
+            reportError("TYPE", "expected type slice but found rune", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected type slice but found bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected type slice but found string", lineno);
+            break;
+        case idK:
+            reportStrError("TYPE", "expected type slice but found type %s", actual->val.idT.id->name, lineno);
+            break;
+        case structK:
+            reportError("TYPE", "expected type slice but found struct", lineno);
+            break;
         case sliceK:
             assertIdenticalTYPEs(expectedElementType, actual->val.sliceT, lineno);
             break;
-        default:
-            reportError("TYPE", "expected type slice but found another type", lineno);
+        case arrayK:
+            reportError("TYPE", "expected type slice but found array", lineno);
             break;
     }
 }
@@ -1218,6 +1343,7 @@ STRUCTTYPE* assertResolvesToStruct(TYPE* t, int lineno) {
             reportError("TYPE", "expected struct type but found float64", lineno);
             break;
         case runeK:
+            reportError("TYPE", "expected struct type but found rune", lineno);
             break;
         case boolK:
             reportError("TYPE", "expected struct type but found bool", lineno);
@@ -1244,11 +1370,32 @@ STRUCTTYPE* assertResolvesToStruct(TYPE* t, int lineno) {
 
 void assertActualTypeStruct(STRUCTTYPE* expected, TYPE* actual, int lineno) {
     switch (actual->kind) {
+        case intK:
+            reportError("TYPE", "expected struct type but found int", lineno);
+            break;
+        case float64K:
+            reportError("TYPE", "expected struct type but found float64", lineno);
+            break;
+        case runeK:
+            reportError("TYPE", "expected struct type but found rune", lineno);
+            break;
+        case boolK:
+            reportError("TYPE", "expected struct type but found bool", lineno);
+            break;
+        case stringK:
+            reportError("TYPE", "expected struct type but found string", lineno);
+            break;
+        case idK:
+            reportStrError("TYPE", "expected struct type but found type %s", actual->val.idT.id->name, lineno);
+            break;
         case structK:
             assertIdenticalStructs(expected, actual->val.structT, lineno);
             break;
-        default:
-            reportError("TYPE", "expected type struct but found another type", lineno);
+        case sliceK:
+            reportError("TYPE", "expected struct type but found slice", lineno);
+            break;
+        case arrayK:
+            reportError("TYPE", "expected struct type but found array", lineno);
             break;
     }
 }
@@ -1514,13 +1661,34 @@ void assertIdenticalTYPEs(TYPE *expected, TYPE *actual, int lineno) {
 
 void assertActualTypeIdentifier(TYPEDECLARATION* expectedDecl, TYPE* actual, int lineno) {
     switch (actual->kind) {
+        case intK:
+            reportStrError("TYPE", "expected type %s but found int type", expectedDecl->id->name, lineno);
+            break;
+        case float64K:
+            reportStrError("TYPE", "expected type %s but found float64 type", expectedDecl->id->name, lineno);
+            break;
+        case runeK:
+            reportStrError("TYPE", "expected type %s but found rune type", expectedDecl->id->name, lineno);
+            break;
+        case boolK:
+            reportStrError("TYPE", "expected type %s but found bool type", expectedDecl->id->name, lineno);
+            break;
+        case stringK:
+            reportStrError("TYPE", "expected type %s but found string type", expectedDecl->id->name, lineno);
+            break;
         case idK:
             if (expectedDecl->number != actual->val.idT.typeDecl->number) {
-                reportStrError("TYPE", "expected type %s but found another type", expectedDecl->id->name, lineno);
+                reportDoubleStrError("TYPE", "expected type %s but found type %s", expectedDecl->id->name, actual->val.idT.id->name, lineno);
             }
             break;
-        default:
-            reportStrError("TYPE", "expected type %s but found another type", expectedDecl->id->name, lineno);
+        case structK:
+            reportStrError("TYPE", "expected type %s but found struct type", expectedDecl->id->name, lineno);
+            break;
+        case sliceK:
+            reportStrError("TYPE", "expected type %s but found slice type", expectedDecl->id->name, lineno);
+            break;
+        case arrayK:
+            reportStrError("TYPE", "expected type %s but found array type", expectedDecl->id->name, lineno);
             break;
     }
 }
