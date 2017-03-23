@@ -172,6 +172,7 @@ typedef struct CAST {
 typedef struct TYPE {
     int lineno;
     enum { idK, structK, sliceK, arrayK, intK, float64K, runeK, boolK, stringK } kind;
+    struct CPPTYPE* cppType; // the equivalent C++ type, set in the codegen phase
     union {
         struct {struct ID* id;
                 struct TYPEDECLARATION* typeDecl; // a reference to this type's type declaration, set in symbol phase
@@ -183,6 +184,23 @@ typedef struct TYPE {
         struct TYPE* sliceT;    // the type of the elements in the slice
     } val;
 } TYPE;
+
+/*
+ * the equivalent C++ type of a GoLite type, set in the first pass of the
+ * codegen phase
+ */
+typedef struct CPPTYPE {
+    enum { cppIntK, cppDoubleK, cppBoolK, cppCharK, cppStringK, cppArrayK, cppVectorK, cppStructK } kind;
+    union {
+        struct {char* name;
+                int size;
+                struct CPPTYPE* elementType;} arrayT;
+        struct CPPTYPE* vectorT; // the type of the elements in the vector
+        struct {char* name;
+                struct STRUCTTYPE* structType;} structT;
+    } val;
+    struct CPPTYPE* next; // the next struct or array cpp type in the program
+}
 
 typedef struct STRUCTTYPE {
     int lineno;

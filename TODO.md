@@ -20,6 +20,8 @@ ssh kstric@teaching.cs.mcgill.ca
 
 
 ## Codegen
+- finish cppTypeFUNCTIONDECLARATION
+- finish cppTypeTYPEDECLARATION
 - make a pass where we collect arrays and structs and make typedefs for them
 - any node where we encounter these arrays and structs, we will need to update the node
 with the new representative C++ array or struct type that we've made for it

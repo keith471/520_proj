@@ -25,9 +25,6 @@ void genPROGRAM(PROGRAM* p, char* fname) {
     emitFILE = fopen(fname, "w");
     addHeaderCode();
     newLineInFile(emitFILE);
-    // TODO first, we need to make a pass that finds and aggregates structs and arrays
-    // and then makes typedefs for them at the top of the file
-
     // next, traverse the AST, writing each line's equivalent C++ code to emitFILE
     // we completely ignore the package declaration
     genTOPLEVELDECLARATION(p->topLevelDeclaration);
