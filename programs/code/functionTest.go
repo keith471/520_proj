@@ -22,7 +22,7 @@ func i(a, b, c, d int, e string) string {
     return "it works!"
 }
 
-
+// check that main is generated with a return of type int!
 func main() {
 
 }

@@ -13,7 +13,14 @@ func main() {
         print(x)
     }
 
-    // now an if/else
+    // now if/else
+    if true {
+        print("this will run")
+    } else {
+        print("this will not")
+    }
+
+    // if/else if
     var y = 0
     if x := "only the else will run here"; y > 0 {
         print("y is less than zero")

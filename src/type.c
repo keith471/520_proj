@@ -80,7 +80,7 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
 
 /*
  * a function declaration type checks if its statements type check
- * TODO additionally, there should be a well-typed return statement on every execution path
+ * additionally, there should be a well-typed return statement on every execution path
  * if the function has a return value --> perhaps add this as a second pass through the statements of the function
  */
 void typeFUNCTIONDECLARATION(FUNCTIONDECLARATION* f) {
@@ -222,7 +222,9 @@ void typeSTATEMENT(STATEMENT* s) {
         case forK:
             typeSTATEMENT(s->val.forS.initStatement);
             typeEXP(s->val.forS.condition);
-            assertResolvesToBool(s->val.whileS.condition->type, s->lineno);
+            if (s->val.forS.condition != NULL) {
+                assertResolvesToBool(s->val.forS.condition->type, s->lineno);
+            }
             typeSTATEMENT(s->val.forS.postStatement);
             typeSTATEMENT(s->val.forS.body);
             break;

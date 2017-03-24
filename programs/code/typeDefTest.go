@@ -21,5 +21,5 @@ func main() {
     }
 
     // we'll have a C++ array of these
-    var superheros [10]SuperHero
+    var superheroes [10]SuperHero
 }

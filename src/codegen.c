@@ -441,13 +441,10 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, "%s", rawify(e->val.rawStringLiteralE));
             break;
         case uPlusK:
-            // TODO see if uPlus is a thing in C++
-            /*
             fprintf(emitFILE, "(");
             fprintf(emitFILE, "+");
             genEXP(e->val.uPlusE);
             fprintf(emitFILE, ")");
-            */
             break;
         case uMinusK:
             fprintf(emitFILE, "(");
@@ -527,6 +524,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case ltK:
+            // TODO modify to support more types
             fprintf(emitFILE, "(");
             genEXP(e->val.ltE.left);
             fprintf(emitFILE, "<");
@@ -534,6 +532,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case gtK:
+            // TODO modify to support more types
             fprintf(emitFILE, "(");
             genEXP(e->val.gtE.left);
             fprintf(emitFILE, ">");
@@ -549,6 +548,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case neqK:
+            // TODO modify to support more types
             fprintf(emitFILE, "(");
             genEXP(e->val.neqE.left);
             fprintf(emitFILE, "!=");
@@ -556,6 +556,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case leqK:
+            // TODO modify to support more types
             fprintf(emitFILE, "(");
             genEXP(e->val.leqE.left);
             fprintf(emitFILE, "<=");
@@ -563,6 +564,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case geqK:
+            // TODO modify to support more types
             fprintf(emitFILE, "(");
             genEXP(e->val.geqE.left);
             fprintf(emitFILE, ">=");
@@ -584,24 +586,18 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case leftShiftK:
-            // TODO
-            /*
             fprintf(emitFILE, "(");
             genEXP(e->val.leftShiftE.left);
             fprintf(emitFILE, "<<");
             genEXP(e->val.leftShiftE.right);
             fprintf(emitFILE, ")");
-            */
             break;
         case rightShiftK:
-            // TODO
-            /*
             fprintf(emitFILE, "(");
             genEXP(e->val.rightShiftE.left);
             fprintf(emitFILE, ">>");
             genEXP(e->val.rightShiftE.right);
             fprintf(emitFILE, ")");
-            */
             break;
         case bitClearK:
             // TODO

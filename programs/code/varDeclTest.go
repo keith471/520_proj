@@ -15,6 +15,11 @@ func main() {
     // and two more
     var y, z rune
 
+    var (
+        m rune
+        n string = "will this work?"
+    )
+
     // try one with no declared type
     var t = 12
 
