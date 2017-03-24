@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "helpers.h"
 #include "tree.h"
 #include "memory.h"
 #include "cppType.h"
@@ -8,6 +9,25 @@
 CPPTYPE *intCPPTYPE, *doubleCPPTYPE, *charCPPTYPE, *boolCPPTYPE, *stringCPPTYPE;
 
 CPPTYPE* head = NULL;
+
+int structNo = 1;
+int arrayNo = 1;
+
+char* getStructName() {
+    char number[100]; // more than we need
+    sprintf(number, "%d", structNo);
+    structNo++;
+    char* structName = concat("struct_", number);
+    return structName;
+}
+
+char* getArrayName() {
+    char number[100]; // more than we need
+    sprintf(number, "%d", arrayNo);
+    arrayNo++;
+    char* arrayName = concat("array_", number);
+    return arrayName;
+}
 
 void initCppTypes() {
     intCPPTYPE = NEW(CPPTYPE);
@@ -25,7 +45,7 @@ void initCppTypes() {
 /*
  * traverses through the list headed at head in search of a C++ type equivalent to t
  */
-CPPTYPE* getCppType(CPPTYPE* t) {
+CPPTYPE* getCPPTYPE(CPPTYPE* t) {
     CPPTYPE* c;
     if (head == NULL) {
         return NULL;
@@ -71,7 +91,7 @@ int equivalent(CPPTYPE* c, CPPTYPE* t) {
             return 0;
             break;
         case cppStructK:
-            if (t->kind == cppArrayK) {
+            if (t->kind == cppStructK) {
                 return equivalentStructs(c, t);
             }
             return 0;
@@ -82,7 +102,7 @@ int equivalent(CPPTYPE* c, CPPTYPE* t) {
 /*
  * Two C++ vectors are equivalent if they have equivalent element types
  */
-int equivalentArrays(CPPTYPE* c, CPPTYPE* t) {
+int equivalentVectors(CPPTYPE* c, CPPTYPE* t) {
     return equivalent(c->val.vectorT, t->val.vectorT);
 }
 
@@ -100,7 +120,7 @@ int equivalentArrays(CPPTYPE* c, CPPTYPE* t) {
  * two C++ structs are equivalent if they have equivalent fields
  */
 int equivalentStructs(CPPTYPE* c, CPPTYPE* t) {
-    equivalentFIELDs(c->val.structT.structType->fields, c->val.structT.structType->fields, t->val.structT.structType->fields, t->val.structT.structType->fields);
+    return equivalentFIELDs(c->val.structT.structType->fields, c->val.structT.structType->fields, t->val.structT.structType->fields, t->val.structT.structType->fields);
 }
 
 int equivalentFIELDs(FIELD* currExpected, FIELD* expected, FIELD* currActual, FIELD* actual) {
@@ -197,15 +217,131 @@ void cppTypeVARDECLARATIONlist(VARDECLARATION* vd) {
             cppTypeTYPE(vd->val.typeAndExpVD.type);
             break;
     }
-    cppTypeVARDECLARATIONlist(vd->next, level);
+    cppTypeVARDECLARATIONlist(vd->next);
 }
 
 void cppTypeTYPEDECLARATION(TYPEDECLARATION* td) {
-
+    if (td == NULL) return;
+    // only has a useful effect if the type involves a struct or array
+    cppTypeTYPE(td->type);
+    cppTypeTYPEDECLARATION(td->nextDistributed);
 }
 
 void cppTypeFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
+    cppTypePARAMETER(fd->parameters);
+    if (fd->returnType != NULL) {
+        cppTypeTYPE(fd->returnType);
+    }
+    cppTypeSTATEMENT(fd->statements);
+}
 
+void cppTypePARAMETER(PARAMETER* p) {
+    if (p == NULL) return;
+    cppTypePARAMETERlist(p);
+    cppTypePARAMETER(p->nextParamSet);
+}
+
+void cppTypePARAMETERlist(PARAMETER* p) {
+    if (p == NULL) return;
+    cppTypeTYPE(p->type);
+    cppTypePARAMETERlist(p->nextId);
+}
+
+void cppTypeSTATEMENT(STATEMENT* s) {
+    if (s == NULL) return;
+    switch (s->kind) {
+        case emptyK:
+            // nothing to do
+            break;
+        case expK:
+            // nothing to do
+            break;
+        case incK:
+            // nothing to do
+            break;
+        case decK:
+            // nothing to do
+            break;
+        case regAssignK:
+            // nothing to do
+            break;
+        case binOpAssignK:
+            // nothing to do
+            break;
+        case shortDeclK:
+            if (!s->val.shortDeclS.isRedecl) {
+                // get the C++ type of the expression
+                cppTypeTYPE(s->val.shortDeclS.exp->type);
+            }
+            // don't forget the next one!
+            cppTypeSTATEMENT(s->val.shortDeclS.next);
+            break;
+        case varDeclK:
+            cppTypeVARDECLARATION(s->val.varDeclS);
+            break;
+        case typeDeclK:
+            cppTypeTYPEDECLARATION(s->val.typeDeclS);
+            break;
+        case printK:
+            // nothing to do
+            // TODO: maybe need to C++ type these expressions actually so we know if we are
+            // printing a %s, %d, etc.
+            break;
+        case printlnK:
+            // nothing to do
+            // TODO: maybe need to C++ type these expressions actually so we know if we are
+            // printing a %s, %d, etc.
+            break;
+        case returnK:
+            // nothing to do
+            break;
+        case ifK:
+            cppTypeSTATEMENT(s->val.ifS.initStatement);
+            cppTypeSTATEMENT(s->val.ifS.body);
+            break;
+        case ifElseK:
+            cppTypeSTATEMENT(s->val.ifElseS.initStatement);
+            cppTypeSTATEMENT(s->val.ifElseS.thenPart);
+            cppTypeSTATEMENT(s->val.ifElseS.elsePart);
+            break;
+        case switchK:
+            cppTypeSTATEMENT(s->val.switchS.initStatement);
+            cppTypeSWITCHCASE(s->val.switchS.cases);
+            break;
+        case whileK:
+            cppTypeSTATEMENT(s->val.whileS.body);
+            break;
+        case infiniteLoopK:
+            cppTypeSTATEMENT(s->val.infiniteLoopS);
+            break;
+        case forK:
+            cppTypeSTATEMENT(s->val.forS.initStatement);
+            cppTypeSTATEMENT(s->val.forS.body);
+            break;
+        case breakK:
+            // nothing to do
+            break;
+        case continueK:
+            // nothing to do
+            break;
+        case blockK:
+            cppTypeSTATEMENT(s->val.blockS);
+            break;
+    }
+    cppTypeSTATEMENT(s->next);
+}
+
+void cppTypeSWITCHCASE(SWITCHCASE* sc) {
+    if (sc == NULL) return;
+    switch (sc->kind) {
+        case caseK:
+            cppTypeSTATEMENT(sc->val.caseC.statements);
+            break;
+        case defaultK:
+            cppTypeSTATEMENT(sc->val.defaultStatementsC);
+            break;
+    }
+    cppTypeSWITCHCASE(sc->next);
 }
 
 /*
@@ -273,6 +409,7 @@ void cppTypeTYPE(TYPE* t) {
             if (other == NULL) {
                 // this is a new array type, so give it a name and add it
                 cppType->val.arrayT.name = getArrayName();
+                putCPPTYPE(cppType);
                 t->cppType = cppType;
             } else {
                 t->cppType = other;
@@ -281,30 +418,21 @@ void cppTypeTYPE(TYPE* t) {
     }
 }
 
-typedef struct CPPTYPE {
-    enum { cppIntK, cppDoubleK, cppBoolK, cppCharK, cppStringK, cppArrayK, cppVectorK, cppStructK } kind;
-    union {
-        struct {char* name;
-                int size;
-                struct CPPTYPE* elementType;} arrayT;
-        struct CPPTYPE* vectorT; // the type of the elements in the vector
-        struct {char* name;
-                struct STRUCTTYPE* structType;} structT;
-    } val;
+/*
+ * to C++ type a struct, we just C++ type all its fields
+ */
+void cppTypeSTRUCTTYPE(STRUCTTYPE* t) {
+    cppTypeFIELD(t->fields);
 }
 
-typedef struct TYPE {
-    int lineno;
-    enum { idK, structK, sliceK, arrayK, intK, float64K, runeK, boolK, stringK } kind;
-    struct CPPTYPE* cppType; // the equivalent C++ type, set in the codegen phase
-    union {
-        struct {struct ID* id;
-                struct TYPEDECLARATION* typeDecl; // a reference to this type's type declaration, set in symbol phase
-                struct TYPE* underlyingType; /* set in symbol phase */} idT;
-        struct {struct EXP* size; // this will be an int literal expression
-                struct TYPE* elementType;} arrayT;
-        //struct FIELD* structT;  // the fields in the struct
-        struct STRUCTTYPE* structT;
-        struct TYPE* sliceT;    // the type of the elements in the slice
-    } val;
-} TYPE;
+void cppTypeFIELD(FIELD* f) {
+    if (f == NULL) return;
+    cppTypeFIELDlist(f);
+    cppTypeFIELD(f->nextFieldSet);
+}
+
+void cppTypeFIELDlist(FIELD* f) {
+    if (f == NULL) return;
+    cppTypeTYPE(f->type);
+    cppTypeFIELDlist(f->nextId);
+}

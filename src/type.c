@@ -163,6 +163,8 @@ void typeSTATEMENT(STATEMENT* s) {
                 // we need to set the type on the symbol to be the type of the expression
                 s->val.shortDeclS.symbol->val.shortDeclS.type = s->val.shortDeclS.exp->type;
             }
+            // type check the next short var decl
+            typeSTATEMENT(s->val.shortDeclS.next);
             break;
         case varDeclK:
             // simply type the variable declaration

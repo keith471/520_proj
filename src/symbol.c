@@ -749,16 +749,16 @@ void symSWITCHCASE(SWITCHCASE* sc, SymbolTable* switchScope) {
 void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
     int redeclaration = 0; // flag to keep track of whether the short decl statement contains a redeclaration
     int newCount = 0;   // count of the number of new variables encountered
+    int lineno = 0;
     PutSymbolWrapper* p;
     SYMBOL* s;
     while (stmt != NULL) {
+        lineno = stmt->lineno;
         // first, sym the expression
         symEXP(stmt->val.shortDeclS.exp, symbolTable);
-
         // then, create a symbol for the id (provided it is not blank)
         if (notBlank(stmt->val.shortDeclS.id->val.idE.id->name)) {
             p = putSymbol(symbolTable, stmt->val.shortDeclS.id->val.idE.id->name, shortDeclSym, stmt->lineno, 1);
-
             // check if the id was a redeclaration
             if (p->isRedecl) {
                 redeclaration = 1;
@@ -779,7 +779,7 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
 
     // error check
     if (redeclaration && newCount == 0) {
-        reportError("SYMBOL", "no new variables on left side of :=", stmt->lineno);
+        reportError("SYMBOL", "no new variables on left side of :=", lineno);
     }
 }
 

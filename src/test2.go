@@ -1,13 +1,23 @@
 package main
 
-func test(a, b float64) int {
-    if (true) {
-        return 1
-    } else {
-        return 0x555
+type hello struct {
+    r int
+}
+
+type cool struct {
+    x, y int
+    t struct {
+        nice string
+        v struct {
+            x hello
+        }
     }
 }
 
 func main() {
+    type beans int
+    var x int
+    var y beans
 
+    y = beans(x)
 }

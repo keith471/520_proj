@@ -20,6 +20,26 @@ ssh kstric@teaching.cs.mcgill.ca
 
 
 ## Codegen
+- finish codegen
+- when you have wifi
+    - check what can be left out of a for statement (i.e. can you say for(;;) {}, for (int i=0;;) {}, etc)
+    - also check what is printed for a for statement with an init statement and especially multiple short decls
+
+- gen switch cases as if/else statements
+- for statements
+- bin op statements
+- println/print statements
+- rawify (printing of raw string literals)
+- see if unary plus is a thing in C++
+- see if unary xor is a thing in C++
+- confirm syntax for bitwise and, or, and xor in c++
+- check how you can check equality and order (<, >, <=, etc) for all types in C++
+- check if leftshift, rightshift, and bitclear are operations in C++
+- write test programs and report!
+- make sure that none of the names we create for structs and types are the same as variable names...?
+
+- Figure out what is up with blank identifiers...
+
 - finish cppTypeFUNCTIONDECLARATION
 - finish cppTypeTYPEDECLARATION
 - make a pass where we collect arrays and structs and make typedefs for them
@@ -38,15 +58,6 @@ with the new representative C++ array or struct type that we've made for it
             - if the GoLite type is an idT that resolves to an array, then we need to look in the hashmap for the id and get the associated C++ array
                 - if we can't find it then we create a new one and add it to the hashmap
             - if the GoLite type is an array literal, then we ad
-
-- genVARDECLARATION
-- genTYPEDECLARATION
-- genFUNCTIONDECLARATION
-- finish genTYPE ==> idK, structK, arrayK
-- finish genDefault
-- write test programs and report!
-
-- a c++ vector is just like a slice!!!
 
 ## Sources
 http://stackoverflow.com/questions/10826744/semicolon-insertion-ala-google-go-with-flex

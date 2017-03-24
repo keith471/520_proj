@@ -200,7 +200,7 @@ typedef struct CPPTYPE {
                 struct STRUCTTYPE* structType;} structT;
     } val;
     struct CPPTYPE* next; // the next struct or array cpp type in the program
-}
+} CPPTYPE;
 
 typedef struct STRUCTTYPE {
     int lineno;

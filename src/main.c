@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "helpers.h"
 #include "error.h"
 #include "tree.h"
 #include "pretty.h"
 #include "weed.h"
 #include "symbol.h"
 #include "type.h"
+#include "cppType.h"
 #include "codegen.h"
 
 int yylex();
@@ -18,17 +20,6 @@ int dumpsymtab = 0; // if true, the symbol table will be dumped
 int pptype = 0; // if true, the program will be pretty printed with types
 
 extern FILE* yyin;
-
-/*
- * concatenate two strings and return the result
- */
-char* concat(const char *s1, const char *s2) {
-    char *result = malloc(strlen(s1)+strlen(s2)+1); // + 1 for the null-terminator
-    // should check for malloc errors here
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;
-}
 
 /*
  * parse and return the program name (without the extension)
@@ -240,10 +231,15 @@ int main(int argc, char* argv[]) {
             printf("    >>> wrote the symbol table to %s\n", symbolPath);
         }
 
-        // create a symbol table for the program
+        // type check the program
         printf("type checking program...\n");
         typePROGRAM(theprogram);
         terminateIfErrors();
+        printf("    >>> SUCCESS\n");
+
+        // save C++ versions of types
+        printf("C++ typing the program...\n");
+        cppTypePROGRAM(theprogram);
         printf("    >>> SUCCESS\n");
 
         // generate c++ code

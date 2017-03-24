@@ -19,7 +19,7 @@ template <typename T>
 vector<T> golite_slice_append(vector<T> v, T x) {
     vector<T> w = v;
     w.push_back(x);
-	   return w;
+	return w;
 }
 
 // compiled code

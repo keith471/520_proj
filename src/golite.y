@@ -385,7 +385,7 @@ postStatement:
 /* exp statements */
 
 expStatement:
-      // we accept anything here but really this can only be a function call or receive operation
+      // we accept anything here but really this can only be a function call
       // we make sure of this during the weeding phase
       exp
         {
