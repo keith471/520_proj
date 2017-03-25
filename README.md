@@ -13,3 +13,6 @@ The pretty-printed output is saved in `./src/output`. **It is essential that thi
 Build with `./build.sh`.
 Run for an individual file with `./run.sh <path_to_golite_file> [-dumpsymtab, -pptype]`.
 Output files are saved in `./src/output`. **It is essential that this directory exists to avoid segmentation faults.**
+
+# Milestone 3 Instructions
+Same as Milestone 2
