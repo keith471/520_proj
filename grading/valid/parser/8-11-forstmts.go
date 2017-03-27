@@ -1,14 +1,14 @@
 package main
 
 func for_stmts() {
+	var a int
+
 	// Infinite loop
 	for {
 	}
 
-    var a, b int
-
 	// "while" loop
-	for a < b {
+	for a < 10 {
 	}
 
 	// three-part loop, all parts missing
@@ -43,3 +43,4 @@ func for_stmts() {
 	for a := 0; a < 10; a++ {
 	}
 }
+ 

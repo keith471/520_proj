@@ -21,9 +21,9 @@ func main() {
 
 	// multi-dimensional slice
 	var a [][]float64
-	a = append(a[0], 1)
-	a = append(a[0], 2)
-	a = append(a[m][n], 2)
+	a[0] = append(a[0], 1.0)
+	a[0] = append(a[0], 2.0)
+	a[0] = append(a[m], 2.0)
 
 	// multi-dimensional slice access rhs
 	var b1, b2, b3 float64

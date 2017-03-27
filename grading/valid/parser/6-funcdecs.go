@@ -7,7 +7,7 @@ func f1() {
 
 // no params, one return value
 func f2() int {
-
+	return 0
 }
 
 // one param, no return value

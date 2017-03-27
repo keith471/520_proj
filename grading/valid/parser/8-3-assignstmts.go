@@ -7,6 +7,10 @@ func assign_stmts() {
 	// multiple assignment
 	a, b = 0, 1
 
+	// parenthesized assignment
+	(a) = 0
+	(a), (b) = 0, 1
+
 	// op assign
 	a += 1
 	a -= 1

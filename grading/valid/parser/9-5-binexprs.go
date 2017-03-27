@@ -5,6 +5,9 @@ func bin_exprs() {
 	var y int
 	var r int
 
+	var b bool
+	var c bool
+
 	r = x + 1
 	r = x - 1
 	r = x * 1
@@ -16,13 +19,13 @@ func bin_exprs() {
 	r = x &^ 1
 	r = x << 1
 	r = x >> 1
-	r = x && y
-	r = x || y
-	r = x < y
-	r = x <= y
-	r = x == y
-	r = x != y
-	r = x >= y
-	r = x > y
+	c = b && b
+	c = b || b
+	c = x < y
+	c = x <= y
+	c = x == y
+	c = x != y
+	c = x >= y
+	c = x > y
 	r = x + y
 } 

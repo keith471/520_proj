@@ -1,5 +1,23 @@
 #!/bin/bash
 
+LOG=0
+VERBOSE=0
+
+while getopts ":lv" opt; do
+	case $opt in
+		l)
+			LOG=1
+			;;
+		v)
+			VERBOSE=1
+			;;
+		\?)
+			echo "Invalid option: -$OPTARG" >&2
+			exit
+			;;
+	esac
+done
+
 # 1. Build the compiler.
 #
 # You *MUST* provide a build.sh script in the root directory
@@ -8,9 +26,11 @@
 # will be empty.
 # A sample build.sh file using Makefile has been provided.
 
+echo -n -e "\033[93m"
 echo "*****************************"
 echo "  Building compiler"
 echo "*****************************"
+echo -e -n "\033[0m"
 
 if [ ! -f build.sh ]
 then
@@ -26,158 +46,93 @@ fi
 # to run your compiler. The run.sh script must take a single
 # argument, the filename, and pass the contents to your compiler.
 # A sample run.sh file using rediction has been provided.
- 
+
 if [ ! -f run.sh ]
 then
 	echo "ERROR: Missing run.sh script"
 	exit
 fi
 
-# 2. Run all valid programs
-#
-# For valid programs, your compiler *MUST*
-#   (a) output only: VALID
-#   (b) exit with status code 0
-# A log of the output is written to valid.log
+SCORES=()
 
-VALID_DIR_SCAN=`find "grading/valid/scanner/" -type f \( -name "*.go" ! -name "*.pretty.go" \)`
-VALID_DIR_PARSE=`find "grading/valid/parser/" -type f \( -name "*.go" ! -name "*.pretty.go" \)`
- 
-echo
+for DIR_TYPE in grading/*/; do
+	CONF=`cat $DIR_TYPE/CONF`
+	TYPE=$(basename $DIR_TYPE)
+	TYPE="${TYPE^}"
+
+	for DIR_PHASE in $DIR_TYPE*/; do
+		PHASE=$(basename $DIR_PHASE)
+		PHASE="${PHASE^}"
+
+		echo -e "\033[93m"
+		echo "*****************************"
+		echo "  $TYPE $PHASE"
+		echo "*****************************"
+		echo -e -n "\033[0m"
+
+		TESTS=`find $DIR_PHASE -type f \( -name "*.go" ! -name "*.pretty.go" \)`
+		COUNT=0
+		COUNT_CORRECT=0
+
+		for TEST in $TESTS
+		do
+			((COUNT++))
+			RESULT=$(./run.sh $TEST 2>&1)
+			STATUS=${PIPESTATUS[0]}
+
+			RESULT=${RESULT#$TEST}
+
+			if [[ $RESULT == *"java.lang.NullPointerException"* ]]; then
+				STATUS=-1
+			fi
+
+			if [ $STATUS -eq $CONF ]
+			then
+				if [ $VERBOSE -eq 1 ]
+				then
+					echo
+					echo "$TEST: $RESULT" | tr -d '\n'
+				       	echo -n -e " \033[0;32m[pass]\033[0m"
+					if [ $LOG -eq 1 ]
+					then
+						echo "$TEST: $RESULT [pass]" >> ${TYPE}_${PHASE}.log
+					fi
+				fi
+				((COUNT_CORRECT++))
+			else
+				echo
+				echo "$TEST: $RESULT" | tr -d '\n'
+				echo -n -e " \033[0;31m[fail]\033[0m"
+				if [ $LOG -eq 1 ]
+				then
+					echo "$TEST: $RESULT [fail]" >> ${TYPE}_${PHASE}.log
+				fi
+			fi
+		done
+		if [ $VERBOSE -eq 1 ]
+		then
+			if [ $COUNT -gt 0 ]
+			then
+				echo
+			fi
+		else
+			if [ $COUNT -ne $COUNT_CORRECT ]
+			then
+				echo
+			fi
+		fi
+		echo
+		echo -e "\e[41m# ${TYPE} ${PHASE}: ${COUNT_CORRECT}/${COUNT}\e[49m"
+		SCORES+=("\e[41m# ${TYPE} ${PHASE}: ${COUNT_CORRECT}/${COUNT}\e[49m")
+	done
+done
+
+echo -e "\033[93m"
 echo "*****************************"
-echo "  Valid programs"
+echo "  Overall"
 echo "*****************************"
+echo -e "\033[0m"
 
-if [ -f valid_scan.log ]
-then
-	rm valid_scan.log
-fi
-if [ -f valid_parse.log ]
-then
-	rm valid_parse.log
-fi
-
-VALID_SCAN=0
-VALID_SCAN_CORRECT=0
-for PROG in $VALID_DIR_SCAN
-do
-	((VALID_SCAN++))
-
-	echo -n "$PROG: " | tee -a valid_scan.log
-	./run.sh $PROG 2>&1 | tee -a valid_scan.log | tr -d '\n'
-	if [ ${PIPESTATUS[0]} -eq 0 ]
-	then
-		echo -e -n " \033[0;32m[pass]"
-		echo "[pass]" >> valid_scan.log
-		((VALID_SCAN_CORRECT++))
-	else
-		echo -e -n " \033[0;31m[fail]"
-		echo "[fail]" >> valid_scan.log
-	fi 
-	echo -e "\033[0m"
-done 
-echo
-echo ">>>>> # valid scanner programs handled: ${VALID_SCAN_CORRECT}/${VALID_SCAN}"
-echo
- 
-VALID_PARSE=0
-VALID_PARSE_CORRECT=0
-for PROG in $VALID_DIR_PARSE
-do
-	((VALID_PARSE++))
-
-	echo -n "$PROG: " | tee -a valid_parse.log
-	./run.sh $PROG 2>&1 | tee -a valid_parse.log | tr -d '\n'
-	if [ ${PIPESTATUS[0]} -eq 0 ]
-	then
-		echo -e -n " \033[0;32m[pass]"
-		echo "[pass]" >> valid_parse.log
-		((VALID_PARSE_CORRECT++))
-	else
-		echo -e -n " \033[0;31m[fail]"
-		echo "[fail]" >> valid_parse.log
-	fi 
-	echo -e "\033[0m"
-done 
-echo
-echo ">>>>> # valid parse programs handled: ${VALID_PARSE_CORRECT}/${VALID_PARSE}"
-
-# 3. Run all invalid programs
-#
-# For invalid programs, your compiler *MUST*
-#   (a) output: INVALID: <error>
-#   (b) exit with status code 1
-# A log of the output is written to invalid.log
-
-INVALID_DIR_SCAN=`find "grading/invalid/scanner/" -type f \( -name "*.go" ! -name "*.pretty.go" \)`
-INVALID_DIR_PARSE=`find "grading/invalid/parser/" -type f \( -name "*.go" ! -name "*.pretty.go" \)`
-
-echo
-echo "*****************************"
-echo "  Invalid programs"
-echo "*****************************"
-
-if [ -f invalid_scan.log ]
-then
-	rm invalid_scan.log
-fi
-if [ -f invalid_parse.log ]
-then
-	rm invalid_parse.log
-fi
-
-INVALID_SCAN=0
-INVALID_SCAN_CORRECT=0
-for PROG in $INVALID_DIR_SCAN
-do
-	((INVALID_SCAN++))
-	
-	echo -n "$PROG: " | tee -a invalid_scan.log
-	./run.sh $PROG 2>&1 | tee -a invalid_scan.log | tr -d '\n'
-	if [ ${PIPESTATUS[0]} -eq 1 ]
-	then
-		echo -e -n " \033[0;32m[pass]"
-		echo "[pass]" >> invalid_scan.log
-		((INVALID_SCAN_CORRECT++))
-	else
-		echo -e -n " \033[0;31m[fail]"
-		echo "[fail]" >> invalid_scan.log
-	fi 
-	echo -e "\033[0m"
-done 
-echo
-echo ">>>>> # invalid scanner programs handled: ${INVALID_SCAN_CORRECT}/${INVALID_SCAN}"
-echo
-
-INVALID_PARSE=0
-INVALID_PARSE_CORRECT=0
-for PROG in $INVALID_DIR_PARSE
-do
-	((INVALID_PARSE++))
-	
-	echo -n "$PROG: " | tee -a invalid_parse.log
-	./run.sh $PROG 2>&1 | tee -a invalid_parse.log | tr -d '\n'
-	if [ ${PIPESTATUS[0]} -eq 1 ]
-	then
-		echo -e -n " \033[0;32m[pass]"
-		echo "[pass]" >> invalid_parse.log
-		((INVALID_PARSE_CORRECT++))
-	else
-		echo -e -n " \033[0;31m[fail]"
-		echo "[fail]" >> invalid_parse.log
-	fi 
-	echo -e "\033[0m"
-done 
-echo
-echo ">>>>> # invalid parser programs handled: ${INVALID_PARSE_CORRECT}/${INVALID_PARSE}"
-
-echo
-echo "*****************************"
-echo "  Overall Score"
-echo "*****************************"
-echo
-
-echo ">>>>> # valid scanner programs handled: ${VALID_SCAN_CORRECT}/${VALID_SCAN}"
-echo ">>>>> # invalid scanner programs handled: ${INVALID_SCAN_CORRECT}/${INVALID_SCAN}"
-echo ">>>>> # valid parse programs handled: ${VALID_PARSE_CORRECT}/${VALID_PARSE}"
-echo ">>>>> # invalid parser programs handled: ${INVALID_PARSE_CORRECT}/${INVALID_PARSE}"
+for i in ${!SCORES[*]}; do
+	echo -e ${SCORES[$i]}
+done

@@ -30,11 +30,9 @@ type t5 struct {
 type t6 struct {
 }
 
-type point int
-
 // slices
 type t7 []int			// base type
-type t8 []point			// type id
+type t8 []t1			// type id
 type t9 []struct {		// composite type
 	a int
 }
@@ -42,8 +40,8 @@ type t10 [][]float64		// matrix
 
 // arrays
 type t11 [4]int			// base type
-type t12 [4]point		// type id
+type t12 [4]t1			// type id
 type t13 [8]struct {		// composite type
 	a int
 }
-type t14 [3][3]float64	// matrix
+type t14 [3][3]float64	// matrix 
