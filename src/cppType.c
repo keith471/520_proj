@@ -200,6 +200,7 @@ void cppTypeTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
 
 void cppTypeVARDECLARATION(VARDECLARATION* vd) {
     if (vd == NULL) return;
+    if (vd->isEmpty) return;
     cppTypeVARDECLARATIONlist(vd);
     cppTypeVARDECLARATION(vd->nextDistributed);
 }
@@ -222,6 +223,7 @@ void cppTypeVARDECLARATIONlist(VARDECLARATION* vd) {
 
 void cppTypeTYPEDECLARATION(TYPEDECLARATION* td) {
     if (td == NULL) return;
+    if (td->isEmpty) return;
     // only has a useful effect if the type involves a struct or array
     cppTypeTYPE(td->type);
     cppTypeTYPEDECLARATION(td->nextDistributed);

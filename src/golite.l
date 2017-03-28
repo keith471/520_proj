@@ -354,7 +354,7 @@ append          {
                     #ifdef FLEX_DEBUG
                         printf("found a rune literal: %s\n", yytext);
                     #endif
-                    yylval.runeLiteral = yytext[0];
+                    yylval.runeLiteral = strdup(yytext);
                     shouldInsertBeforeNewLine = 1;
                     shouldInsertBeforeRightBrace = 1;
                     return tRUNELITERAL;

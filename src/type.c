@@ -5,7 +5,7 @@
 #include "tree.h"
 #include "memory.h"
 #include "error.h"
-#include "symbol.h" // only for Hash
+#include "symbol.h" // only for Hash and notBlank
 
 TYPE *intTYPE, *float64TYPE, *stringTYPE, *runeTYPE, *boolTYPE;
 
@@ -64,6 +64,10 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
             // as the type of the variable! We update the type of the expression in the SYMBOL
             // in the symbol table
             typeEXP(v->val.expVD.exp);
+            if (v->val.expVD.exp->type == NULL) {
+                // the expression has no type (it is probably a function call to a void function)
+                reportStrError("TYPE", "cannot assign a value with no type to %s", v->id->name, v->lineno);
+            }
             v->val.expVD.symbol->val.varDeclS.type = v->val.expVD.exp->type;
             break;
         case typeAndExpK:
@@ -138,30 +142,36 @@ void typeSTATEMENT(STATEMENT* s) {
         case shortDeclK:
             // type checks if the exp type checks
             typeEXP(s->val.shortDeclS.exp);
-            // if this is a redeclaration, we need to check that the type of the
-            // expression is the same as the type of the prevDeclSym
-            if (s->val.shortDeclS.isRedecl) {
-                // first, we better check that we can assign to this symbol (i.e. it is a variable!)
-                assertCanAssign(s->val.shortDeclS.prevDeclSym, s->lineno);
-                // then, we assert that the type of the expression is equal to the type of the variable
-                switch (s->val.shortDeclS.prevDeclSym->kind) {
-                    case varSym:
-                        t = s->val.shortDeclS.prevDeclSym->val.varS;
-                        break;
-                    case varDeclSym:
-                        t = s->val.shortDeclS.prevDeclSym->val.varDeclS.type;
-                        break;
-                    case shortDeclSym:
-                        t = s->val.shortDeclS.prevDeclSym->val.shortDeclS.type;
-                        break;
-                    default:
-                        // will never execute
-                        break;
+            if (s->val.shortDeclS.exp->type == NULL) {
+                // the expression has no type (it is probably a function call to a function with no return value)
+                reportStrError("TYPE", "cannot assign a value with no type to %s", s->val.shortDeclS.id->val.idE.id->name, s->lineno);
+            }
+            if (notBlank(s->val.shortDeclS.id->val.idE.id->name)) {
+                // if this is a redeclaration, we need to check that the type of the
+                // expression is the same as the type of the prevDeclSym
+                if (s->val.shortDeclS.isRedecl) {
+                    // first, we better check that we can assign to this symbol (i.e. it is a variable!)
+                    assertCanAssign(s->val.shortDeclS.prevDeclSym, s->lineno);
+                    // then, we assert that the type of the expression is equal to the type of the variable
+                    switch (s->val.shortDeclS.prevDeclSym->kind) {
+                        case varSym:
+                            t = s->val.shortDeclS.prevDeclSym->val.varS;
+                            break;
+                        case varDeclSym:
+                            t = s->val.shortDeclS.prevDeclSym->val.varDeclS.type;
+                            break;
+                        case shortDeclSym:
+                            t = s->val.shortDeclS.prevDeclSym->val.shortDeclS.type;
+                            break;
+                        default:
+                            // will never execute
+                            break;
+                    }
+                    assertIdenticalTYPEs(t, s->val.shortDeclS.exp->type, s->lineno);
+                } else {
+                    // we need to set the type on the symbol to be the type of the expression
+                    s->val.shortDeclS.symbol->val.shortDeclS.type = s->val.shortDeclS.exp->type;
                 }
-                assertIdenticalTYPEs(t, s->val.shortDeclS.exp->type, s->lineno);
-            } else {
-                // we need to set the type on the symbol to be the type of the expression
-                s->val.shortDeclS.symbol->val.shortDeclS.type = s->val.shortDeclS.exp->type;
             }
             // type check the next short var decl
             typeSTATEMENT(s->val.shortDeclS.next);
@@ -257,9 +267,11 @@ void typeSTATEMENTswitch(STATEMENT* s) {
     typeSTATEMENT(s->val.switchS.initStatement);
     if (s->val.switchS.condition != NULL) {
         typeEXP(s->val.switchS.condition);
+        if (s->val.switchS.condition->type == NULL) {
+            reportError("TYPE", "cannot switch on a void value", s->lineno);
+        }
         typeSWITCHCASE(s->val.switchS.cases, s->val.switchS.condition->type);
     } else {
-        typeEXP(s->val.switchS.condition);
         typeSWITCHCASE(s->val.switchS.cases, boolTYPE);
     }
 }
@@ -455,6 +467,7 @@ void typeEXP(EXP* e) {
             // an index into an array or slice is well-typed if
             // index is well typed and resolves to int
             typeEXP(e->val.indexE.lastIndex);
+            assertResolvesToInt(e->val.indexE.lastIndex->type, e->lineno);
             // rest is well typed and resolves to a slice or array
             typeEXP(e->val.indexE.rest);
             e->type = getElementType(e->val.indexE.rest->type, e->lineno);
@@ -692,6 +705,14 @@ int hasInnerReturn(STATEMENT* s, TYPE* returnType, char* name) {
                 // check that each case has a return and that there is a default case
                 if (switchHasReturn(s->val.switchS.cases, returnType, name)) {
                     innerReturn = 1;
+                }
+                break;
+            case forK:
+                // if this loop is obviously infinite (no condition), then we can check its statements for returns along every path
+                if (s->val.forS.condition == NULL) {
+                    if (hasReturnOnEveryPath(s->val.forS.body, returnType, name)) {
+                        innerReturn = 1;
+                    }
                 }
                 break;
             case infiniteLoopK:
@@ -1061,6 +1082,7 @@ void assertActualTypeInt(TYPE* actual, int lineno) {
 void assertActualTypeFloat64(TYPE* actual, int lineno) {
     switch (actual->kind) {
         case intK:
+            reportError("TYPE", "expected type float64 but found type int", lineno);
             break;
         case idK:
             reportStrError("TYPE", "expected type float64 but found type %s", actual->val.idT.id->name, lineno);
@@ -1587,6 +1609,9 @@ void assertEXPsResolveToBaseType(EXP* e, int lineno) {
  * asserts that a type resolves to int, float64, rune, bool, or string
  */
 void assertResolvesToBaseType(TYPE* t, int lineno) {
+    if (t == NULL) {
+        reportError("TYPE", "cannot print a void value", lineno);
+    }
     switch(t->kind) {
         case intK:
             break;

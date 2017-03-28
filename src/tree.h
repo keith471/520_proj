@@ -310,7 +310,7 @@ typedef struct EXP {
         struct {int decValue; // value of integer
                 IntLiteralKind kind;} intLiteralE;
         float floatLiteralE;    // value of float
-        char runeLiteralE;   // value of a rune
+        char *runeLiteralE;   // value of a rune
         char *stringLiteralE;   // value of string
         char *rawStringLiteralE;
         struct CAST* castE;
@@ -366,12 +366,12 @@ typedef struct EXP {
                 struct EXP* args;} argumentsE; // linked list of expressions (using next pointers)
     } val;
     struct EXP* next; // for expression lists; null otherwise
- } EXP;
+} EXP;
 
- typedef struct RECEIVER {
-     int lineno;
-     struct EXP* receivingStruct; // this had better evaluate to a struct
- } RECEIVER;
+typedef struct RECEIVER {
+    int lineno;
+    struct EXP* receivingStruct; // this had better evaluate to a struct
+} RECEIVER;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTION INVOKATIONS
@@ -514,7 +514,7 @@ EXP* makeEXPintdecliteral(int decValue);
 EXP* makeEXPintoctliteral(int decValue);
 EXP* makeEXPinthexliteral(int decValue);
 EXP* makeEXPfloatliteral(float floatLiteral);
-EXP* makeEXPruneliteral(char runeLiteral);
+EXP* makeEXPruneliteral(char* runeLiteral);
 EXP* makeEXPstringliteral(char* stringLiteral);
 EXP* makeEXPrawstringliteral(char* rawStringLiteral);
 EXP* makeEXPid(ID* id);

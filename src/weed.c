@@ -329,8 +329,12 @@ void lvalueHelper(EXP* exp, int lineno) {
         case identifierK:
             break;
         case selectorK:
+            // check that the receiver is also an lvalue
+            lvalueHelper(exp->val.selectorE.receiver->receivingStruct, lineno);
             break;
         case indexK:
+            // check that what is being indexed into is also an lvalue
+            lvalueHelper(exp->val.indexE.rest, lineno);
             break;
         case intLiteralK:
             reportWeedError("expected lvalue but found int literal", lineno);
@@ -717,7 +721,7 @@ void checkArraySize(EXP* e) {
             reportFloatError("WEED", "invalid array bound %f", e->val.floatLiteralE, e->lineno);
             break;
         case runeLiteralK:
-            reportCharError("WEED", "invalid array bound %c", e->val.runeLiteralE, e->lineno);
+            reportStrError("WEED", "invalid array bound %s", e->val.runeLiteralE, e->lineno);
             break;
         case stringLiteralK:
             reportStrError("WEED", "invalid array bound %s", e->val.stringLiteralE, e->lineno);

@@ -1,23 +1,11 @@
 package main
 
-type hello struct {
-    r int
-}
-
-type cool struct {
-    x, y int
-    t struct {
-        nice string
-        v struct {
-            x hello
-        }
-    }
+func f() struct { a int; } {
+    var a struct { a int; }
+    return a
 }
 
 func main() {
-    type beans int
-    var x int
-    var y beans
-
-    y = beans(x)
+    var x [10]int
+    x[f().a] = 1
 }

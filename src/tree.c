@@ -1122,7 +1122,7 @@ EXP* makeEXPfloatliteral(float floatLiteral) {
     return e;
 }
 
-EXP* makeEXPruneliteral(char runeLiteral) {
+EXP* makeEXPruneliteral(char* runeLiteral) {
     EXP* e;
     e = NEW(EXP);
     e->lineno = yylineno;

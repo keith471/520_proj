@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
         printf("    >>> SUCCESS\n");
 
         // generate c++ code
-        printf("generating c++ code...\n");
+        printf("generating C++ code...\n");
         cppPath = concat(outputPath, concat(programName, ".cpp"));
         genPROGRAM(theprogram, cppPath);
         printf("    >>> SUCCESS\n");

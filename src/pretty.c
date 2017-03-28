@@ -635,7 +635,7 @@ void prettyEXP(EXP* e) {
             fprintf(emitFILE, "%f", e->val.floatLiteralE);
             break;
         case runeLiteralK:
-            fprintf(emitFILE, "%c", e->val.runeLiteralE);
+            fprintf(emitFILE, "%s", e->val.runeLiteralE);
             break;
         case stringLiteralK:
             fprintf(emitFILE, "%s", e->val.stringLiteralE);

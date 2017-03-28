@@ -747,13 +747,21 @@ void symSWITCHCASE(SWITCHCASE* sc, SymbolTable* switchScope) {
  * can check the rest
  */
 void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
-    int redeclaration = 0; // flag to keep track of whether the short decl statement contains a redeclaration
     int newCount = 0;   // count of the number of new variables encountered
     int lineno = 0;
     PutSymbolWrapper* p;
     SYMBOL* s;
+    STATEMENT* t;
     while (stmt != NULL) {
         lineno = stmt->lineno;
+        // check that this variable isn't repeated
+        t = stmt->val.shortDeclS.next;
+        while (t != NULL) {
+            if (strcmp(t->val.shortDeclS.id->val.idE.id->name, stmt->val.shortDeclS.id->val.idE.id->name) == 0) {
+                reportStrError("SYMBOL", "%s repeated on left side of :=", t->val.shortDeclS.id->val.idE.id->name, lineno);
+            }
+            t = t->val.shortDeclS.next;
+        }
         // first, sym the expression
         symEXP(stmt->val.shortDeclS.exp, symbolTable);
         // then, create a symbol for the id (provided it is not blank)
@@ -761,7 +769,6 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
             p = putSymbol(symbolTable, stmt->val.shortDeclS.id->val.idE.id->name, shortDeclSym, stmt->lineno, 1);
             // check if the id was a redeclaration
             if (p->isRedecl) {
-                redeclaration = 1;
                 stmt->val.shortDeclS.isRedecl = 1;
                 stmt->val.shortDeclS.prevDeclSym = p->prevDeclSym;
             } else {
@@ -778,7 +785,7 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
     }
 
     // error check
-    if (redeclaration && newCount == 0) {
+    if (newCount == 0) {
         reportError("SYMBOL", "no new variables on left side of :=", lineno);
     }
 }
@@ -950,7 +957,7 @@ void symEXP(EXP* e, SymbolTable* t) {
             break;
         case argumentsK:
             symEXP(e->val.argumentsE.rest, t);
-            symEXP(e->val.argumentsE.args, t);
+            symEXPs(e->val.argumentsE.args, t);
             break;
         case uPlusK:
             symEXP(e->val.uPlusE, t);

@@ -19,6 +19,7 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Type Checking
 
 
+
 ## Codegen
 - finish codegen
 - when you have wifi

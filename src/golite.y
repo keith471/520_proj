@@ -16,8 +16,8 @@ extern PROGRAM* theprogram;
 %union {
 	int intLiteral;
 	float floatLiteral;
-    char runeLiteral;
-	char *stringLiteral;
+    char* runeLiteral;
+	char* stringLiteral;
     struct PACKAGE* package;
     struct TOPLEVELDECLARATION* topLevelDecl;
     struct VARDECLARATION* varDecl;

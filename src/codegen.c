@@ -86,6 +86,7 @@ void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
 
 void genVARDECLARATION(VARDECLARATION* vd, int level) {
     if (vd == NULL) return;
+    if (vd->isEmpty) return;
     genVARDECLARATIONlist(vd, level);
     genVARDECLARATION(vd->nextDistributed, level);
 }
@@ -432,7 +433,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, "%f", e->val.floatLiteralE);
             break;
         case runeLiteralK:
-            fprintf(emitFILE, "%c", e->val.runeLiteralE);
+            fprintf(emitFILE, "%s", e->val.runeLiteralE);
             break;
         case stringLiteralK:
             fprintf(emitFILE, "%s", e->val.stringLiteralE);
