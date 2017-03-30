@@ -1,20 +1,22 @@
 package main
 
-var x struct {
+var struct_1 struct {
     _ int
     r int
 }
 
-var y struct {
+var struct_2 struct {
     _ int
     r int
 }
 
 func main() {
 
-    x.r = 3
+    struct_1.r = 3
 
-    if (x == y) {
+    var array_1 [10]int
+
+    if (struct_1 == struct_2) {
      println("equal!");
     } else {
      println("not equal!");

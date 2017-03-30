@@ -32,6 +32,7 @@ void addTypeDefs(CPPTYPE* c) {
             // will never hit this
             break;
     }
+    newLineInFile(emitFILE);
     addTypeDefs(c->next);
 }
 
@@ -43,11 +44,13 @@ void addOperators(CPPTYPE* c) {
             break;
         case cppStructK:
             genStructComparator(c, 0);
+            newLineInFile(emitFILE);
             genStructComparator(c, 1);
             break;
         default:
             break;
     }
+    newLineInFile(emitFILE);
     addOperators(c->next);
 }
 
@@ -72,16 +75,19 @@ void genPROGRAM(PROGRAM* p, char* fname) {
     // next, add the struct and array typedef declarations
     fprintf(emitFILE, "// typedefs");
     newLineInFile(emitFILE);
+    newLineInFile(emitFILE);
     addTypeDefs(head);
     newLineInFile(emitFILE);
     // then, add the comparison operators for structs
     fprintf(emitFILE, "// operators");
+    newLineInFile(emitFILE);
     newLineInFile(emitFILE);
     addOperators(head);
     newLineInFile(emitFILE);
     // next, traverse the AST, writing each line's equivalent C++ code to emitFILE
     // we completely ignore the package declaration
     fprintf(emitFILE, "// code");
+    newLineInFile(emitFILE);
     newLineInFile(emitFILE);
     genTOPLEVELDECLARATION(p->topLevelDeclaration);
     // close emitFILE
@@ -101,6 +107,7 @@ void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld) {
             genFUNCTIONDECLARATION(tld->val.functionDeclTLD);
             break;
     }
+    newLineInFile(emitFILE);
     genTOPLEVELDECLARATION(tld->next);
 }
 

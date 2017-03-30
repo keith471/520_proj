@@ -5,27 +5,53 @@
 #include "tree.h"
 #include "memory.h"
 #include "cppType.h"
+#include "symbol.h" // for Hash
 
 CPPTYPE *intCPPTYPE, *doubleCPPTYPE, *charCPPTYPE, *boolCPPTYPE, *stringCPPTYPE;
 
 CPPTYPE* head = NULL;
 
+// extern ID* nameTable[HashSize];
+
 int structNo = 1;
 int arrayNo = 1;
 
+int nameTableContains(char* name) {
+    int i = Hash(name);
+    ID* curr;
+
+    for (curr = nameTable[i]; curr; curr = curr->next) {
+        if (strcmp(curr->name, name) == 0) return 1;
+    }
+
+    return 0;
+}
+
 char* getStructName() {
     char number[100]; // more than we need
-    sprintf(number, "%d", structNo);
-    structNo++;
-    char* structName = concat("struct_", number);
+    char* structName;
+    while (1) {
+        sprintf(number, "%d", structNo);
+        structNo++;
+        structName = concat("struct_", number);
+        if (!nameTableContains(structName)) {
+            break;
+        }
+    }
     return structName;
 }
 
 char* getArrayName() {
     char number[100]; // more than we need
-    sprintf(number, "%d", arrayNo);
-    arrayNo++;
-    char* arrayName = concat("array_", number);
+    char* arrayName;
+    while (1) {
+        sprintf(number, "%d", arrayNo);
+        arrayNo++;
+        arrayName = concat("array_", number);
+        if (!nameTableContains(arrayName)) {
+            break;
+        }
+    }
     return arrayName;
 }
 

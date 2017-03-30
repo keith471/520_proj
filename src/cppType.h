@@ -1,5 +1,5 @@
 
-char* concat(const char *s1, const char *s2);
+int nameTableContains(char* name);
 char* getStructName();
 char* getArrayName();
 

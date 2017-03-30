@@ -241,9 +241,14 @@ SymbolTable* initSymbolTable(int startLineno) {
     t->isUniverseBlock = 0;
     t->startLineno = startLineno;
     t->endLineno = startLineno;
-    for (i=0; i < HashSize; i++) t->table[i] = NULL;
+    for (i = 0; i < HashSize; i++) t->table[i] = NULL;
     t->next = NULL;
     return t;
+}
+
+void initNameTable() {
+    int i;
+    for (i = 0; i < HashSize; i++) nameTable[i] = NULL;
 }
 
 /*
@@ -323,6 +328,21 @@ PutSymbolWrapper* putSymbol(SymbolTable *t, char *name, SymbolKind kind, int lin
     return p;
 }
 
+void putName(char* name) {
+    int i = Hash(name);
+    ID* curr;
+
+    for (curr = nameTable[i]; curr; curr = curr->next) {
+        if (strcmp(curr->name, name) == 0) return;
+    }
+
+    ID* id;
+    id = NEW(ID);
+    id->name = name;
+    id->next = nameTable[i];
+    nameTable[i] = id;
+}
+
 /*
  * this is called in response to the use of an identifier
  * search the hash table from top to bottom (most recent to least recently declared symbols)
@@ -358,6 +378,7 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
         emitFILE = fopen(filePath, "w");
     }
 
+    initNameTable(); // init the name table
     symbolTable = createUniverseBlock(); // create the universe block
     scopeExit(symbolTable);
     symbolTable = scopeSymbolTable(symbolTable, 0); // create the outermost scope for the program
@@ -425,6 +446,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
             // create a symbol for the varDecl (if it is not blank)
             if (notBlank(v->id->name)) {
                 p = putSymbol(t, v->id->name, varDeclSym, v->lineno, 0);
+                putName(v->id->name);
                 s = p->symbol;
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = v->val.typeVD;
@@ -438,6 +460,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
             // create a symbol for the varDecl (if it is not blank)
             if (notBlank(v->id->name)) {
                 p = putSymbol(t, v->id->name, varDeclSym, v->lineno, 0);
+                putName(v->id->name);
                 s = p->symbol;
                 v->val.expVD.symbol = s; // important so we can set the type in the type checking phase
                 s->val.varDeclS.varDecl = v;
@@ -457,6 +480,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
             // then create a symbol for the var decl (if it is not blank)
             if (notBlank(v->id->name)) {
                 p = putSymbol(t, v->id->name, varDeclSym, v->lineno, 0);
+                putName(v->id->name);
                 s = p->symbol;
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = v->val.typeAndExpVD.type;
@@ -483,6 +507,7 @@ void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* t) {
     PutSymbolWrapper* p;
     // the id of a type cannot be _, so we don't need to check that here
     p = putSymbol(t, td->id->name, typeDeclSym, td->lineno, 0);
+    putName(td->id->name);
     SYMBOL* s = p->symbol;
     // set val on the symbol
     s->val.typeDeclS.typeDecl = td;
@@ -514,6 +539,7 @@ void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
     SYMBOL* s;
     if (notBlank(f->id->name)) {
         p = putSymbol(t, f->id->name, functionDeclSym, f->lineno, 0);
+        putName(f->id->name);
         s = p->symbol;
         s->val.functionDeclS = f;
     }
@@ -557,6 +583,7 @@ void symPARAMETERlist(PARAMETER* p, SymbolTable* t, int checkedType) {
     // create a symbol for the parameter (if it is not blank)
     if (notBlank(p->id->name)) {
         psw = putSymbol(t, p->id->name, parameterSym, p->lineno, 0);
+        putName(p->id->name);
         s = psw->symbol;
         s->val.parameterS.param = p;
         s->val.parameterS.type = p->type;
@@ -784,6 +811,7 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
         // then, create a symbol for the id (provided it is not blank)
         if (notBlank(stmt->val.shortDeclS.id->val.idE.id->name)) {
             p = putSymbol(symbolTable, stmt->val.shortDeclS.id->val.idE.id->name, shortDeclSym, stmt->lineno, 1);
+            putName(stmt->val.shortDeclS.id->val.idE.id->name);
             // check if the id was a redeclaration
             if (p->isRedecl) {
                 stmt->val.shortDeclS.isRedecl = 1;
@@ -828,6 +856,7 @@ void symFIELDlist(FIELD* f, SymbolTable* t, int checkedType) {
     // create a symbol for the field, if it is not blank
     if (notBlank(f->id->name)) {
         p = putSymbol(t, f->id->name, fieldSym, f->lineno, 0);
+        putName(f->id->name);
         s = p->symbol;
         s->val.fieldS.field = f;
         s->val.fieldS.type = f->type;
