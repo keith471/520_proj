@@ -10,8 +10,7 @@ ssh kstric@teaching.cs.mcgill.ca
 - fix pretty printing of structs
 
 ## Weeding
-- test a string of expressions followed by an identifier `(2+3).6.apple`
-    - can fix this by checking that each selector exp is either identifierK, selectorK, or indexK
+
 
 ## Symbol table
 
@@ -19,30 +18,18 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Type Checking
 
 
-
 ## Codegen
 - finish codegen
-- when you have wifi
-    - check what can be left out of a for statement (i.e. can you say for(;;) {}, for (int i=0;;) {}, etc)
-    - also check what is printed for a for statement with an init statement and especially multiple short decls
 
-- gen switch cases as if/else statements
-- for statements
-- bin op statements
-- println/print statements
-- rawify (printing of raw string literals)
-- see if unary plus is a thing in C++
-- see if unary xor is a thing in C++
-- confirm syntax for bitwise and, or, and xor in c++
 - check how you can check equality and order (<, >, <=, etc) for all types in C++
-- check if leftshift, rightshift, and bitclear are operations in C++
-- write test programs and report!
+    - strings done
+    - how about structs, slices, and arrays?
+
+
 - make sure that none of the names we create for structs and types are the same as variable names...?
 
 - Figure out what is up with blank identifiers...
 
-- finish cppTypeFUNCTIONDECLARATION
-- finish cppTypeTYPEDECLARATION
 - make a pass where we collect arrays and structs and make typedefs for them
 - any node where we encounter these arrays and structs, we will need to update the node
 with the new representative C++ array or struct type that we've made for it

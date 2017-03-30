@@ -771,6 +771,7 @@ EXP* makeEXPplus(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.plusE.left = left;
     e->val.plusE.right = right;
+    e->val.plusE.stringAddition = 0; // if string addition, we will find out in type phase
     e->next = NULL;
     return e;
 }
@@ -875,6 +876,7 @@ EXP* makeEXPlt(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.ltE.left = left;
     e->val.ltE.right = right;
+    e->val.ltE.stringCompare = 0;
     e->next = NULL;
     return e;
 }
@@ -888,6 +890,7 @@ EXP* makeEXPgt(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.gtE.left = left;
     e->val.gtE.right = right;
+    e->val.gtE.stringCompare = 0;
     e->next = NULL;
     return e;
 }
@@ -901,6 +904,7 @@ EXP* makeEXPeq(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.eqE.left = left;
     e->val.eqE.right = right;
+    e->val.eqE.stringCompare = 0;
     e->next = NULL;
     return e;
 }
@@ -914,6 +918,7 @@ EXP* makeEXPneq(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.neqE.left = left;
     e->val.neqE.right = right;
+    e->val.neqE.stringCompare = 0;
     e->next = NULL;
     return e;
 }
@@ -927,6 +932,7 @@ EXP* makeEXPleq(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.leqE.left = left;
     e->val.leqE.right = right;
+    e->val.leqE.stringCompare = 0;
     e->next = NULL;
     return e;
 }
@@ -940,6 +946,7 @@ EXP* makeEXPgeq(EXP* left, EXP* right) {
     e->isParenthesized = 0;
     e->val.geqE.left = left;
     e->val.geqE.right = right;
+    e->val.geqE.stringCompare = 0;
     e->next = NULL;
     return e;
 }

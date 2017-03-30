@@ -333,6 +333,9 @@ void typeEXP(EXP* e) {
             typeEXP(e->val.plusE.left);
             typeEXP(e->val.plusE.right);
             e->type = typePlus(e->val.plusE.left->type, e->val.plusE.right->type, e->lineno);
+            if (resolvesToString(e->val.plusE.left->type) && resolvesToString(e->val.plusE.right->type)) {
+                e->val.plusE.stringAddition = 1;
+            }
             break;
         case minusK:
             typeEXP(e->val.minusE.left);
@@ -375,12 +378,20 @@ void typeEXP(EXP* e) {
             // we need to check that both types are ordered and equal
             checkOrderedAndEqual(e->val.ltE.left->type, e->val.ltE.right->type, e->lineno);
             e->type = boolTYPE;
+            // if both strings, then we deal with comparison differently during codegen
+            // so we set the following flag
+            if (resolvesToString(e->val.ltE.left->type) && resolvesToString(e->val.ltE.right->type)) {
+                e->val.ltE.stringCompare = 1;
+            }
             break;
         case gtK:
             typeEXP(e->val.gtE.left);
             typeEXP(e->val.gtE.right);
             checkOrderedAndEqual(e->val.gtE.left->type, e->val.gtE.right->type, e->lineno);
             e->type = boolTYPE;
+            if (resolvesToString(e->val.gtE.left->type) && resolvesToString(e->val.gtE.right->type)) {
+                e->val.gtE.stringCompare = 1;
+            }
             break;
         case eqK:
             typeEXP(e->val.eqE.left);
@@ -389,24 +400,36 @@ void typeEXP(EXP* e) {
             // is check that the types are equal
             assertIdenticalTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, e->lineno);
             e->type = boolTYPE;
+            if (resolvesToString(e->val.eqE.left->type) && resolvesToString(e->val.eqE.right->type)) {
+                e->val.eqE.stringCompare = 1;
+            }
             break;
         case neqK:
             typeEXP(e->val.neqE.left);
             typeEXP(e->val.neqE.right);
             assertIdenticalTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, e->lineno);
             e->type = boolTYPE;
+            if (resolvesToString(e->val.neqE.left->type) && resolvesToString(e->val.neqE.right->type)) {
+                e->val.neqE.stringCompare = 1;
+            }
             break;
         case leqK:
             typeEXP(e->val.leqE.left);
             typeEXP(e->val.leqE.right);
             checkOrderedAndEqual(e->val.leqE.left->type, e->val.leqE.right->type, e->lineno);
             e->type = boolTYPE;
+            if (resolvesToString(e->val.leqE.left->type) && resolvesToString(e->val.leqE.right->type)) {
+                e->val.leqE.stringCompare = 1;
+            }
             break;
         case geqK:
             typeEXP(e->val.geqE.left);
             typeEXP(e->val.geqE.right);
             checkOrderedAndEqual(e->val.geqE.left->type, e->val.geqE.right->type, e->lineno);
             e->type = boolTYPE;
+            if (resolvesToString(e->val.geqE.left->type) && resolvesToString(e->val.geqE.right->type)) {
+                e->val.geqE.stringCompare = 1;
+            }
             break;
         case orK:
             typeEXP(e->val.orE.left);
@@ -1165,6 +1188,23 @@ void assertActualTypeRune(TYPE* actual, int lineno) {
 }
 
 // string-specific
+
+/*
+ * returns true if the type resolves to string and false otherwise
+ */
+int resolvesToString(TYPE* t) {
+    switch (t->kind) {
+        case idK:
+            return resolvesToString(t->val.idT.underlyingType);
+            break;
+        case stringK:
+            return 1;
+            break;
+        default:
+            return 0;
+            break;
+    }
+}
 
 void assertActualTypeString(TYPE* actual, int lineno) {
     switch (actual->kind) {

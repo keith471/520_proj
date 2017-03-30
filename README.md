@@ -9,10 +9,15 @@ Run for an individual file with `./run.sh <path_to_golite_file>`.
 Or, to run against all valid/invalid files in `./programs/*`, run with `./test.sh`.
 The pretty-printed output is saved in `./src/output`. **It is essential that this directory exists to avoid segmentation faults.**
 
-# Milestone 2 Instructions
+## Milestone 2 Instructions
 Build with `./build.sh`.
 Run for an individual file with `./run.sh <path_to_golite_file> [-dumpsymtab, -pptype]`.
 Output files are saved in `./src/output`. **It is essential that this directory exists to avoid segmentation faults.**
 
-# Milestone 3 Instructions
+## Milestone 3 Instructions
 Same as Milestone 2
+
+## Sources
+The code for this compiler has been modeled off of the Joos compiler code.
+Additionally, parts of the code generation was modeled off of the reference compiler.
+

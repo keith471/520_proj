@@ -16,7 +16,8 @@ typedef enum { decIL, octIL, hexIL } IntLiteralKind;
 /*
  * typeSym and varSym are for system predefined types and variables, e.g. bool and true
  */
-typedef enum { typeSym, typeDeclSym, varSym, varDeclSym, shortDeclSym, functionDeclSym, parameterSym, fieldSym } SymbolKind;
+typedef enum { typeSym, typeDeclSym, varSym, varDeclSym, shortDeclSym,
+               functionDeclSym, parameterSym, fieldSym } SymbolKind;
 
 typedef struct SymbolTable {
     int isUniverseBlock; // whether this is the table for the universe block
@@ -319,7 +320,8 @@ typedef struct EXP {
         struct EXP* uNotE;
         struct EXP* uXorE;
         struct {struct EXP *left;
-                struct EXP *right;} plusE;
+                struct EXP *right;
+                int stringAddition; } plusE;
         struct {struct EXP *left;
                 struct EXP *right;} minusE;
         struct {struct EXP *left;
@@ -335,17 +337,23 @@ typedef struct EXP {
         struct {struct EXP *left;
                 struct EXP *right;} xorE;
         struct {struct EXP *left;
-                struct EXP *right;} ltE;
+                struct EXP *right;
+                int stringCompare;} ltE;
         struct {struct EXP *left;
-                struct EXP *right;} gtE;
+                struct EXP *right;
+                int stringCompare;} gtE;
         struct {struct EXP *left;
-                struct EXP *right;} eqE;
+                struct EXP *right;
+                int stringCompare;} eqE;
         struct {struct EXP *left;
-                struct EXP *right;} neqE;
+                struct EXP *right;
+                int stringCompare;} neqE;
         struct {struct EXP *left;
-                struct EXP *right;} leqE;
+                struct EXP *right;
+                int stringCompare;} leqE;
         struct {struct EXP *left;
-                struct EXP *right;} geqE;
+                struct EXP *right;
+                int stringCompare;} geqE;
         struct {struct EXP *left;
                 struct EXP *right;} orE;
         struct {struct EXP *left;

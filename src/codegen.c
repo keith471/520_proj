@@ -205,12 +205,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             break;
         case binOpAssignK:
             printTabsPrecedingStatement(level, startAtRwPointer);
-            // print the lvalue
-            genEXP(s->val.binOpAssignS.lvalue);
-            // print the operator
-            //genBinOp(s->val.binOpAssignS.opKind);
-            // print the exp
-            genEXP(s->val.binOpAssignS.exp);
+            genBinOp(s);
             terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
@@ -235,20 +230,20 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // nothing to do
             break;
         case printK:
-            // TODO
-            /*
-            printTabsPrecedingStatement(level, startAtRwPointer);
-
-            terminateSTATEMENT(level, semicolon);
-            */
+            if (s->val.printS != NULL) {
+                printTabsPrecedingStatement(level, startAtRwPointer);
+                fprintf(emitFILE, "cout");
+                genPrintEXPs(s->val.printS);
+                fprintf(emitFILE, ";");
+                newLineInFile(emitFILE);
+            }
             break;
         case printlnK:
-            // TODO
-            /*
             printTabsPrecedingStatement(level, startAtRwPointer);
-
-            terminateSTATEMENT(level, semicolon);
-            */
+            fprintf(emitFILE, "cout");
+            genPrintlnEXPs(s->val.printlnS);
+            fprintf(emitFILE, " << endl;");
+            newLineInFile(emitFILE);
             break;
         case returnK:
             printTabsPrecedingStatement(level, startAtRwPointer);
@@ -327,20 +322,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genSTATEMENT(s->val.switchS.initStatement, level + 1, 1, 0);
-            // print the switch cases within the block
-            printTabsToFile(level + 1, emitFILE);
-            // TODO this will be weird due to the fact that a case can have multiple expressions
-            // we'll want to gen this as an if/else instead (default case is else!)
-            /*
-            fprintf(emitFILE, "switch (");
-            genEXP(s->val.switchS.condition);
-            fprintf(emitFILE, ") {");
-            newLineInFile(emitFILE);
-            genSWITCHCASE(s, level + 2);
-            printTabsToFile(level + 1, emitFILE);
-            fprintf(emitFILE, "}");
-            newLineInFile(emitFILE);
-            */
+            genSWITCHCASE(s->val.switchS.cases, s->val.switchS.condition, level + 1);
             // close the block
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
@@ -371,14 +353,61 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             newLineInFile(emitFILE);
             break;
         case forK:
-            printTabsPrecedingStatement(level, startAtRwPointer);
-            // TODO figure out what is allowed and where init statement(s) should be printed
-            // (probably in a new scope outside the for)
             /*
+            printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "for (");
-            // print the init statement in line
-            genSTATEMENT(s->val.forS.initStatement, level + 1, 1, 0);
+            // print the init statement inline, but do not terminate with a semicolon
+            // in case the init statement is null
+            genSTATEMENT(s->val.forS.initStatement, -1, 0, 1);
+            // semicolon
+            fprintf(emitFILE, "; ");
+            // print the condition inline
+            genEXP(s->val.forS.condition);
+            // semicolon
+            fprintf(emitFILE, "; ");
+            // print the post statement inline, and without terminating with a semicolon
+            genSTATEMENT(s->val.forS.postStatement, -1, 0, 1);
+            // close of the header of the for loop
+            fprintf(emitFILE, ") {");
+            newLineInFile(emitFILE);
+            // statements
+            genSTATEMENT(s->val.forS.body, level + 1, 1, 0);
+            // close off the for loop
+            printTabsToFile(level, emitFILE);
+            fprintf(emitFILE, "}");
+            newLineInFile(emitFILE);
             */
+
+            printTabsPrecedingStatement(level, startAtRwPointer);
+            // we'll need to scope this
+            fprintf(emitFILE, "{");
+            newLineInFile(emitFILE);
+
+            // print the init statement
+            genSTATEMENT(s->val.forS.initStatement, level + 1, 1, 0);
+            printTabsToFile(level + 1, emitFILE);
+            fprintf(emitFILE, "while (");
+            // print the condition inline
+            if (s->val.forS.condition == NULL) {
+                fprintf(emitFILE, "true");
+            } else {
+                genEXP(s->val.forS.condition);
+            }
+            fprintf(emitFILE, ") {");
+            newLineInFile(emitFILE);
+            // statements
+            genSTATEMENT(s->val.forS.body, level + 2, 1, 0);
+            // print the post statement
+            genSTATEMENT(s->val.forS.postStatement, level + 2, 1, 0);
+            // close off the for loop
+            printTabsToFile(level + 1, emitFILE);
+            fprintf(emitFILE, "}");
+            newLineInFile(emitFILE);
+
+            // close off the outer scope
+            printTabsToFile(level, emitFILE);
+            fprintf(emitFILE, "}");
+            newLineInFile(emitFILE);
             break;
         case breakK:
             printTabsPrecedingStatement(level, startAtRwPointer);
@@ -403,17 +432,125 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
     genSTATEMENT(s->next, level, 1, 0);
 }
 
-void genSWITCHCASE(SWITCHCASE* sc, int level) {
-    if (sc == NULL) return;
-    printTabsToFile(level, emitFILE);
-    switch (sc->kind) {
-        case caseK:
+void genBinOp(STATEMENT* s) {
 
+    // first, print the lvalue
+    genEXP(s->val.binOpAssignS.lvalue);
+    // then print the operator and expression
+    switch (s->val.binOpAssignS.opKind) {
+        case plusEqOp:
+            fprintf(emitFILE, " += ");
             break;
-        case defaultK:
+        case minusEqOp:
+            fprintf(emitFILE, " -= ");
+            break;
+        case timesEqOp:
+            fprintf(emitFILE, " *= ");
+            break;
+        case divEqOp:
+            fprintf(emitFILE, " /= ");
+            break;
+        case modEqOp:
+            fprintf(emitFILE, " %%= ");
+            break;
+        case andEqOp:
+            fprintf(emitFILE, " &= ");
+            break;
+        case orEqOp:
+            fprintf(emitFILE, " |= ");
+            break;
+        case xorEqOp:
+            fprintf(emitFILE, " ^= ");
+            break;
+        case leftShiftEqOp:
+            fprintf(emitFILE, " <<= ");
+            break;
+        case rightShiftEqOp:
+            fprintf(emitFILE, " >>= ");
+            break;
+        case bitClearEqOp:
+            // this is the only one that is different in C++
+            fprintf(emitFILE, " &= ~");
             break;
     }
-    genSWITCHCASE(sc->next, level);
+    // finally, print the expression
+    genEXP(s->val.binOpAssignS.exp);
+}
+
+void genPrintEXPs(EXP* exps) {
+    if (exps == NULL) return;
+    fprintf(emitFILE, " << ");
+    genEXP(exps);
+    genPrintEXPs(exps->next);
+}
+
+void genPrintlnEXPs(EXP* exps) {
+    if (exps == NULL) return;
+    fprintf(emitFILE, " << ");
+    genEXP(exps);
+    if (exps->next != NULL) {
+        fprintf(emitFILE, " << \" \"");
+        genPrintlnEXPs(exps->next);
+    }
+}
+
+/*
+ * prints switch cases as if/else statements
+ * prints tabs before printing statements, and prints a new line after
+ */
+void genSWITCHCASE(SWITCHCASE* sc, EXP* e, int level) {
+    SWITCHCASE* defaultSc = NULL;
+    int firstCase = 1;
+    while (sc != NULL) {
+        switch (sc->kind) {
+            case caseK:
+                if (firstCase) {
+                    printTabsToFile(level, emitFILE);
+                    fprintf(emitFILE, "if (");
+                    firstCase = 0;
+                } else {
+                    fprintf(emitFILE, " else if (");
+                }
+                genCaseEXPs(sc->val.caseC.exps, e);
+                fprintf(emitFILE, ") {");
+                newLineInFile(emitFILE);
+                genSTATEMENT(sc->val.caseC.statements, level + 1, 1, 0);
+                printTabsToFile(level, emitFILE);
+                fprintf(emitFILE, "}");
+                break;
+            case defaultK:
+                defaultSc = sc;
+                break;
+        }
+        sc = sc->next;
+    }
+
+    if (defaultSc != NULL) {
+        fprintf(emitFILE, " else {");
+        newLineInFile(emitFILE);
+        genSTATEMENT(defaultSc->val.defaultStatementsC, level + 1, 1, 0);
+        printTabsToFile(level, emitFILE);
+        fprintf(emitFILE, "}");
+    }
+
+    newLineInFile(emitFILE);
+}
+
+/*
+ * prints || separated list of exps being equal to condition
+ * prints at the current rw-pointer and does not print anything after
+ */
+void genCaseEXPs(EXP* exps, EXP* condition) {
+    if (exps == NULL) return;
+    if (condition != NULL) {
+        genEXP(condition);
+        fprintf(emitFILE, " == ");
+    }
+    genEXP(exps);
+    if (exps->next != NULL) {
+        fprintf(emitFILE, " || ");
+        genCaseEXPs(exps->next, condition);
+    }
 }
 
 
@@ -422,6 +559,7 @@ void genSWITCHCASE(SWITCHCASE* sc, int level) {
  * does not print a semicolon or new line after
  */
 void genEXP(EXP* e) {
+    if (e == NULL) return; // need this because for and switch expressions could be null
     switch (e->kind) {
         case identifierK:
             fprintf(emitFILE, "%s", e->val.idE.id->name);
@@ -460,20 +598,25 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case uXorK:
-            // TODO
-            /*
             fprintf(emitFILE, "(");
-            fprintf(emitFILE, "^");
+            fprintf(emitFILE, "~");
             genEXP(e->val.uXorE);
             fprintf(emitFILE, ")");
-            */
             break;
         case plusK:
-            fprintf(emitFILE, "(");
-            genEXP(e->val.plusE.left);
-            fprintf(emitFILE, "+");
-            genEXP(e->val.plusE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.plusE.stringAddition) {
+                fprintf(emitFILE, "concat(");
+                genEXP(e->val.plusE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.plusE.right);
+                fprintf(emitFILE, ")");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.plusE.left);
+                fprintf(emitFILE, "+");
+                genEXP(e->val.plusE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case minusK:
             fprintf(emitFILE, "(");
@@ -525,52 +668,100 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case ltK:
-            // TODO modify to support more types
-            fprintf(emitFILE, "(");
-            genEXP(e->val.ltE.left);
-            fprintf(emitFILE, "<");
-            genEXP(e->val.ltE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.gtE.stringCompare) {
+                fprintf(emitFILE, "(strcmp(");
+                genEXP(e->val.ltE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.ltE.right);
+                fprintf(emitFILE, ")");
+                fprintf(emitFILE, " < 0)");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.ltE.left);
+                fprintf(emitFILE, "<");
+                genEXP(e->val.ltE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case gtK:
-            // TODO modify to support more types
-            fprintf(emitFILE, "(");
-            genEXP(e->val.gtE.left);
-            fprintf(emitFILE, ">");
-            genEXP(e->val.gtE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.gtE.stringCompare) {
+                fprintf(emitFILE, "(strcmp(");
+                genEXP(e->val.gtE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.gtE.right);
+                fprintf(emitFILE, ")");
+                fprintf(emitFILE, " > 0)");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.gtE.left);
+                fprintf(emitFILE, ">");
+                genEXP(e->val.gtE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case eqK:
-            // TODO modify to support more types
-            fprintf(emitFILE, "(");
-            genEXP(e->val.eqE.left);
-            fprintf(emitFILE, "==");
-            genEXP(e->val.eqE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.eqE.stringCompare) {
+                fprintf(emitFILE, "(strcmp(");
+                genEXP(e->val.eqE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.eqE.right);
+                fprintf(emitFILE, ")");
+                fprintf(emitFILE, " == 0)");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.eqE.left);
+                fprintf(emitFILE, "==");
+                genEXP(e->val.eqE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case neqK:
-            // TODO modify to support more types
-            fprintf(emitFILE, "(");
-            genEXP(e->val.neqE.left);
-            fprintf(emitFILE, "!=");
-            genEXP(e->val.neqE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.gtE.stringCompare) {
+                fprintf(emitFILE, "(strcmp(");
+                genEXP(e->val.neqE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.neqE.right);
+                fprintf(emitFILE, ")");
+                fprintf(emitFILE, " != 0)");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.neqE.left);
+                fprintf(emitFILE, "!=");
+                genEXP(e->val.neqE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case leqK:
-            // TODO modify to support more types
-            fprintf(emitFILE, "(");
-            genEXP(e->val.leqE.left);
-            fprintf(emitFILE, "<=");
-            genEXP(e->val.leqE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.gtE.stringCompare) {
+                fprintf(emitFILE, "(strcmp(");
+                genEXP(e->val.leqE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.leqE.right);
+                fprintf(emitFILE, ")");
+                fprintf(emitFILE, " <= 0)");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.leqE.left);
+                fprintf(emitFILE, "<=");
+                genEXP(e->val.leqE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case geqK:
-            // TODO modify to support more types
-            fprintf(emitFILE, "(");
-            genEXP(e->val.geqE.left);
-            fprintf(emitFILE, ">=");
-            genEXP(e->val.geqE.right);
-            fprintf(emitFILE, ")");
+            if (e->val.gtE.stringCompare) {
+                fprintf(emitFILE, "(strcmp(");
+                genEXP(e->val.geqE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.geqE.right);
+                fprintf(emitFILE, ")");
+                fprintf(emitFILE, " >= 0)");
+            } else {
+                fprintf(emitFILE, "(");
+                genEXP(e->val.geqE.left);
+                fprintf(emitFILE, ">=");
+                genEXP(e->val.geqE.right);
+                fprintf(emitFILE, ")");
+            }
             break;
         case orK:
             fprintf(emitFILE, "(");
@@ -601,14 +792,11 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case bitClearK:
-            // TODO
-            /*
             fprintf(emitFILE, "(");
             genEXP(e->val.bitClearE.left);
-            fprintf(emitFILE, "&^");
+            fprintf(emitFILE, "& ~");
             genEXP(e->val.bitClearE.right);
             fprintf(emitFILE, ")");
-            */
             break;
         case appendK:
             fprintf(emitFILE, "golite_slice_append(");
@@ -800,9 +988,34 @@ void genDefaultFIELDlist(FIELD* f, int level) {
     genFIELDlist(f->nextId, level);
 }
 
+/*
+ * adds a backslash before every backslash in s and returns the resulting string
+ */
 char* rawify(char* s) {
-    // TODO
-    return "";
+    int count = 0;
+    int i;
+    for (i = 0; i < strlen(s); i++) {
+        if (s[i] == 'a') {
+            count++;
+        }
+    }
+    char* newStr = malloc(strlen(s) + count + 1); // +1 for null terminator
+
+    int j;
+    for (i = 0, j = 0; i < strlen(s); i++, j++) {
+        if (s[i] == '`') {
+            newStr[j] = '"';
+        } else {
+            newStr[j] = s[i];
+            if (s[i] == '\\') {
+                newStr[j+1] = '\\';
+                j++;
+            }
+        }
+    }
+    newStr[j] = '\0';
+
+    return newStr;
 }
 
 /*

@@ -58,6 +58,7 @@ void assertActualTypeFloat64(TYPE* actual, int lineno);
 void assertActualTypeRune(TYPE* actual, int lineno);
 void assertActualTypeBool(TYPE* actual, int lineno);
 void assertActualTypeString(TYPE* actual, int lineno);
+int resolvesToString(TYPE* t);
 void assertActualTypeStruct(STRUCTTYPE* expected, TYPE* actual, int lineno);
 void assertIdenticalStructs(STRUCTTYPE* expected, STRUCTTYPE* actual, int lineno);
 void assertIdenticalFIELDs(FIELD* currExpected, FIELD* expected, FIELD* currActual, FIELD* actual, int lineno);
