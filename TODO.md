@@ -19,16 +19,16 @@ ssh kstric@teaching.cs.mcgill.ca
 
 
 ## Codegen
-- finish codegen
 
 - check how you can check equality and order (<, >, <=, etc) for all types in C++
-    - strings done
-    - how about structs, slices, and arrays?
+    - handle comparison of slices
+    - handle comparison of arrays
 
+- do something about char literal warnings?
 
 - make sure that none of the names we create for structs and types are the same as variable names...?
 
-- Figure out what is up with blank identifiers...
+- figure out what to do about blank identifiers
 
 - make a pass where we collect arrays and structs and make typedefs for them
 - any node where we encounter these arrays and structs, we will need to update the node

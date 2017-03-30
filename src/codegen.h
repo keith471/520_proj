@@ -1,5 +1,6 @@
 
 void addTypeDefs(CPPTYPE* c);
+void addOperators(CPPTYPE* c);
 void addHeaderCode();
 void genPROGRAM(PROGRAM* p, char* fname);
 void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
@@ -20,6 +21,11 @@ void genCPPTYPE(CPPTYPE* c);
 void genSTRUCTTYPE(STRUCTTYPE* s);
 void genFIELD(FIELD* f, int level);
 void genFIELDlist(FIELD* f, int level);
+void genStructComparator(CPPTYPE* c, int inequality);
+void genSTRUCTTYPEcomparison(STRUCTTYPE* s, int inequality);
+void genFIELDcomparison(FIELD* f, int inequality);
+void genFIELDlistComparison(FIELD* f, int inequality);
+void genComparison(CPPTYPE* c, char* name, int inequality);
 
 int isMain(FUNCTIONDECLARATION* fd);
 void genDefault(CPPTYPE* t, int level);

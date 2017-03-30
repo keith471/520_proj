@@ -9,7 +9,7 @@
 
 FILE* emitFILE;
 
-// the head of the lined list of structs/arrays we discoverred in the C++ typing phase
+// the head of the linked list of structs/arrays we discoverred in the C++ typing phase
 extern CPPTYPE* head;
 
 void addTypeDefs(CPPTYPE* c) {
@@ -35,6 +35,19 @@ void addTypeDefs(CPPTYPE* c) {
     addTypeDefs(c->next);
 }
 
+void addOperators(CPPTYPE* c) {
+    if (c == NULL) return;
+    switch (c->kind) {
+        case cppStructK:
+            genStructComparator(c, 0);
+            genStructComparator(c, 1);
+            break;
+        default:
+            break;
+    }
+    addOperators(c->next);
+}
+
 void addHeaderCode() {
    FILE* headerFILE;
    char c;
@@ -58,6 +71,11 @@ void genPROGRAM(PROGRAM* p, char* fname) {
     fprintf(emitFILE, "// typedefs");
     newLineInFile(emitFILE);
     addTypeDefs(head);
+    newLineInFile(emitFILE);
+    // then, add the comparison operators for structs
+    fprintf(emitFILE, "// operators");
+    newLineInFile(emitFILE);
+    addOperators(head);
     newLineInFile(emitFILE);
     // next, traverse the AST, writing each line's equivalent C++ code to emitFILE
     // we completely ignore the package declaration
@@ -902,6 +920,79 @@ void genFIELDlist(FIELD* f, int level) {
     genFIELDlist(f->nextId, level);
 }
 
+void genStructComparator(CPPTYPE* c, int inequality) {
+    if (inequality) {
+        fprintf(emitFILE, "bool operator!=(const %s& lhs, const %s& rhs) {", c->val.structT.name, c->val.structT.name);
+    } else {
+        fprintf(emitFILE, "bool operator==(const %s& lhs, const %s& rhs) {", c->val.structT.name, c->val.structT.name);
+    }
+    newLineInFile(emitFILE);
+    printTabsToFile(1, emitFILE);
+    fprintf(emitFILE, "return ");
+    if (c->val.structT.structType->fields == NULL) {
+        if (inequality) {
+            fprintf(emitFILE, "false");
+        } else {
+            fprintf(emitFILE, "true");
+        }
+    } else {
+        if (inequality) {
+            genSTRUCTTYPEcomparison(c->val.structT.structType, 1);
+        } else {
+            genSTRUCTTYPEcomparison(c->val.structT.structType, 0);
+        }
+    }
+    fprintf(emitFILE, ";");
+    newLineInFile(emitFILE);
+    fprintf(emitFILE, "}");
+    newLineInFile(emitFILE);
+}
+
+void genSTRUCTTYPEcomparison(STRUCTTYPE* s, int inequality) {
+    genFIELDcomparison(s->fields, inequality);
+}
+
+void genFIELDcomparison(FIELD* f, int inequality) {
+    if (f == NULL) return;
+    genFIELDlistComparison(f, inequality);
+    genFIELDcomparison(f->nextFieldSet, inequality);
+}
+
+void genFIELDlistComparison(FIELD* f, int inequality) {
+    if (f == NULL) return;
+    genComparison(f->type->cppType, f->id->name, inequality);
+    if (f->nextId != NULL || f->nextFieldSet != NULL) {
+        if (inequality) {
+            fprintf(emitFILE, " || ");
+        } else {
+            fprintf(emitFILE, " && ");
+        }
+    }
+    genFIELDlistComparison(f->nextId, inequality);
+}
+
+/*
+ * generate comparison code depending on the C++ type
+ */
+void genComparison(CPPTYPE* c, char* name, int inequality) {
+    switch (c->kind) {
+        case cppStringK:
+            if (inequality) {
+                fprintf(emitFILE, "strcmp(lhs.%s, rhs.%s) != 0", name, name);
+            } else {
+                fprintf(emitFILE, "strcmp(lhs.%s, rhs.%s) == 0", name, name);
+            }
+            break;
+        default:
+            if (inequality) {
+                fprintf(emitFILE, "lhs.%s != rhs.%s", name, name);
+            } else {
+                fprintf(emitFILE, "lhs.%s == rhs.%s", name, name);
+            }
+            break;
+    }
+}
+
 // HELPERS
 
 /*
@@ -983,7 +1074,9 @@ void genDefaultFIELDlist(FIELD* f, int level) {
     printTabsToFile(level, emitFILE);
     fprintf(emitFILE, ".%s = ", f->id->name);
     genDefault(f->type->cppType, level);
-    fprintf(emitFILE, ";");
+    if (f->nextId != NULL || f->nextFieldSet != NULL) {
+        fprintf(emitFILE, ",");
+    }
     newLineInFile(emitFILE);
     genFIELDlist(f->nextId, level);
 }
