@@ -1,17 +1,23 @@
 package main
 
+var x struct {
+    _ int
+    r int
+}
+
+var y struct {
+    _ int
+    r int
+}
+
 func main() {
 
-    var x []int
-    var y []int
-
-    x = append(x, 10)
-
-    y = append(y, 3)
+    x.r = 3
 
     if (x == y) {
-        println("same!");
+     println("equal!");
     } else {
-        println("different!");
+     println("not equal!");
     }
+
 }

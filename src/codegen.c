@@ -117,30 +117,32 @@ void genVARDECLARATION(VARDECLARATION* vd, int level) {
  */
 void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
     if (vd == NULL) return;
-    printTabsToFile(level, emitFILE);
-    switch (vd->kind) {
-        case typeOnlyK:
-            // need to have a function that assigns defaults depending on the type!
-            genCPPTYPE(vd->val.typeVD->cppType);
-            fprintf(emitFILE, " %s = ", vd->id->name);
-            genDefault(vd->val.typeVD->cppType, level);
-            break;
-        case expOnlyK:
-            // get the type from the expression
-            genCPPTYPE(vd->val.expVD.exp->type->cppType);
-            fprintf(emitFILE, " %s = ", vd->id->name);
-            genEXP(vd->val.expVD.exp);
-            break;
-        case typeAndExpK:
-            // easy --> you already have all the information you need
-            genCPPTYPE(vd->val.typeAndExpVD.type->cppType);
-            fprintf(emitFILE, " %s = ", vd->id->name);
-            genEXP(vd->val.typeAndExpVD.exp);
-            break;
+    if (!vd->isBlank) {
+        printTabsToFile(level, emitFILE);
+        switch (vd->kind) {
+            case typeOnlyK:
+                // need to have a function that assigns defaults depending on the type!
+                genCPPTYPE(vd->val.typeVD->cppType);
+                fprintf(emitFILE, " %s = ", vd->id->name);
+                genDefault(vd->val.typeVD->cppType, level);
+                break;
+            case expOnlyK:
+                // get the type from the expression
+                genCPPTYPE(vd->val.expVD.exp->type->cppType);
+                fprintf(emitFILE, " %s = ", vd->id->name);
+                genEXP(vd->val.expVD.exp);
+                break;
+            case typeAndExpK:
+                // easy --> you already have all the information you need
+                genCPPTYPE(vd->val.typeAndExpVD.type->cppType);
+                fprintf(emitFILE, " %s = ", vd->id->name);
+                genEXP(vd->val.typeAndExpVD.exp);
+                break;
+        }
+        // finish it up with a semicolon and a new line
+        fprintf(emitFILE, ";");
+        newLineInFile(emitFILE);
     }
-    // finish it up with a semicolon and a new line
-    fprintf(emitFILE, ";");
-    newLineInFile(emitFILE);
     genVARDECLARATIONlist(vd->next, level);
 }
 
@@ -216,11 +218,21 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             terminateSTATEMENT(level, semicolon);
             break;
         case regAssignK:
-            printTabsPrecedingStatement(level, startAtRwPointer);
-            genEXP(s->val.regAssignS.lvalue);
-            fprintf(emitFILE, " = ");
-            genEXP(s->val.regAssignS.exp);
-            terminateSTATEMENT(level, semicolon);
+            if (s->val.regAssignS.isBlank) {
+                // if the exp is a function call, then we should print it
+                // otherwise, it is useless
+                if (s->val.regAssignS.exp->kind == argumentsK) {
+                    printTabsPrecedingStatement(level, startAtRwPointer);
+                    genEXP(s->val.regAssignS.exp);
+                    terminateSTATEMENT(level, semicolon);
+                }
+            } else {
+                printTabsPrecedingStatement(level, startAtRwPointer);
+                genEXP(s->val.regAssignS.lvalue);
+                fprintf(emitFILE, " = ");
+                genEXP(s->val.regAssignS.exp);
+                terminateSTATEMENT(level, semicolon);
+            }
             genSTATEMENT(s->val.regAssignS.next, level, semicolon, startAtRwPointer);
             break;
         case binOpAssignK:
@@ -229,18 +241,20 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
-            printTabsPrecedingStatement(level, startAtRwPointer);
-            if (s->val.shortDeclS.isRedecl) {
-                // just print the name and exp
-                fprintf(emitFILE, "%s = ", s->val.shortDeclS.id->val.idE.id->name);
-                genEXP(s->val.shortDeclS.exp);
-            } else {
-                // print the C++ type and then the name and exp
-                genCPPTYPE(s->val.shortDeclS.exp->type->cppType);
-                fprintf(emitFILE, " %s = ", s->val.shortDeclS.id->val.idE.id->name);
-                genEXP(s->val.shortDeclS.exp);
+            if (!s->val.shortDeclS.isBlank) {
+                printTabsPrecedingStatement(level, startAtRwPointer);
+                if (s->val.shortDeclS.isRedecl) {
+                    // just print the name and exp
+                    fprintf(emitFILE, "%s = ", s->val.shortDeclS.id->val.idE.id->name);
+                    genEXP(s->val.shortDeclS.exp);
+                } else {
+                    // print the C++ type and then the name and exp
+                    genCPPTYPE(s->val.shortDeclS.exp->type->cppType);
+                    fprintf(emitFILE, " %s = ", s->val.shortDeclS.id->val.idE.id->name);
+                    genEXP(s->val.shortDeclS.exp);
+                }
+                terminateSTATEMENT(level, semicolon);
             }
-            terminateSTATEMENT(level, semicolon);
             genSTATEMENT(s->val.shortDeclS.next, level, semicolon, startAtRwPointer);
             break;
         case varDeclK:

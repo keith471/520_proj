@@ -68,7 +68,9 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
                 // the expression has no type (it is probably a function call to a void function)
                 reportStrError("TYPE", "cannot assign a value with no type to %s", v->id->name, v->lineno);
             }
-            v->val.expVD.symbol->val.varDeclS.type = v->val.expVD.exp->type;
+            if (!v->isBlank) {
+                v->val.expVD.symbol->val.varDeclS.type = v->val.expVD.exp->type;
+            }
             break;
         case typeAndExpK:
             // this typechecks as long as the expression type checks and is equal to the type of the variable
@@ -125,10 +127,19 @@ void typeSTATEMENT(STATEMENT* s) {
             break;
         case regAssignK:
             // type checks if the left and right exps are both well-typed and have the same type
-            typeEXP(s->val.regAssignS.lvalue);
-            typeEXP(s->val.regAssignS.exp);
-            // assert that the types are equal
-            assertIdenticalTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type, s->lineno);
+            if (!s->val.regAssignS.isBlank) {
+                typeEXP(s->val.regAssignS.lvalue);
+                typeEXP(s->val.regAssignS.exp);
+                // assert that the types are equal
+                assertIdenticalTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type, s->lineno);
+            } else {
+                // just type the exp and make sure it is not void
+                typeEXP(s->val.regAssignS.exp);
+                if (s->val.regAssignS.exp->type == NULL) {
+                    // the expression has no type (it is probably a function call to a void function)
+                    reportError("TYPE", "cannot assign a value with no type to _", s->lineno);
+                }
+            }
             // type check the next assignment
             typeSTATEMENT(s->val.regAssignS.next);
             break;
@@ -146,7 +157,7 @@ void typeSTATEMENT(STATEMENT* s) {
                 // the expression has no type (it is probably a function call to a function with no return value)
                 reportStrError("TYPE", "cannot assign a value with no type to %s", s->val.shortDeclS.id->val.idE.id->name, s->lineno);
             }
-            if (notBlank(s->val.shortDeclS.id->val.idE.id->name)) {
+            if (!s->val.shortDeclS.isBlank) {
                 // if this is a redeclaration, we need to check that the type of the
                 // expression is the same as the type of the prevDeclSym
                 if (s->val.shortDeclS.isRedecl) {
@@ -1721,7 +1732,11 @@ SYMBOL* getSymbolInSymbolTable(SymbolTable* t, char *name, int lineno) {
     for (s = t->table[i]; s; s = s->next) {
         if (strcmp(s->name, name) == 0) return s;
     }
-    reportStrError("TYPE", "no such field: %s", name, lineno);
+    if (strcmp("_", name) == 0) {
+        reportError("TYPE", "cannot refer to blank field", lineno);
+    } else {
+        reportStrError("TYPE", "no such field: %s", name, lineno);
+    }
     return NULL;
 }
 

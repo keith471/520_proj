@@ -428,6 +428,8 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
                 s = p->symbol;
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = v->val.typeVD;
+            } else {
+                v->isBlank = 1;
             }
             break;
         case expOnlyK:
@@ -440,6 +442,8 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
                 v->val.expVD.symbol = s; // important so we can set the type in the type checking phase
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = NULL;
+            } else {
+                v->isBlank = 1;
             }
             break;
         case typeAndExpK:
@@ -456,6 +460,8 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
                 s = p->symbol;
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = v->val.typeAndExpVD.type;
+            } else {
+                v->isBlank = 1;
             }
             break;
         default:
@@ -511,6 +517,9 @@ void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
         s = p->symbol;
         s->val.functionDeclS = f;
     }
+    // don't need to do anything if the function name is blank as the weeder ensures
+    // that we cannot call blank functions. Technically, we could mark this function and not
+    // generate code for it though
 
     // create a new scope
     SymbolTable* funcScope = scopeSymbolTable(t, currLineno);
@@ -552,6 +561,8 @@ void symPARAMETERlist(PARAMETER* p, SymbolTable* t, int checkedType) {
         s->val.parameterS.param = p;
         s->val.parameterS.type = p->type;
     }
+    // we can code-generate a blank parameter later on, it simply won't every be used
+
     // recurse
     symPARAMETERlist(p->nextId, t, checkedType);
 }
@@ -583,6 +594,12 @@ void symSTATEMENT(STATEMENT* s, SymbolTable* symbolTable) {
             symEXP(s->val.decS, symbolTable);
             break;
         case regAssignK:
+            // if the lvalue is the blank identifier, then mark it as such
+            if (s->val.regAssignS.lvalue->kind == identifierK) {
+                if (!notBlank(s->val.regAssignS.lvalue->val.idE.id->name)) {
+                    s->val.regAssignS.isBlank = 1;
+                }
+            }
             // sym the lvalue
             symEXP(s->val.regAssignS.lvalue, symbolTable);
             // sym the exp
@@ -778,6 +795,8 @@ void symSTATEMENTshortvardecl(STATEMENT* stmt, SymbolTable* symbolTable) {
                 stmt->val.shortDeclS.symbol = s;
                 newCount += 1;
             }
+        } else {
+            stmt->val.shortDeclS.isBlank = 1;
         }
 
         // move onto the next decl in the short decl statement
@@ -838,10 +857,12 @@ void symEXP(EXP* e, SymbolTable* t) {
     SYMBOL* s;
     switch (e->kind) {
         case identifierK:
-            // we need to check that this symbol exists
-            s = getSymbol(t, e->val.idE.id->name, e->lineno);
-            // store the symbol on the exp for the type phase
-            e->val.idE.symbol = s;
+            // if the identifier is not blank, we need to check that a symbol exists for it
+            if (notBlank(e->val.idE.id->name)) {
+                s = getSymbol(t, e->val.idE.id->name, e->lineno);
+                // store the symbol on the exp for the type phase
+                e->val.idE.symbol = s;
+            }
             // identifiers in expressions had better be either fields, parameters, variables, or functions
             /*
             if (s != NULL) {

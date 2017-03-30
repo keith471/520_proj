@@ -114,6 +114,7 @@ VARDECLARATION* makeVARDECLARATIONtypeonlyhelper(ID* id, TYPE* type, VARDECLARAT
     d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
+    d->isBlank = 0;
     d->val.typeVD = type;
     d->next = next;
     d->nextDistributed = NULL;
@@ -144,6 +145,7 @@ VARDECLARATION* makeVARDECLARATIONexponlyhelper(ID* id, EXP* exp, VARDECLARATION
     d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
+    d->isBlank = 0;
     d->val.expVD.exp = exp;
     d->val.expVD.symbol = NULL;
     d->next = next;
@@ -175,6 +177,7 @@ VARDECLARATION* makeVARDECLARATIONtypeandexphelper(ID* id, TYPE* type, EXP* exp,
     d->isEmpty = 0;
     d->isDistributed = 0;
     d->isLocal = 0;
+    d->isBlank = 0;
     d->val.typeAndExpVD.type = type;
     d->val.typeAndExpVD.exp = exp;
     d->next = next;
@@ -190,6 +193,7 @@ VARDECLARATION* makeVARDECLARATIONempty() {
     d->isEmpty = 1;
     d->isDistributed = 0;
     d->isLocal = 0;
+    d->isBlank = 0;
     d->next = NULL;
     d->nextDistributed = NULL;
     return d;
@@ -497,6 +501,7 @@ STATEMENT* makeSTATEMENTshortdeclhelper(EXP* id, EXP* exp, STATEMENT* next) {
     s->lineno = yylineno;
     s->kind = shortDeclK;
     s->val.shortDeclS.id = id;
+    s->val.shortDeclS.isBlank = 0;
     s->val.shortDeclS.exp = exp;
     s->val.shortDeclS.symbol = NULL;
     s->val.shortDeclS.isRedecl = 0;
@@ -555,6 +560,7 @@ STATEMENT* makeSTATEMENTassignhelper(EXP* lvalue, EXP* exp, STATEMENT* next) {
     s->lineno = yylineno;
     s->kind = regAssignK;
     s->val.regAssignS.lvalue = lvalue;
+    s->val.regAssignS.isBlank = 0;
     s->val.regAssignS.exp = exp;
     s->val.regAssignS.next = next;
     s->next = NULL;

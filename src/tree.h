@@ -98,9 +98,10 @@ typedef struct VARDECLARATION {
     int lineno;
     enum { typeOnlyK, expOnlyK, typeAndExpK } kind;
     struct ID* id;
-    int isEmpty; // whether this is an empty variable declaration
+    int isEmpty;    // whether this is an empty variable declaration
     int isDistributed;  // whether this declaration is part of a distrubuted statement
     int isLocal;    // whether this declaration is local (as opposed to global)
+    int isBlank;    // whether the id is the blank identifier
     union {
         struct TYPE* typeVD; // cannot be NULL
         struct {struct EXP* exp; /* in later phases, can access the type through exp or the symbol */
@@ -250,6 +251,7 @@ typedef struct STATEMENT {
                 struct EXP* condition;
                 struct SWITCHCASE* cases;} switchS;
         struct {struct EXP* lvalue;    // weed to ensure that all exps are lvalues
+                int isBlank;    // true if the lvalue is the blank identifier
                 struct EXP* exp;
                 struct STATEMENT* next;} regAssignS;
         struct {struct EXP* lvalue; // weed to ensure that exp is an lvalue (and that there is just one of them? should already only be one since matches with primaryExp)
@@ -262,6 +264,7 @@ typedef struct STATEMENT {
         struct VARDECLARATION* varDeclS;
         struct TYPEDECLARATION* typeDeclS;
         struct {struct EXP* id;    // needs to be weeded (to ensure only ids). also, both need to be weeded for length
+                int isBlank;
                 struct SYMBOL* symbol; // the symbol for the id (not null if this is not a redecl)
                 struct EXP* exp;
                 int isRedecl; // whether this variable was redeclared in the short decl statement

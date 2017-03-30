@@ -20,11 +20,9 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
-- figure out what to do about blank identifiers
+- make sure that none of the names we create for structs and types are the same as variable names...?
 
 - do something about char literal warnings?
-
-- make sure that none of the names we create for structs and types are the same as variable names...?
 
 - merge with master
 
