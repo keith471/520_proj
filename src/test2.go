@@ -2,15 +2,16 @@ package main
 
 func main() {
 
-    var x string = "apple"
-    var y string = "google"
+    var x []int
+    var y []int
 
-    var b struct {
-        x string
-        y float64
-    }
+    x = append(x, 10)
 
-    if (x > y) {
+    y = append(y, 3)
 
+    if (x == y) {
+        println("same!");
+    } else {
+        println("different!");
     }
 }

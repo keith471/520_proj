@@ -26,6 +26,8 @@ void genSTRUCTTYPEcomparison(STRUCTTYPE* s, int inequality);
 void genFIELDcomparison(FIELD* f, int inequality);
 void genFIELDlistComparison(FIELD* f, int inequality);
 void genComparison(CPPTYPE* c, char* name, int inequality);
+void genArrayComparator(CPPTYPE* c);
+void genArrayElementComparison(CPPTYPE* type);
 
 int isMain(FUNCTIONDECLARATION* fd);
 void genDefault(CPPTYPE* t, int level);

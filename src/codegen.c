@@ -38,6 +38,9 @@ void addTypeDefs(CPPTYPE* c) {
 void addOperators(CPPTYPE* c) {
     if (c == NULL) return;
     switch (c->kind) {
+        case cppArrayK:
+            genArrayComparator(c);
+            break;
         case cppStructK:
             genStructComparator(c, 0);
             genStructComparator(c, 1);
@@ -52,7 +55,6 @@ void addHeaderCode() {
    FILE* headerFILE;
    char c;
 
-   // TODO make this not hard-coded
    headerFILE = fopen("./src/headercode.cpp", "r");
 
    while ((c = fgetc(headerFILE)) != EOF) {
@@ -686,7 +688,7 @@ void genEXP(EXP* e) {
             fprintf(emitFILE, ")");
             break;
         case ltK:
-            if (e->val.gtE.stringCompare) {
+            if (e->val.ltE.stringCompare) {
                 fprintf(emitFILE, "(strcmp(");
                 genEXP(e->val.ltE.left);
                 fprintf(emitFILE, ", ");
@@ -725,6 +727,12 @@ void genEXP(EXP* e) {
                 genEXP(e->val.eqE.right);
                 fprintf(emitFILE, ")");
                 fprintf(emitFILE, " == 0)");
+            } else if (e->val.eqE.left->type->cppType->kind == cppArrayK) {
+                fprintf(emitFILE, "cmp_%s(", e->val.eqE.left->type->cppType->val.arrayT.name);
+                genEXP(e->val.eqE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.eqE.right);
+                fprintf(emitFILE, ")");
             } else {
                 fprintf(emitFILE, "(");
                 genEXP(e->val.eqE.left);
@@ -734,13 +742,19 @@ void genEXP(EXP* e) {
             }
             break;
         case neqK:
-            if (e->val.gtE.stringCompare) {
+            if (e->val.neqE.stringCompare) {
                 fprintf(emitFILE, "(strcmp(");
                 genEXP(e->val.neqE.left);
                 fprintf(emitFILE, ", ");
                 genEXP(e->val.neqE.right);
                 fprintf(emitFILE, ")");
                 fprintf(emitFILE, " != 0)");
+            } else if (e->val.neqE.left->type->cppType->kind == cppArrayK) {
+                fprintf(emitFILE, "!cmp_%s(", e->val.neqE.left->type->cppType->val.arrayT.name);
+                genEXP(e->val.neqE.left);
+                fprintf(emitFILE, ", ");
+                genEXP(e->val.neqE.right);
+                fprintf(emitFILE, ")");
             } else {
                 fprintf(emitFILE, "(");
                 genEXP(e->val.neqE.left);
@@ -750,7 +764,7 @@ void genEXP(EXP* e) {
             }
             break;
         case leqK:
-            if (e->val.gtE.stringCompare) {
+            if (e->val.leqE.stringCompare) {
                 fprintf(emitFILE, "(strcmp(");
                 genEXP(e->val.leqE.left);
                 fprintf(emitFILE, ", ");
@@ -766,7 +780,7 @@ void genEXP(EXP* e) {
             }
             break;
         case geqK:
-            if (e->val.gtE.stringCompare) {
+            if (e->val.geqE.stringCompare) {
                 fprintf(emitFILE, "(strcmp(");
                 genEXP(e->val.geqE.left);
                 fprintf(emitFILE, ", ");
@@ -989,6 +1003,47 @@ void genComparison(CPPTYPE* c, char* name, int inequality) {
             } else {
                 fprintf(emitFILE, "lhs.%s == rhs.%s", name, name);
             }
+            break;
+    }
+}
+
+void genArrayComparator(CPPTYPE* c) {
+    fprintf(emitFILE, "bool cmp_%s(%s lhs, %s rhs) {", c->val.arrayT.name, c->val.arrayT.name, c->val.arrayT.name);
+    newLineInFile(emitFILE);
+    printTabsToFile(1, emitFILE);
+    fprintf(emitFILE, "int i;");
+    newLineInFile(emitFILE);
+    printTabsToFile(1, emitFILE);
+    fprintf(emitFILE, "for (i = 0; i < %d; i++) {", c->val.arrayT.size);
+    newLineInFile(emitFILE);
+    printTabsToFile(2, emitFILE);
+    fprintf(emitFILE, "if (");
+    genArrayElementComparison(c->val.arrayT.elementType);
+    fprintf(emitFILE, ") {");
+    newLineInFile(emitFILE);
+    printTabsToFile(3, emitFILE);
+    fprintf(emitFILE, "return false;");
+    newLineInFile(emitFILE);
+    printTabsToFile(2, emitFILE);
+    fprintf(emitFILE, "}");
+    newLineInFile(emitFILE);
+    printTabsToFile(1, emitFILE);
+    fprintf(emitFILE, "}");
+    newLineInFile(emitFILE);
+    printTabsToFile(1, emitFILE);
+    fprintf(emitFILE, "return true;");
+    newLineInFile(emitFILE);
+    fprintf(emitFILE, "}");
+    newLineInFile(emitFILE);
+}
+
+void genArrayElementComparison(CPPTYPE* type) {
+    switch (type->kind) {
+        case cppStringK:
+            fprintf(emitFILE, "strcmp(lhs[i], rhs[i]) != 0");
+            break;
+        default:
+            fprintf(emitFILE, "lhs[i] != rhs[i]");
             break;
     }
 }

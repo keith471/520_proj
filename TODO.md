@@ -20,15 +20,15 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
-- check how you can check equality and order (<, >, <=, etc) for all types in C++
-    - handle comparison of slices
-    - handle comparison of arrays
+- figure out what to do about blank identifiers
 
 - do something about char literal warnings?
 
 - make sure that none of the names we create for structs and types are the same as variable names...?
 
-- figure out what to do about blank identifiers
+- merge with master
+
+- add support for flags
 
 - make a pass where we collect arrays and structs and make typedefs for them
 - any node where we encounter these arrays and structs, we will need to update the node
