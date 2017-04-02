@@ -102,6 +102,7 @@ typedef struct VARDECLARATION {
     int isDistributed;  // whether this declaration is part of a distrubuted statement
     int isLocal;    // whether this declaration is local (as opposed to global)
     int isBlank;    // whether the id is the blank identifier
+    struct ARRAYINDEX* arrayIndex; // not null if the declaration involves expressions that index into an array
     union {
         struct TYPE* typeVD; // cannot be NULL
         struct {struct EXP* exp; /* in later phases, can access the type through exp or the symbol */
@@ -229,6 +230,7 @@ typedef struct STATEMENT {
     enum { emptyK, expK, incK, decK, regAssignK, binOpAssignK, shortDeclK, varDeclK,
            typeDeclK, printK, printlnK, returnK, ifK, ifElseK, switchK, whileK,
            infiniteLoopK, forK, breakK, continueK, blockK } kind;
+    struct ARRAYINDEX* arrayIndex; // not null if the statement involves expressions that index into an array
     union{
         // break, continue, and empty statements have no associated val
         struct EXP* expS;
@@ -281,6 +283,12 @@ typedef struct STATEMENT {
     // nested statements are pointed to by the appropriate statement structs in val
     struct STATEMENT* next;
 } STATEMENT;
+
+typedef struct ARRAYINDEX {
+    int maxIndex;
+    struct EXP* indexExp;
+    struct ARRAYINDEX* next;
+} ARRAYINDEX;
 
 /*
  * a case of a switch-case statement

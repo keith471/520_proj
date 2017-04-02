@@ -110,6 +110,7 @@ VARDECLARATION* makeVARDECLARATIONtypeonlyhelper(ID* id, TYPE* type, VARDECLARAT
     d = NEW(VARDECLARATION);
     d->lineno = yylineno;
     d->kind = typeOnlyK;
+    d->arrayIndex = NULL;
     d->id = id;
     d->isEmpty = 0;
     d->isDistributed = 0;
@@ -141,6 +142,7 @@ VARDECLARATION* makeVARDECLARATIONexponlyhelper(ID* id, EXP* exp, VARDECLARATION
     d = NEW(VARDECLARATION);
     d->lineno = yylineno;
     d->kind = expOnlyK;
+    d->arrayIndex = NULL;
     d->id = id;
     d->isEmpty = 0;
     d->isDistributed = 0;
@@ -173,6 +175,7 @@ VARDECLARATION* makeVARDECLARATIONtypeandexphelper(ID* id, TYPE* type, EXP* exp,
     d = NEW(VARDECLARATION);
     d->lineno = yylineno;
     d->kind = typeAndExpK;
+    d->arrayIndex = NULL;
     d->id = id;
     d->isEmpty = 0;
     d->isDistributed = 0;
@@ -189,6 +192,7 @@ VARDECLARATION* makeVARDECLARATIONempty() {
     VARDECLARATION *d;
     d = NEW(VARDECLARATION);
     d->lineno = yylineno;
+    d->arrayIndex = NULL;
     d->id = NULL;
     d->isEmpty = 1;
     d->isDistributed = 0;
@@ -399,6 +403,7 @@ STATEMENT* makeSTATEMENTempty() {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = emptyK;
+    s->arrayIndex = NULL;
     s->next = NULL;
     return s;
 }
@@ -408,6 +413,7 @@ STATEMENT* makeSTATEMENTexp(EXP* exp) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = expK;
+    s->arrayIndex = NULL;
     s->val.expS = exp;
     s->next = NULL;
     return s;
@@ -418,6 +424,7 @@ STATEMENT* makeSTATEMENTinc(EXP* lval) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = incK;
+    s->arrayIndex = NULL;
     s->val.incS = lval;
     s->next = NULL;
     return s;
@@ -428,6 +435,7 @@ STATEMENT* makeSTATEMENTdec(EXP* lval) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = decK;
+    s->arrayIndex = NULL;
     s->val.decS = lval;
     s->next = NULL;
     return s;
@@ -438,6 +446,7 @@ STATEMENT* makeSTATEMENTprintln(EXP* exp) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = printlnK;
+    s->arrayIndex = NULL;
     s->val.printlnS = exp;
     s->next = NULL;
     return s;
@@ -448,6 +457,7 @@ STATEMENT* makeSTATEMENTprint(EXP* exp) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = printK;
+    s->arrayIndex = NULL;
     s->val.printS = exp;
     s->next = NULL;
     return s;
@@ -462,6 +472,7 @@ STATEMENT* makeSTATEMENTvardecl(VARDECLARATION* varDecl) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = varDeclK;
+    s->arrayIndex = NULL;
     s->val.varDeclS = varDecl;
     s->next = NULL;
     return s;
@@ -475,6 +486,7 @@ STATEMENT* makeSTATEMENTtypedecl(TYPEDECLARATION* typeDecl) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = typeDeclK;
+    s->arrayIndex = NULL;
     s->val.typeDeclS = typeDecl;
     s->next = NULL;
     return s;
@@ -500,6 +512,7 @@ STATEMENT* makeSTATEMENTshortdeclhelper(EXP* id, EXP* exp, STATEMENT* next) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = shortDeclK;
+    s->arrayIndex = NULL;
     s->val.shortDeclS.id = id;
     s->val.shortDeclS.isBlank = 0;
     s->val.shortDeclS.exp = exp;
@@ -516,6 +529,7 @@ STATEMENT* makeSTATEMENTreturn(EXP* exp) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = returnK;
+    s->arrayIndex = NULL;
     s->val.returnS = exp;
     s->next = NULL;
     return s;
@@ -526,6 +540,7 @@ STATEMENT* makeSTATEMENTbreak() {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = breakK;
+    s->arrayIndex = NULL;
     s->next = NULL;
     return s;
 }
@@ -535,6 +550,7 @@ STATEMENT* makeSTATEMENTcontinue() {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = continueK;
+    s->arrayIndex = NULL;
     s->next = NULL;
     return s;
 }
@@ -559,6 +575,7 @@ STATEMENT* makeSTATEMENTassignhelper(EXP* lvalue, EXP* exp, STATEMENT* next) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = regAssignK;
+    s->arrayIndex = NULL;
     s->val.regAssignS.lvalue = lvalue;
     s->val.regAssignS.isBlank = 0;
     s->val.regAssignS.exp = exp;
@@ -572,6 +589,7 @@ STATEMENT* makeSTATEMENTbinopassign(EXP* lvalue, OperationKind opKind, EXP* exp)
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = binOpAssignK;
+    s->arrayIndex = NULL;
     s->val.binOpAssignS.lvalue = lvalue;
     s->val.binOpAssignS.opKind = opKind;
     s->val.binOpAssignS.exp = exp;
@@ -584,6 +602,7 @@ STATEMENT* makeSTATEMENTif(STATEMENT* initStatement, EXP* condition, STATEMENT* 
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = ifK;
+    s->arrayIndex = NULL;
     s->val.ifS.initStatement = initStatement;
     s->val.ifS.condition = condition;
     s->val.ifS.body = body;
@@ -596,6 +615,7 @@ STATEMENT* makeSTATEMENTifelse(STATEMENT* initStatement, EXP* condition, STATEME
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = ifElseK;
+    s->arrayIndex = NULL;
     s->val.ifElseS.initStatement = initStatement;
     s->val.ifElseS.condition = condition;
     s->val.ifElseS.thenPart = thenPart;
@@ -609,6 +629,7 @@ STATEMENT* makeSTATEMENTwhile(EXP* condition, STATEMENT* body) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = whileK;
+    s->arrayIndex = NULL;
     s->val.whileS.condition = condition;
     s->val.whileS.body = body;
     s->next = NULL;
@@ -620,6 +641,7 @@ STATEMENT* makeSTATEMENTinfiniteloop(STATEMENT* doThisIndefinitely) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = infiniteLoopK;
+    s->arrayIndex = NULL;
     s->val.infiniteLoopS = doThisIndefinitely;
     s->next = NULL;
     return s;
@@ -630,6 +652,7 @@ STATEMENT* makeSTATEMENTfor(STATEMENT* initStatement, EXP* condition, STATEMENT*
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = forK;
+    s->arrayIndex = NULL;
     s->val.forS.initStatement = initStatement;
     s->val.forS.condition = condition;
     s->val.forS.postStatement = postStatement;
@@ -643,6 +666,7 @@ STATEMENT* makeSTATEMENTswitch(STATEMENT* initStatement, EXP* condition, SWITCHC
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = switchK;
+    s->arrayIndex = NULL;
     s->val.switchS.initStatement = initStatement;
     s->val.switchS.condition = condition;
     s->val.switchS.cases = cases;
@@ -690,6 +714,7 @@ STATEMENT* makeSTATEMENTblock(STATEMENT* stmts) {
     s = NEW(STATEMENT);
     s->lineno = yylineno;
     s->kind = blockK;
+    s->arrayIndex = NULL;
     s->val.blockS = stmts;
     s->next = NULL;
     return s;

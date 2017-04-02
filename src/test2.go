@@ -1,25 +1,12 @@
 package main
 
-var struct_1 struct {
-    _ int
-    r int
-}
+var y [2]int
 
-var struct_2 struct {
-    _ int
-    r int
-}
+var q, l = y[2], y[0]
 
 func main() {
 
-    struct_1.r = 3
 
-    var array_1 [10]int
-
-    if (struct_1 == struct_2) {
-     println("equal!");
-    } else {
-     println("not equal!");
-    }
+    var boundsVar_1, z, t = y[1], y[1], y[1]
 
 }

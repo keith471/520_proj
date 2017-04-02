@@ -63,7 +63,7 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
             // we need to type check the expression and then use the type of the expression
             // as the type of the variable! We update the type of the expression in the SYMBOL
             // in the symbol table
-            typeEXP(v->val.expVD.exp);
+            typeEXP(v->val.expVD.exp, NULL, v);
             if (v->val.expVD.exp->type == NULL) {
                 // the expression has no type (it is probably a function call to a void function)
                 reportStrError("TYPE", "cannot assign a value with no type to %s", v->id->name, v->lineno);
@@ -75,7 +75,7 @@ void typeVARDECLARATIONlist(VARDECLARATION* v) {
         case typeAndExpK:
             // this typechecks as long as the expression type checks and is equal to the type of the variable
             // type check the expression
-            typeEXP(v->val.typeAndExpVD.exp);
+            typeEXP(v->val.typeAndExpVD.exp, NULL, v);
             // check that the type of the expression is equal to the type of the variable
             assertIdenticalTYPEs(v->val.typeAndExpVD.type, v->val.typeAndExpVD.exp->type, v->lineno);
         default:
@@ -108,7 +108,7 @@ void typeSTATEMENT(STATEMENT* s) {
             break;
         case expK:
             // type check the expression
-            typeEXP(s->val.expS);
+            typeEXP(s->val.expS, s, NULL);
             // check the kind of the expression --> if it is now a cast, then report an error! casts are not
             // allowed as expression statements
             if (s->val.expS->kind == castK) {
@@ -117,24 +117,24 @@ void typeSTATEMENT(STATEMENT* s) {
             break;
         case incK:
             // type check the expression
-            typeEXP(s->val.incS);
+            typeEXP(s->val.incS, s, NULL);
             // check that it is an type
             assertNumeric(s->val.incS->type, s->lineno);
             break;
         case decK:
-            typeEXP(s->val.decS);
+            typeEXP(s->val.decS, s, NULL);
             assertNumeric(s->val.decS->type, s->lineno);
             break;
         case regAssignK:
             // type checks if the left and right exps are both well-typed and have the same type
             if (!s->val.regAssignS.isBlank) {
-                typeEXP(s->val.regAssignS.lvalue);
-                typeEXP(s->val.regAssignS.exp);
+                typeEXP(s->val.regAssignS.lvalue, s, NULL);
+                typeEXP(s->val.regAssignS.exp, s, NULL);
                 // assert that the types are equal
                 assertIdenticalTYPEs(s->val.regAssignS.lvalue->type, s->val.regAssignS.exp->type, s->lineno);
             } else {
                 // just type the exp and make sure it is not void
-                typeEXP(s->val.regAssignS.exp);
+                typeEXP(s->val.regAssignS.exp, s, NULL);
                 if (s->val.regAssignS.exp->type == NULL) {
                     // the expression has no type (it is probably a function call to a void function)
                     reportError("TYPE", "cannot assign a value with no type to _", s->lineno);
@@ -146,13 +146,13 @@ void typeSTATEMENT(STATEMENT* s) {
         case binOpAssignK:
             // type checks if the expressions type check and if the operator accepts two
             // expressions of type(lvalue) and type(exp) and returns a value of type(lvalue)
-            typeEXP(s->val.binOpAssignS.lvalue);
-            typeEXP(s->val.binOpAssignS.exp);
+            typeEXP(s->val.binOpAssignS.lvalue, s, NULL);
+            typeEXP(s->val.binOpAssignS.exp, s, NULL);
             assertValidOpUsage(s->val.binOpAssignS.opKind, s->val.binOpAssignS.lvalue->type, s->val.binOpAssignS.exp->type, s->lineno);
             break;
         case shortDeclK:
             // type checks if the exp type checks
-            typeEXP(s->val.shortDeclS.exp);
+            typeEXP(s->val.shortDeclS.exp, s, NULL);
             if (s->val.shortDeclS.exp->type == NULL) {
                 // the expression has no type (it is probably a function call to a function with no return value)
                 reportStrError("TYPE", "cannot assign a value with no type to %s", s->val.shortDeclS.id->val.idE.id->name, s->lineno);
@@ -196,32 +196,32 @@ void typeSTATEMENT(STATEMENT* s) {
             break;
         case printK:
             // type checks if all the expressions type check AND they all resolve to a base type
-            typeEXPs(s->val.printS);
+            typeEXPs(s->val.printS, s, NULL);
             assertEXPsResolveToBaseType(s->val.printS, s->lineno);
             break;
         case printlnK:
             // type checks if all the expressions type check AND they all resolve to a base type
-            typeEXPs(s->val.printlnS);
+            typeEXPs(s->val.printlnS, s, NULL);
             assertEXPsResolveToBaseType(s->val.printlnS, s->lineno);
             break;
         case returnK:
             // well-typed if the expression is well-typed
             // the expression should also have the same type as the return of the function but we
             // check this in a second pass
-            typeEXP(s->val.returnS);
+            typeEXP(s->val.returnS, s, NULL);
             break;
         case ifK:
             // type checks if the init statement type checks
             typeSTATEMENT(s->val.ifS.initStatement);
             // and the expression is well-typed and resolves to a bool
-            typeEXP(s->val.ifS.condition);
+            typeEXP(s->val.ifS.condition, s, NULL);
             assertResolvesToBool(s->val.ifS.condition->type, s->lineno);
             // and the statements in the body type check
             typeSTATEMENT(s->val.ifS.body);
             break;
         case ifElseK:
             typeSTATEMENT(s->val.ifElseS.initStatement);
-            typeEXP(s->val.ifElseS.condition);
+            typeEXP(s->val.ifElseS.condition, s, NULL);
             assertResolvesToBool(s->val.ifElseS.condition->type, s->lineno);
             typeSTATEMENT(s->val.ifElseS.thenPart);
             typeSTATEMENT(s->val.ifElseS.elsePart);
@@ -231,7 +231,7 @@ void typeSTATEMENT(STATEMENT* s) {
             break;
         case whileK:
             // type checks if condition type checks and resolves to bool
-            typeEXP(s->val.whileS.condition);
+            typeEXP(s->val.whileS.condition, s, NULL);
             assertResolvesToBool(s->val.whileS.condition->type, s->lineno);
             // and its statements type check
             typeSTATEMENT(s->val.whileS.body);
@@ -242,7 +242,7 @@ void typeSTATEMENT(STATEMENT* s) {
             break;
         case forK:
             typeSTATEMENT(s->val.forS.initStatement);
-            typeEXP(s->val.forS.condition);
+            typeEXP(s->val.forS.condition, s, NULL);
             if (s->val.forS.condition != NULL) {
                 assertResolvesToBool(s->val.forS.condition->type, s->lineno);
             }
@@ -277,13 +277,13 @@ void typeSTATEMENT(STATEMENT* s) {
 void typeSTATEMENTswitch(STATEMENT* s) {
     typeSTATEMENT(s->val.switchS.initStatement);
     if (s->val.switchS.condition != NULL) {
-        typeEXP(s->val.switchS.condition);
+        typeEXP(s->val.switchS.condition, s, NULL);
         if (s->val.switchS.condition->type == NULL) {
             reportError("TYPE", "cannot switch on a void value", s->lineno);
         }
-        typeSWITCHCASE(s->val.switchS.cases, s->val.switchS.condition->type);
+        typeSWITCHCASE(s, s->val.switchS.cases, s->val.switchS.condition->type);
     } else {
-        typeSWITCHCASE(s->val.switchS.cases, boolTYPE);
+        typeSWITCHCASE(s, s->val.switchS.cases, boolTYPE);
     }
 }
 
@@ -292,11 +292,11 @@ void typeSTATEMENTswitch(STATEMENT* s) {
  *  all its expressions have type t
  *  all its statements type check
  */
-void typeSWITCHCASE(SWITCHCASE* sc, TYPE* t) {
+void typeSWITCHCASE(STATEMENT* s, SWITCHCASE* sc, TYPE* t) {
     if (sc == NULL) return;
     switch(sc->kind) {
         case caseK:
-            typeEXPs(sc->val.caseC.exps);
+            typeEXPs(sc->val.caseC.exps, s, NULL);
             assertCaseEXPsHaveType(sc->val.caseC.exps, t);
             typeSTATEMENT(sc->val.caseC.statements);
             break;
@@ -304,16 +304,20 @@ void typeSWITCHCASE(SWITCHCASE* sc, TYPE* t) {
             typeSTATEMENT(sc->val.defaultStatementsC);
             break;
     }
-    typeSWITCHCASE(sc->next, t);
+    typeSWITCHCASE(s, sc->next, t);
 }
 
-void typeEXPs(EXP* e) {
+void typeEXPs(EXP* e, STATEMENT* s, VARDECLARATION* v) {
     if (e == NULL) return;
-    typeEXP(e);
-    typeEXPs(e->next);
+    typeEXP(e, s, v);
+    typeEXPs(e->next, s, v);
 }
 
-void typeEXP(EXP* e) {
+/*
+ * Takes a reference to the statement or variable declaration in which this expression occurs,
+ * in case this expression is an index into an array
+ */
+void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
     if (e == NULL) {
         // needed in case of a return statement with no return expression
         return;
@@ -321,6 +325,8 @@ void typeEXP(EXP* e) {
     CASTCHECKRETURN* ctr;
     STRUCTTYPE* structType;
     SYMBOL* symbol;
+    TYPE* type;
+    ARRAYINDEX* arrayIndex;
     switch (e->kind) {
         case identifierK:
             e->type = getSymbolType(e->val.idE.symbol->name, e->val.idE.symbol, e->lineno);
@@ -341,51 +347,51 @@ void typeEXP(EXP* e) {
             e->type = stringTYPE;
             break;
         case plusK:
-            typeEXP(e->val.plusE.left);
-            typeEXP(e->val.plusE.right);
+            typeEXP(e->val.plusE.left, s, v);
+            typeEXP(e->val.plusE.right, s, v);
             e->type = typePlus(e->val.plusE.left->type, e->val.plusE.right->type, e->lineno);
             if (resolvesToString(e->val.plusE.left->type) && resolvesToString(e->val.plusE.right->type)) {
                 e->val.plusE.stringAddition = 1;
             }
             break;
         case minusK:
-            typeEXP(e->val.minusE.left);
-            typeEXP(e->val.minusE.right);
+            typeEXP(e->val.minusE.left, s, v);
+            typeEXP(e->val.minusE.right, s, v);
             e->type = numericOp(e->val.minusE.left->type, e->val.minusE.right->type, e->lineno);
             break;
         case timesK:
-            typeEXP(e->val.timesE.left);
-            typeEXP(e->val.timesE.right);
+            typeEXP(e->val.timesE.left, s, v);
+            typeEXP(e->val.timesE.right, s, v);
             e->type = numericOp(e->val.timesE.left->type, e->val.timesE.right->type, e->lineno);
             break;
         case divK:
-            typeEXP(e->val.divE.left);
-            typeEXP(e->val.divE.right);
+            typeEXP(e->val.divE.left, s, v);
+            typeEXP(e->val.divE.right, s, v);
             e->type = numericOp(e->val.divE.left->type, e->val.divE.right->type, e->lineno);
             break;
         case modK:
-            typeEXP(e->val.modE.left);
-            typeEXP(e->val.modE.right);
+            typeEXP(e->val.modE.left, s, v);
+            typeEXP(e->val.modE.right, s, v);
             e->type = intOp(e->val.modE.left->type, e->val.modE.right->type, e->lineno);
             break;
         case bitwiseOrK:
-            typeEXP(e->val.bitwiseOrE.left);
-            typeEXP(e->val.bitwiseOrE.right);
+            typeEXP(e->val.bitwiseOrE.left, s, v);
+            typeEXP(e->val.bitwiseOrE.right, s, v);
             e->type = intOp(e->val.bitwiseOrE.left->type, e->val.bitwiseOrE.right->type, e->lineno);
             break;
         case bitwiseAndK:
-            typeEXP(e->val.bitwiseAndE.left);
-            typeEXP(e->val.bitwiseAndE.right);
+            typeEXP(e->val.bitwiseAndE.left, s, v);
+            typeEXP(e->val.bitwiseAndE.right, s, v);
             e->type = intOp(e->val.bitwiseAndE.left->type, e->val.bitwiseAndE.right->type, e->lineno);
             break;
         case xorK:
-            typeEXP(e->val.xorE.left);
-            typeEXP(e->val.xorE.right);
+            typeEXP(e->val.xorE.left, s, v);
+            typeEXP(e->val.xorE.right, s, v);
             e->type = intOp(e->val.xorE.left->type, e->val.xorE.right->type, e->lineno);
             break;
         case ltK:
-            typeEXP(e->val.ltE.left);
-            typeEXP(e->val.ltE.right);
+            typeEXP(e->val.ltE.left, s, v);
+            typeEXP(e->val.ltE.right, s, v);
             // we need to check that both types are ordered and equal
             checkOrderedAndEqual(e->val.ltE.left->type, e->val.ltE.right->type, e->lineno);
             e->type = boolTYPE;
@@ -396,8 +402,8 @@ void typeEXP(EXP* e) {
             }
             break;
         case gtK:
-            typeEXP(e->val.gtE.left);
-            typeEXP(e->val.gtE.right);
+            typeEXP(e->val.gtE.left, s, v);
+            typeEXP(e->val.gtE.right, s, v);
             checkOrderedAndEqual(e->val.gtE.left->type, e->val.gtE.right->type, e->lineno);
             e->type = boolTYPE;
             if (resolvesToString(e->val.gtE.left->type) && resolvesToString(e->val.gtE.right->type)) {
@@ -405,8 +411,8 @@ void typeEXP(EXP* e) {
             }
             break;
         case eqK:
-            typeEXP(e->val.eqE.left);
-            typeEXP(e->val.eqE.right);
+            typeEXP(e->val.eqE.left, s, v);
+            typeEXP(e->val.eqE.right, s, v);
             // all values that we support in golite are comparable, so all we have to do
             // is check that the types are equal
             assertIdenticalTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, e->lineno);
@@ -416,8 +422,8 @@ void typeEXP(EXP* e) {
             }
             break;
         case neqK:
-            typeEXP(e->val.neqE.left);
-            typeEXP(e->val.neqE.right);
+            typeEXP(e->val.neqE.left, s, v);
+            typeEXP(e->val.neqE.right, s, v);
             assertIdenticalTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, e->lineno);
             e->type = boolTYPE;
             if (resolvesToString(e->val.neqE.left->type) && resolvesToString(e->val.neqE.right->type)) {
@@ -425,8 +431,8 @@ void typeEXP(EXP* e) {
             }
             break;
         case leqK:
-            typeEXP(e->val.leqE.left);
-            typeEXP(e->val.leqE.right);
+            typeEXP(e->val.leqE.left, s, v);
+            typeEXP(e->val.leqE.right, s, v);
             checkOrderedAndEqual(e->val.leqE.left->type, e->val.leqE.right->type, e->lineno);
             e->type = boolTYPE;
             if (resolvesToString(e->val.leqE.left->type) && resolvesToString(e->val.leqE.right->type)) {
@@ -434,8 +440,8 @@ void typeEXP(EXP* e) {
             }
             break;
         case geqK:
-            typeEXP(e->val.geqE.left);
-            typeEXP(e->val.geqE.right);
+            typeEXP(e->val.geqE.left, s, v);
+            typeEXP(e->val.geqE.right, s, v);
             checkOrderedAndEqual(e->val.geqE.left->type, e->val.geqE.right->type, e->lineno);
             e->type = boolTYPE;
             if (resolvesToString(e->val.geqE.left->type) && resolvesToString(e->val.geqE.right->type)) {
@@ -443,33 +449,33 @@ void typeEXP(EXP* e) {
             }
             break;
         case orK:
-            typeEXP(e->val.orE.left);
-            typeEXP(e->val.orE.right);
+            typeEXP(e->val.orE.left, s, v);
+            typeEXP(e->val.orE.right, s, v);
             e->type = boolOp(e->val.orE.left->type, e->val.orE.right->type, e->lineno);
             break;
         case andK:
-            typeEXP(e->val.andE.left);
-            typeEXP(e->val.andE.right);
+            typeEXP(e->val.andE.left, s, v);
+            typeEXP(e->val.andE.right, s, v);
             e->type = boolOp(e->val.andE.left->type, e->val.andE.right->type, e->lineno);
             break;
         case leftShiftK:
-            typeEXP(e->val.leftShiftE.left);
-            typeEXP(e->val.leftShiftE.right);
+            typeEXP(e->val.leftShiftE.left, s, v);
+            typeEXP(e->val.leftShiftE.right, s, v);
             e->type = intOp(e->val.leftShiftE.left->type, e->val.leftShiftE.right->type, e->lineno);
             break;
         case rightShiftK:
-            typeEXP(e->val.rightShiftE.left);
-            typeEXP(e->val.rightShiftE.right);
+            typeEXP(e->val.rightShiftE.left, s, v);
+            typeEXP(e->val.rightShiftE.right, s, v);
             e->type = intOp(e->val.rightShiftE.left->type, e->val.rightShiftE.right->type, e->lineno);
             break;
         case bitClearK:
-            typeEXP(e->val.bitClearE.left);
-            typeEXP(e->val.bitClearE.right);
+            typeEXP(e->val.bitClearE.left, s, v);
+            typeEXP(e->val.bitClearE.right, s, v);
             e->type = intOp(e->val.bitClearE.left->type, e->val.bitClearE.right->type, e->lineno);
             break;
         case appendK:
-            typeEXP(e->val.appendE.slice);
-            typeEXP(e->val.appendE.expToAppend);
+            typeEXP(e->val.appendE.slice, s, v);
+            typeEXP(e->val.appendE.expToAppend, s, v);
             // the slice exp needs to have type S which resolves to a slice with elements of type T
             // and the expToAppend needs to have type T
             checkAppendIsValid(e->val.appendE.slice->type, e->val.appendE.expToAppend->type, e->lineno);
@@ -480,7 +486,7 @@ void typeEXP(EXP* e) {
             //  type resolves to int, float, bool, or rune
             //  exp is well-typed and has a type that can be cast to type
             assertCastResolution(e->val.castE->type, e->lineno);
-            typeEXP(e->val.castE->exp);
+            typeEXP(e->val.castE->exp, s, v);
             // basically, we just need to ensure that the type of the expression also resolves to
             // int, float, bool, or rune!
             assertCastResolution(e->val.castE->exp->type, e->lineno);
@@ -488,7 +494,7 @@ void typeEXP(EXP* e) {
             break;
         case selectorK:
             // type the receiving expression; it should end up having a type that resolves to structK
-            typeRECEIVER(e->val.selectorE.receiver);
+            typeRECEIVER(e->val.selectorE.receiver, s, v);
             // assert that the receiver resolves to a stuct literal
             structType = assertResolvesToStruct(e->val.selectorE.receiver->receivingStruct->type, e->lineno);
             // search the symbol table of the structType for the last selector
@@ -500,41 +506,64 @@ void typeEXP(EXP* e) {
         case indexK:
             // an index into an array or slice is well-typed if
             // index is well typed and resolves to int
-            typeEXP(e->val.indexE.lastIndex);
+            typeEXP(e->val.indexE.lastIndex, s, v);
             assertResolvesToInt(e->val.indexE.lastIndex->type, e->lineno);
-            // rest is well typed and resolves to a slice or array
-            typeEXP(e->val.indexE.rest);
-            e->type = getElementType(e->val.indexE.rest->type, e->lineno);
+            // rest is well typed
+            typeEXP(e->val.indexE.rest, s, v);
+            // getElementType checks that rest resolves to a slice or array
+            // ==> non-intuitive side-effect - would be good to change this
+            type = getElementType(e->val.indexE.rest->type, e->lineno);
+            switch (type->kind) {
+                case arrayK:
+                    // indicate that the statement containing this expression involves an array index
+                    arrayIndex = NEW(ARRAYINDEX);
+                    arrayIndex->maxIndex = type->val.arrayT.size->val.intLiteralE.decValue;
+                    arrayIndex->indexExp = e->val.indexE.lastIndex;
+                    arrayIndex->next = NULL;
+                    if (s != NULL) {
+                        s->arrayIndex = appendARRAYINDEX(s->arrayIndex, arrayIndex);
+                    } else {
+                        v->arrayIndex = appendARRAYINDEX(v->arrayIndex, arrayIndex);
+                    }
+                    e->type = type->val.arrayT.elementType;
+                    break;
+                case sliceK:
+                    e->type = type->val.sliceT;
+                    break;
+                default:
+                    // will never hit this
+                    break;
+            }
             break;
         case argumentsK:
             // here, we can FINALLY check whether or not this is actually supposed to be a cast
             ctr = checkCast(e);
             switch (ctr->kind) {
                 case castKind:
-                    prepTypeEXPcast(e, ctr->val.cast.type, ctr->val.cast.name);
+                    prepTypeEXPcast(e, ctr->val.cast.type, ctr->val.cast.name, s, v);
                     break;
                 case functionCallKind:
-                    typeEXPfunctioncall(e, ctr->val.functionDecl);
+                    typeEXPfunctioncall(e, ctr->val.functionDecl, s, v);
                     break;
             }
             break;
         case uPlusK:
-            typeEXP(e->val.uPlusE);
+            typeEXP(e->val.uPlusE, s, v);
             assertNumeric(e->val.uPlusE->type, e->lineno);
             e->type = e->val.uPlusE->type;
             break;
         case uMinusK:
-            typeEXP(e->val.uMinusE);
+            typeEXP(e->val.uMinusE, s, v);
             assertNumeric(e->val.uMinusE->type, e->lineno);
             e->type = e->val.uMinusE->type;
             break;
         case uNotK:
-            typeEXP(e->val.uNotE);
+            typeEXP(e->val.uNotE, s, v);
             assertResolvesToBool(e->val.uNotE->type, e->lineno);
             e->type = e->val.uNotE->type;
             break;
         case uXorK:
-            typeEXP(e->val.uXorE);
+            typeEXP(e->val.uXorE, s, v);
             assertResolvesToInt(e->val.uXorE->type, e->lineno);
             e->type = e->val.uXorE->type;
             break;
@@ -543,11 +572,20 @@ void typeEXP(EXP* e) {
     }
 }
 
+ARRAYINDEX* appendARRAYINDEX(ARRAYINDEX* prevs, ARRAYINDEX* curr) {
+    ARRAYINDEX* t;
+    if (prevs == NULL) return curr;
+    t = prevs;
+    while (t->next != NULL) t = t->next;
+    t->next = curr;
+    return prevs;
+}
+
 /*
  * A receiver is well-typed if its receiving expression is well-typed
  */
-void typeRECEIVER(RECEIVER* r) {
-    typeEXP(r->receivingStruct);
+void typeRECEIVER(RECEIVER* r, STATEMENT* s, VARDECLARATION* v) {
+    typeEXP(r->receivingStruct, s, v);
 }
 
 /*
@@ -607,7 +645,7 @@ CASTCHECKRETURN* checkCast(EXP* e) {
     return ctr;
 }
 
-void prepTypeEXPcast(EXP* e, TYPE* t, char* name) {
+void prepTypeEXPcast(EXP* e, TYPE* t, char* name, STATEMENT* s, VARDECLARATION* v) {
     // firstly, we need to check that there is only one argument to the cast
     int numArgs = countArgs(e->val.argumentsE.args);
     if (numArgs == 0) {
@@ -624,7 +662,7 @@ void prepTypeEXPcast(EXP* e, TYPE* t, char* name) {
     e->val.castE = c;
 
     // re-type this as a cast :)
-    typeEXP(e);
+    typeEXP(e, s, v);
 }
 
 /*
@@ -633,9 +671,9 @@ void prepTypeEXPcast(EXP* e, TYPE* t, char* name) {
  * so, all we need to do is check that the arguments are well typed and have the
  * same types as the parameters the function accepts
  */
-void typeEXPfunctioncall(EXP* e, FUNCTIONDECLARATION* fd) {
+void typeEXPfunctioncall(EXP* e, FUNCTIONDECLARATION* fd, STATEMENT* s, VARDECLARATION* v) {
     // check that the arguments are well-typed
-    typeEXPs(e->val.argumentsE.args);
+    typeEXPs(e->val.argumentsE.args, s, v);
     // check that there are equally many arguments as parameters and that they have the
     // same types
     matchArgsToParams(e->val.argumentsE.args, fd->parameters, fd->parameters, fd->id->name, e->lineno);
@@ -1370,8 +1408,7 @@ TYPE* getSliceElementType(TYPE* t, int lineno) {
 }
 
 /*
- * ensures that t resolves to a slice or array, and returns the type of
- * the elements in the slice or array if so
+ * ensures that t resolves to a slice or array, and returns the array or slice type if so
  */
 TYPE* getElementType(TYPE* t, int lineno) {
     switch (t->kind) {
@@ -1398,10 +1435,10 @@ TYPE* getElementType(TYPE* t, int lineno) {
             reportError("TYPE", "expected slice or array but found struct", lineno);
             break;
         case sliceK:
-            return t->val.sliceT;
+            return t;
             break;
         case arrayK:
-            return t->val.arrayT.elementType;
+            return t;
             break;
     }
     return NULL;

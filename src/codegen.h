@@ -2,10 +2,12 @@
 void addTypeDefs(CPPTYPE* c);
 void addOperators(CPPTYPE* c);
 void addHeaderCode();
+char* getBoundsCheckVarName();
 void genPROGRAM(PROGRAM* p, char* fname);
 void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
 void genVARDECLARATION(VARDECLARATION* vd, int level);
 void genVARDECLARATIONlist(VARDECLARATION* vd, int level);
+void genArrayChecks(ARRAYINDEX* a, int level);
 void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd);
 void genPARAMETER(PARAMETER* p);
 void genPARAMETERlist(PARAMETER* p);

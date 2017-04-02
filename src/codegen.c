@@ -5,12 +5,15 @@
 #include "codegen.h"
 #include "outputhelpers.h"
 #include "pretty.h" // for printTabsPrecedingStatement and terminateSTATEMENT
-#include "cppType.h" // for cppTypeTYPE
+#include "helpers.h" // for concat
+#include "cppType.h" // for cppTypeTYPE, nameTable, and nameTableContains
 
 FILE* emitFILE;
 
 // the head of the linked list of structs/arrays we discoverred in the C++ typing phase
 extern CPPTYPE* head;
+
+int boundsCheckVarNo = 1;
 
 void addTypeDefs(CPPTYPE* c) {
     if (c == NULL) return;
@@ -65,6 +68,20 @@ void addHeaderCode() {
    }
 
    fclose(headerFILE);
+}
+
+char* getBoundsCheckVarName() {
+    char number[100]; // more than we need
+    char* boundsCheckVarName;
+    while (1) {
+        sprintf(number, "%d", boundsCheckVarNo);
+        boundsCheckVarNo++;
+        boundsCheckVarName = concat("boundsVar_", number);
+        if (!nameTableContains(boundsCheckVarName)) {
+            break;
+        }
+    }
+    return boundsCheckVarName;
 }
 
 void genPROGRAM(PROGRAM* p, char* fname) {
@@ -125,6 +142,8 @@ void genVARDECLARATION(VARDECLARATION* vd, int level) {
 void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
     if (vd == NULL) return;
     if (!vd->isBlank) {
+        // print any array index checks if need be!
+        genArrayChecks(vd->arrayIndex, level);
         printTabsToFile(level, emitFILE);
         switch (vd->kind) {
             case typeOnlyK:
@@ -151,6 +170,19 @@ void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
         newLineInFile(emitFILE);
     }
     genVARDECLARATIONlist(vd->next, level);
+}
+
+/*
+ * prints tabs and then series of array checks, ending in a new line
+ */
+void genArrayChecks(ARRAYINDEX* a, int level) {
+    if (a == NULL) return;
+    printTabsToFile(level, emitFILE);
+    fprintf(emitFILE, "int %s = GOLITE_CHECK_BOUNDS(%d, ", getBoundsCheckVarName(), a->maxIndex - 1);
+    genEXP(a->indexExp);
+    fprintf(emitFILE, ");");
+    newLineInFile(emitFILE);
+    genArrayChecks(a->next, level);
 }
 
 void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
@@ -208,23 +240,27 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // nothing to do
             break;
         case expK:
+            genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genEXP(s->val.expS);
             terminateSTATEMENT(level, semicolon);
             break;
         case incK:
+            genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genEXP(s->val.incS);
             fprintf(emitFILE, "++");
             terminateSTATEMENT(level, semicolon);
             break;
         case decK:
+            genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genEXP(s->val.decS);
             fprintf(emitFILE, "--");
             terminateSTATEMENT(level, semicolon);
             break;
         case regAssignK:
+            genArrayChecks(s->arrayIndex, level);
             if (s->val.regAssignS.isBlank) {
                 // if the exp is a function call, then we should print it
                 // otherwise, it is useless
@@ -243,11 +279,13 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             genSTATEMENT(s->val.regAssignS.next, level, semicolon, startAtRwPointer);
             break;
         case binOpAssignK:
+            genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genBinOp(s);
             terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
+            genArrayChecks(s->arrayIndex, level);
             if (!s->val.shortDeclS.isBlank) {
                 printTabsPrecedingStatement(level, startAtRwPointer);
                 if (s->val.shortDeclS.isRedecl) {
@@ -272,6 +310,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             break;
         case printK:
             if (s->val.printS != NULL) {
+                genArrayChecks(s->arrayIndex, level);
                 printTabsPrecedingStatement(level, startAtRwPointer);
                 fprintf(emitFILE, "cout");
                 genPrintEXPs(s->val.printS);
@@ -280,6 +319,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             }
             break;
         case printlnK:
+            genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "cout");
             genPrintlnEXPs(s->val.printlnS);
@@ -287,6 +327,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             newLineInFile(emitFILE);
             break;
         case returnK:
+            genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             if (s->val.returnS != NULL) {
                 fprintf(emitFILE, "return ");
@@ -301,6 +342,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // we need to put a scope around this if statement
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
+            genArrayChecks(s->arrayIndex, level + 1);
             genSTATEMENT(s->val.ifS.initStatement, level + 1, 1, 0);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "if (");
@@ -320,6 +362,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // we'll need to scope this
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
+            genArrayChecks(s->arrayIndex, level + 1);
             genSTATEMENT(s->val.ifElseS.initStatement, level + 1, 1, 0);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "if (");
@@ -362,6 +405,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // put this in a block
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
+            genArrayChecks(s->arrayIndex, level + 1);
             genSTATEMENT(s->val.switchS.initStatement, level + 1, 1, 0);
             genSWITCHCASE(s->val.switchS.cases, s->val.switchS.condition, level + 1);
             // close the block
@@ -370,6 +414,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             newLineInFile(emitFILE);
             break;
         case whileK:
+            genArrayChecks(s->arrayIndex, level + 1);
             printTabsPrecedingStatement(level, startAtRwPointer);
             // no surrounding block needed here
             fprintf(emitFILE, "while (");
@@ -384,6 +429,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             newLineInFile(emitFILE);
             break;
         case infiniteLoopK:
+            genArrayChecks(s->arrayIndex, level + 1);
             printTabsPrecedingStatement(level, startAtRwPointer);
             // gen this as a while(true)
             fprintf(emitFILE, "while (true) {");
@@ -423,7 +469,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // we'll need to scope this
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
-
+            genArrayChecks(s->arrayIndex, level + 1);
             // print the init statement
             genSTATEMENT(s->val.forS.initStatement, level + 1, 1, 0);
             printTabsToFile(level + 1, emitFILE);
@@ -864,6 +910,12 @@ void genEXP(EXP* e) {
             prettyID(e->val.selectorE.lastSelector);
             break;
         case indexK:
+            /*
+            if (e->val.indexE.arrayType != NULL) {
+                // add an array bound check to head.cpp
+                fprintf(headFILE, "GOLITE_CHECK_BOUNDS(%d, ")
+            }
+            */
             genEXP(e->val.indexE.rest);
             fprintf(emitFILE, "[");
             genEXP(e->val.indexE.lastIndex);

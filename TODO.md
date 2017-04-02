@@ -20,11 +20,19 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
+- finish updating type.c and type.h
+
+- see what we have to do about out of bounds issues with arrays (do we have to use GOLITE_CHECK_BOUNDS?)
 - do something about char literal warnings?
-
+- test thoroughly
+- write a second computationally expensive program
 - merge with master
-
 - add support for flags
+
+
+
+
+
 
 - make a pass where we collect arrays and structs and make typedefs for them
 - any node where we encounter these arrays and structs, we will need to update the node
