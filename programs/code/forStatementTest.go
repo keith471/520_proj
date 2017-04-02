@@ -14,7 +14,7 @@ func main() {
     println("forever ")
     i := 0
     for {
-        if i == 1000 {
+        if i == 10 {
             break;
         }
         println("and ever ")
@@ -24,12 +24,14 @@ func main() {
     // three-part for loops
 
 	for ;; {
-        print("this will print forever!")
+        println("this will print forever!")
         break;
 	}
 
 	// only an init statement
 	for a := 0; ; {
+        println("this will also print forever")
+        break;
 	}
 
 	// this is like a while loop

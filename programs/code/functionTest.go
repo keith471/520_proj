@@ -24,5 +24,15 @@ func i(a, b, c, d int, e string) string {
 
 // check that main is generated with a return of type int!
 func main() {
+    f()
 
+    var c, d struct { x int }
+
+    g(1, 2., c, d)
+
+    var float = h()
+    println(float)
+
+    var s = i(1, 2, 3, 4, "test")
+    println(s)
 }

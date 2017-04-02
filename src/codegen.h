@@ -1,8 +1,29 @@
 
+#include "tree.h"
+
+ID* reservedNames[HashSize];
+
+typedef struct REPLACEMENTID {
+    char* name;
+    char* replacementName;
+    struct REPLACEMENTID* next;
+} REPLACEMENTID;
+
+REPLACEMENTID* replacementNames[HashSize];
+
 void addTypeDefs(CPPTYPE* c);
 void addOperators(CPPTYPE* c);
 void addHeaderCode();
 char* getBoundsCheckVarName();
+void addToReservedNames(char* name);
+void initReservedNames();
+int isReserved(char* name);
+char* findReplacementName(char* name);
+char* generateReplacementName(char* name);
+void putReplacementName(char* name, char* replacementName);
+char* getReplacementName(char* name);
+char* getOutputName(char* name);
+
 void genPROGRAM(PROGRAM* p, char* fname);
 void genTOPLEVELDECLARATION(TOPLEVELDECLARATION* tld);
 void genVARDECLARATION(VARDECLARATION* vd, int level);

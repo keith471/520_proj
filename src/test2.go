@@ -1,12 +1,16 @@
 package main
 
-var y [2]int
-
-var q, l = y[2], y[0]
-
 func main() {
 
+    var float int
 
-    var boundsVar_1, z, t = y[1], y[1], y[1]
+    float++
 
+    if (float == 3) {
+        println(float)
+    }
+
+    var float1 [10]int
+
+    float1[5] = 23
 }

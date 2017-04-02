@@ -18,9 +18,9 @@ Output files are saved in `./src/output`. **It is essential that this directory 
 Same as Milestone 2
 
 ## Milestone 4 Instructions
-- I properly check that indices used in array accesses are not out of bounds for any accesses that occur within a function. However, for accesses that occur in a top level declaration, I do not perform the check check as C++ requires that function calls appear within functions, so I cannot simply add a call to GOLITE_CHECK_BOUNDS at the top level.
 
-## Sources
-The code for this compiler has been modeled off of the Joos compiler code.
+
+## References
+The code for this compiler was inspired by the Joos compiler code.
 Additionally, parts of the code generation was modeled off of the reference compiler.
 

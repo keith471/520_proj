@@ -20,15 +20,20 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
-- finish updating type.c and type.h
+- change names of variables that are C++ keywords
+- need a hashmap of C++ keywords
+- before code generating a variable, check that it's name is not a keyword (not in the hashmap)
+- if it is, then look up its new name in the replacementNames hashmap
+- if it is not yet in the replacement names hashmap, then this is the first time we have encountered it
+- so create a new entry in the replacement names hashmap and use this name
 
-- see what we have to do about out of bounds issues with arrays (do we have to use GOLITE_CHECK_BOUNDS?)
-- do something about char literal warnings?
-- test thoroughly
-- write a second computationally expensive program
+- write 10 basic valid tests for codegen (cover all the features at least once)
 - merge with master
+- branch for flags
 - add support for flags
-
+- submit!
+- write report
+- write a second computationally expensive program
 
 
 

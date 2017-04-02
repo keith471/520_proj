@@ -6,7 +6,9 @@
 #include "outputhelpers.h"
 #include "pretty.h" // for printTabsPrecedingStatement and terminateSTATEMENT
 #include "helpers.h" // for concat
-#include "cppType.h" // for cppTypeTYPE, nameTable, and nameTableContains
+#include "cppType.h" // for cppTypeTYPE, and nameTableContains
+#include "symbol.h" // for Hash, nameTable, and putName
+#include "memory.h"
 
 FILE* emitFILE;
 
@@ -84,6 +86,176 @@ char* getBoundsCheckVarName() {
     return boundsCheckVarName;
 }
 
+void addToReservedNames(char* name) {
+    int i = Hash(name);
+    ID* id = NEW(ID);
+    id->name = name;
+    id->next = reservedNames[i];
+    reservedNames[i] = id;
+}
+
+void initReservedNames() {
+    int i;
+    for (i = 0; i < HashSize; i++) reservedNames[i] = NULL;
+    addToReservedNames("alignas");
+    addToReservedNames("alignof");
+    addToReservedNames("and");
+    addToReservedNames("and_eq");
+    addToReservedNames("asm");
+    addToReservedNames("atomic_cancel");
+    addToReservedNames("atomic_commit");
+    addToReservedNames("atomic_noexcept");
+    addToReservedNames("auto");
+    addToReservedNames("bitand");
+    addToReservedNames("bitor");
+    addToReservedNames("bool");
+    addToReservedNames("break");
+    addToReservedNames("case");
+    addToReservedNames("catch");
+    addToReservedNames("char");
+    addToReservedNames("char16_t");
+    addToReservedNames("char32_t");
+    addToReservedNames("class");
+    addToReservedNames("compl");
+    addToReservedNames("concept");
+    addToReservedNames("const");
+    addToReservedNames("constexpr");
+    addToReservedNames("const_cast");
+    addToReservedNames("continue");
+    addToReservedNames("decltype");
+    addToReservedNames("default");
+    addToReservedNames("default");
+    addToReservedNames("delete");
+    addToReservedNames("do");
+    addToReservedNames("double");
+    addToReservedNames("dynamic_cast");
+    addToReservedNames("else");
+    addToReservedNames("enum");
+    addToReservedNames("explicit");
+    addToReservedNames("export");
+    addToReservedNames("extern");
+    addToReservedNames("false");
+    addToReservedNames("float");
+    addToReservedNames("for");
+    addToReservedNames("friend");
+    addToReservedNames("goto");
+    addToReservedNames("if");
+    addToReservedNames("import");
+    addToReservedNames("inline");
+    addToReservedNames("int");
+    addToReservedNames("long");
+    addToReservedNames("module");
+    addToReservedNames("mutable");
+    addToReservedNames("namespace");
+    addToReservedNames("new");
+    addToReservedNames("noexcept");
+    addToReservedNames("not");
+    addToReservedNames("not_eq");
+    addToReservedNames("nullptr");
+    addToReservedNames("operator");
+    addToReservedNames("or");
+    addToReservedNames("or_eq");
+    addToReservedNames("private");
+    addToReservedNames("protected");
+    addToReservedNames("public");
+    addToReservedNames("register");
+    addToReservedNames("reinterpret_cast");
+    addToReservedNames("requires");
+    addToReservedNames("return");
+    addToReservedNames("short");
+    addToReservedNames("signed");
+    addToReservedNames("sizeof");
+    addToReservedNames("static");
+    addToReservedNames("static_assert");
+    addToReservedNames("static_cast");
+    addToReservedNames("struct");
+    addToReservedNames("switch");
+    addToReservedNames("synchronized");
+    addToReservedNames("template");
+    addToReservedNames("this");
+    addToReservedNames("thread_local");
+    addToReservedNames("throw");
+    addToReservedNames("true");
+    addToReservedNames("try");
+    addToReservedNames("typedef");
+    addToReservedNames("typeid");
+    addToReservedNames("typename");
+    addToReservedNames("union");
+    addToReservedNames("unsigned");
+    addToReservedNames("using");
+    addToReservedNames("virtual");
+    addToReservedNames("void");
+    addToReservedNames("volatile");
+    addToReservedNames("wchar_t");
+    addToReservedNames("while");
+    addToReservedNames("xor");
+    addToReservedNames("xor_eq");
+}
+
+int isReserved(char* name) {
+    int i = Hash(name);
+    ID* id;
+    for (id = reservedNames[i]; id; id = id->next) {
+        if (strcmp(name, id->name) == 0) return 1;
+    }
+    return 0;
+}
+
+char* findReplacementName(char* name) {
+    int i = Hash(name);
+    REPLACEMENTID* id = replacementNames[i];
+    for (id = replacementNames[i]; id; id = id->next) {
+        if (strcmp(name, id->name) == 0) {
+            return id->replacementName;
+        }
+    }
+    return NULL;
+}
+
+char* generateReplacementName(char* name) {
+    char number[100]; // more than we need
+    char* replacementName;
+    int i = 1;
+    while (1) {
+        sprintf(number, "%d", i);
+        i++;
+        replacementName = concat(name, number);
+        if (!nameTableContains(replacementName)) {
+            break;
+        }
+    }
+    return replacementName;
+}
+
+void putReplacementName(char* name, char* replacementName) {
+    int i = Hash(name);
+    REPLACEMENTID* id = NEW(REPLACEMENTID);
+    id->name = name;
+    id->replacementName = replacementName;
+    id->next = replacementNames[i];
+    replacementNames[i] = id;
+}
+
+char* getReplacementName(char* name) {
+    char* replacementName = findReplacementName(name);
+    if (replacementName != NULL) return replacementName;
+    // generate a replacement name, add it to replacementNames, and return it
+    replacementName = generateReplacementName(name);
+    // add the replacement name to the name table
+    putName(replacementName);
+    // add the replacement name to replacementNames
+    putReplacementName(name, replacementName);
+    return replacementName;
+}
+
+char* getOutputName(char* name) {
+    // first, check that the name is not a keyword
+    if (isReserved(name)) {
+        return getReplacementName(name);
+    }
+    return name;
+}
+
 void genPROGRAM(PROGRAM* p, char* fname) {
     emitFILE = fopen(fname, "w");
     // first, add the constant header code
@@ -101,6 +273,8 @@ void genPROGRAM(PROGRAM* p, char* fname) {
     newLineInFile(emitFILE);
     addOperators(head);
     newLineInFile(emitFILE);
+    // next, create the reservedNames hashmap
+    initReservedNames();
     // next, traverse the AST, writing each line's equivalent C++ code to emitFILE
     // we completely ignore the package declaration
     fprintf(emitFILE, "// code");
@@ -149,19 +323,19 @@ void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
             case typeOnlyK:
                 // need to have a function that assigns defaults depending on the type!
                 genCPPTYPE(vd->val.typeVD->cppType);
-                fprintf(emitFILE, " %s = ", vd->id->name);
+                fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
                 genDefault(vd->val.typeVD->cppType, level);
                 break;
             case expOnlyK:
                 // get the type from the expression
                 genCPPTYPE(vd->val.expVD.exp->type->cppType);
-                fprintf(emitFILE, " %s = ", vd->id->name);
+                fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
                 genEXP(vd->val.expVD.exp);
                 break;
             case typeAndExpK:
                 // easy --> you already have all the information you need
                 genCPPTYPE(vd->val.typeAndExpVD.type->cppType);
-                fprintf(emitFILE, " %s = ", vd->id->name);
+                fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
                 genEXP(vd->val.typeAndExpVD.exp);
                 break;
         }
@@ -196,7 +370,7 @@ void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
             genCPPTYPE(fd->returnType->cppType);
             fprintf(emitFILE, " ");
         }
-        fprintf(emitFILE, "%s(", fd->id->name);
+        fprintf(emitFILE, "%s(", getOutputName(fd->id->name));
         genPARAMETER(fd->parameters);
         fprintf(emitFILE, ") {");
     }
@@ -221,7 +395,7 @@ void genPARAMETER(PARAMETER* p) {
 void genPARAMETERlist(PARAMETER* p) {
     if (p == NULL) return;
     genCPPTYPE(p->type->cppType);
-    fprintf(emitFILE, " %s", p->id->name);
+    fprintf(emitFILE, " %s", getOutputName(p->id->name));
     if (p->nextId != NULL) {
         fprintf(emitFILE, ", ");
         genPARAMETERlist(p->nextId);
@@ -290,12 +464,12 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
                 printTabsPrecedingStatement(level, startAtRwPointer);
                 if (s->val.shortDeclS.isRedecl) {
                     // just print the name and exp
-                    fprintf(emitFILE, "%s = ", s->val.shortDeclS.id->val.idE.id->name);
+                    fprintf(emitFILE, "%s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
                     genEXP(s->val.shortDeclS.exp);
                 } else {
                     // print the C++ type and then the name and exp
                     genCPPTYPE(s->val.shortDeclS.exp->type->cppType);
-                    fprintf(emitFILE, " %s = ", s->val.shortDeclS.id->val.idE.id->name);
+                    fprintf(emitFILE, " %s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
                     genEXP(s->val.shortDeclS.exp);
                 }
                 terminateSTATEMENT(level, semicolon);
@@ -649,7 +823,7 @@ void genEXP(EXP* e) {
     if (e == NULL) return; // need this because for and switch expressions could be null
     switch (e->kind) {
         case identifierK:
-            fprintf(emitFILE, "%s", e->val.idE.id->name);
+            fprintf(emitFILE, "%s", getOutputName(e->val.idE.id->name));
             break;
         case intLiteralK:
             fprintf(emitFILE, "%d", e->val.intLiteralE.decValue);
@@ -1002,7 +1176,7 @@ void genFIELDlist(FIELD* f, int level) {
     if (f == NULL) return;
     printTabsToFile(level, emitFILE);
     genCPPTYPE(f->type->cppType);
-    fprintf(emitFILE, " %s;", f->id->name);
+    fprintf(emitFILE, " %s;", getOutputName(f->id->name));
     newLineInFile(emitFILE);
     genFIELDlist(f->nextId, level);
 }
@@ -1047,7 +1221,7 @@ void genFIELDcomparison(FIELD* f, int inequality) {
 
 void genFIELDlistComparison(FIELD* f, int inequality) {
     if (f == NULL) return;
-    genComparison(f->type->cppType, f->id->name, inequality);
+    genComparison(f->type->cppType, getOutputName(f->id->name), inequality);
     if (f->nextId != NULL || f->nextFieldSet != NULL) {
         if (inequality) {
             fprintf(emitFILE, " || ");
@@ -1200,7 +1374,7 @@ void genDefaultFIELD(FIELD* f, int level) {
 void genDefaultFIELDlist(FIELD* f, int level) {
     if (f == NULL) return;
     printTabsToFile(level, emitFILE);
-    fprintf(emitFILE, ".%s = ", f->id->name);
+    fprintf(emitFILE, ".%s = ", getOutputName(f->id->name));
     genDefault(f->type->cppType, level);
     if (f->nextId != NULL || f->nextFieldSet != NULL) {
         fprintf(emitFILE, ",");
