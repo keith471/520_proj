@@ -318,7 +318,8 @@ typedef struct EXP {
     int isParenthesized;    // a flag that we check during weeding of short declaration statements
     union {
         struct {struct ID* id;
-                struct SYMBOL* symbol; /* symbol of this identifier, set in the symbol phase */ } idE;  // identifier
+                struct SYMBOL* symbol; /* symbol of this identifier, set in the symbol phase */
+                int leaveNameAsIs; /* important for deciding whether or not to change true/false identifiers during codegen */ } idE;  // identifier
         struct {int decValue; // value of integer
                 IntLiteralKind kind;} intLiteralE;
         float floatLiteralE;    // value of float

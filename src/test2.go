@@ -2,15 +2,18 @@ package main
 
 func main() {
 
-    var float int
+    var true bool = true
+    var false bool = false
 
-    float++
-
-    if (float == 3) {
-        println(float)
-    }
-
-    var float1 [10]int
-
-    float1[5] = 23
+    println(true, false)
 }
+
+/*
+
+In C++
+
+bool true1 = true
+bool false1 = false
+
+println(true1, false1)
+*/

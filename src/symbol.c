@@ -891,6 +891,16 @@ void symEXP(EXP* e, SymbolTable* t) {
                 s = getSymbol(t, e->val.idE.id->name, e->lineno);
                 // store the symbol on the exp for the type phase
                 e->val.idE.symbol = s;
+
+                // if the id is "true" or "false", then we need to see if the SYMBOL is
+                // that of the original true/false varSyms or if true/false have been redefined
+                // if redefined, then we need to make note of this so that we change the name
+                // of this identifier in the codegen phase
+                if (strcmp(e->val.idE.id->name, "true") == 0 || strcmp(e->val.idE.id->name, "false") == 0) {
+                    if (s->kind == varSym) {
+                        e->val.idE.leaveNameAsIs = 1;
+                    }
+                }
             }
             // identifiers in expressions had better be either fields, parameters, variables, or functions
             /*

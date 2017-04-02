@@ -823,7 +823,11 @@ void genEXP(EXP* e) {
     if (e == NULL) return; // need this because for and switch expressions could be null
     switch (e->kind) {
         case identifierK:
-            fprintf(emitFILE, "%s", getOutputName(e->val.idE.id->name));
+            if (e->val.idE.leaveNameAsIs) {
+                fprintf(emitFILE, "%s", e->val.idE.id->name);
+            } else {
+                fprintf(emitFILE, "%s", getOutputName(e->val.idE.id->name));
+            }
             break;
         case intLiteralK:
             fprintf(emitFILE, "%d", e->val.intLiteralE.decValue);

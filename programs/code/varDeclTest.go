@@ -32,4 +32,5 @@ func main() {
     // try a short variable declaration with a redeclaration
     a, b := "hi", 9.6
 
+    println(x, y, z, m, n, t, s, a, b)
 }

@@ -1205,6 +1205,7 @@ EXP* makeEXPid(ID* id) {
     e->isParenthesized = 0;
     e->val.idE.id = id;
     e->val.idE.symbol = NULL;
+    e->val.idE.leaveNameAsIs = 0; // potentially changed in symbol phase
     e->next = NULL;
     return e;
 }

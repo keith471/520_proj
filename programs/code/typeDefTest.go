@@ -22,4 +22,16 @@ func main() {
 
     // we'll have a C++ array of these
     var superheroes [10]SuperHero
+
+    var keith Person
+    keith.name = "keith"
+    keith.age = num(24)
+
+    var uberMan SuperHero
+    uberMan.fakeIdentity = keith
+    uberMan.name = "Uber Man"
+    uberMan.power = "teleportation"
+
+    println(uberMan.fakeIdentity.name, uberMan.fakeIdentity.age)
+    println(uberMan.name, uberMan.power)
 }
