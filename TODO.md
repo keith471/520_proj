@@ -20,9 +20,6 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
-- fix issue with no new line after something
-- can probably use a flag: seenNewLineAfterLastCodeSegment to keep track of whether or not there's been a newline since the last bit of code. If not, then, insert a semicolon
-
 - write 10 basic valid tests for codegen (cover all the features at least once)
 - merge with master
 - branch for flags
