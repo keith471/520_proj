@@ -903,7 +903,7 @@ basicLiteral:
         {
             #ifdef BISON_DEBUG
                 printf("found a raw string literal\n");
-            #endif            
+            #endif
             $$ = makeEXPrawstringliteral($1);
         }
     ;

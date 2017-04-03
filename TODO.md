@@ -20,12 +20,8 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
-- change names of variables that are C++ keywords
-- need a hashmap of C++ keywords
-- before code generating a variable, check that it's name is not a keyword (not in the hashmap)
-- if it is, then look up its new name in the replacementNames hashmap
-- if it is not yet in the replacement names hashmap, then this is the first time we have encountered it
-- so create a new entry in the replacement names hashmap and use this name
+- fix issue with no new line after something
+- can probably use a flag: seenNewLineAfterLastCodeSegment to keep track of whether or not there's been a newline since the last bit of code. If not, then, insert a semicolon
 
 - write 10 basic valid tests for codegen (cover all the features at least once)
 - merge with master

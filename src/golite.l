@@ -388,6 +388,13 @@ append          {
                         printf("found a multi-line comment: %s\n", yytext);
                     #endif
                 }
+<<EOF>>         {
+                    if (shouldInsertBeforeNewLine) {
+                        shouldInsertBeforeNewLine = 0;
+                        return ';';
+                    }
+                    return 0;
+                }
 %%
 
 /*
