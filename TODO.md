@@ -21,7 +21,6 @@ ssh kstric@teaching.cs.mcgill.ca
 ## Codegen
 
 - write 10 basic valid tests for codegen (cover all the features at least once)
-- merge with master
 - branch for flags
 - add support for flags
 - submit!

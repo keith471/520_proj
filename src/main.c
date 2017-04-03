@@ -10,6 +10,10 @@
 #include "type.h"
 #include "cppType.h"
 #include "codegen.h"
+#include "memory.h"
+
+// the compiler version
+char* VERSION = "v1.0.0";
 
 int yylex();
 void yyparse();
@@ -17,7 +21,7 @@ void yyparse();
 PROGRAM* theprogram;
 
 int dumpsymtab = 0; // if true, the symbol table will be dumped
-int pptype = 0; // if true, the program will be pretty printed with types
+int pptype = 0; // TODO if true, the program will be pretty printed with types
 
 extern FILE* yyin;
 
@@ -63,19 +67,86 @@ void parsePROGRAM(char* programFilename) {
         exit(1);
     }
 
-
     // set lex to read from the external file instead of defaulting to STDIN
     yyin = infile;
 
     // parse through the input until there is no more
-    printf("parsing program...\n");
     do {
         yyparse();
     } while (!feof(yyin));
     // we do some weeding in the parser; if there were any weeding errors, terminate
-    terminateIfErrors();
-    printf("    >>> SUCCESS\n");
     fclose(infile);
+}
+
+int beginsWithDash(char* s) {
+    if (s[0] == '-') {
+        return 1;
+    }
+    return 0;
+}
+
+typedef struct OPTIONS {
+    char* pathToFile;
+    int help;
+    int version;
+    int prettyPrint;
+    int dumpsymtab;
+    int onTheFly;
+} OPTIONS;
+
+OPTIONS* getOptions(int nargs, char* args[]) {
+    OPTIONS* opts = NEW(OPTIONS);
+    opts->pathToFile = NULL;
+    opts->help = 0;
+    opts->version = 0;
+    opts->prettyPrint = 0;
+    opts->dumpsymtab = 0;
+    opts->onTheFly = 0;
+
+    int i;
+    int pathSet = 0;
+    char* currArg;
+    for (i = 1; i < nargs; i++) {
+        currArg = args[i];
+        if (strcmp(currArg, "-dumpsymtab") == 0) {
+            opts->dumpsymtab = 1;
+            dumpsymtab = 1; // must set this here since it is an extern variable in symbol.c
+        } else if (strcmp(currArg, "-h") == 0) {
+            opts->help = 1;
+        } else if (strcmp(currArg, "-v") == 0) {
+            opts->version = 1;
+        } else if (strcmp(currArg, "-pp") == 0) {
+            opts->prettyPrint = 1;
+        } else if (strcmp(currArg, "-onthefly") == 0) {
+            opts->onTheFly = 1;
+        } else {
+            if (beginsWithDash(currArg)) {
+                fprintf(stderr, "ERROR: unrecognized option '%s'. For proper usage, try the '-h' flag.\n", currArg);
+                exit(1);
+            } else if (!pathSet) {
+                // should be the path to the file
+                opts->pathToFile = currArg;
+                pathSet = 1;
+            } else {
+                fprintf(stderr, "ERROR: too many filepaths provided. For proper usage, try the '-h' flag.\n");
+                exit(1);
+            }
+        }
+    }
+    return opts;
+}
+
+void printVersion() {
+    printf("GoLite Compiler, version %s\n", VERSION);
+}
+
+void printHelp() {
+    printf("USAGE: <path_to_executable> <path_to_golite_file> [-h, -v, -pp, -onthefly, -dumpsymtab]\n");
+    printf("-h:\tfor help\n");
+    printf("-v:\tversion information\n");
+    printf("-pp:\tto pretty print the input code\n");
+    printf("-onTheFly:\tto compile code typed directly into the terminal\n");
+    printf("-dumpsymtab:\tdump a file containing symbol table information\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -89,124 +160,44 @@ int main(int argc, char* argv[]) {
 
     #ifndef FLEX_DEBUG
 
-        char* programPath = "test.go";
         char* programName; // parsed from program name
         char* outputPath = "./src/output/"; // the path to the output folder
         char* prettyPath; // the path to the pretty printed file
         char* symbolPath; // the path to the symbol table file
         char* cppPath; // the path to the generated c++ code
 
-        if (argc == 2) {
-            programPath = argv[1];
-            parsePROGRAM(programPath);
-        } else if (argc == 3) {
-            int pathSet = 0;
-            int error = 0;
+        OPTIONS* opts = getOptions(argc, argv);
 
-            char* arg = argv[1];
+        if (opts->help) {
+            printHelp();
+        }
 
-            if (strcmp(arg, "-dumpsymtab") == 0) {
-                dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") == 0) {
-                pptype = 1;
-            } else {
-                // must be the path to the file
-                programPath = arg;
-                pathSet = 1;
-            }
+        if (opts->version) {
+            printVersion();
+        }
 
-            arg = argv[2];
-
-            if (strcmp(arg, "-dumpsymtab") == 0) {
-                dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") == 0) {
-                pptype = 1;
-            } else {
-                if (!pathSet) {
-                    // must be the path to the file
-                    programPath = arg;
-                    pathSet = 1;
-                } else {
-                    // two paths given?
-                    error = 1;
-                }
-            }
-
-            if (!pathSet || error) {
-                printf("USAGE: <path_to_executable> <path_to_golite_file> [-dumpsymtab, -pptype]\n");
-                exit(1);
-            }
-
-            parsePROGRAM(programPath);
-
-        } else if (argc == 4) {
-            int pathSet = 0;
-            int error = 0;
-
-            char* arg = argv[1];
-
-            if (strcmp(arg, "-dumpsymtab") == 0) {
-                dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") == 0) {
-                pptype = 1;
-            } else {
-                // must be the path to the file
-                programPath = arg;
-                pathSet = 1;
-            }
-
-            arg = argv[2];
-
-            if (strcmp(arg, "-dumpsymtab") == 0) {
-                dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") == 0) {
-                pptype = 1;
-            } else {
-                if (!pathSet) {
-                    // must be the path to the file
-                    programPath = arg;
-                    pathSet = 1;
-                } else {
-                    // two paths given?
-                    error = 1;
-                }
-            }
-
-            arg = argv[3];
-
-            if (strcmp(arg, "-dumpsymtab") == 0) {
-                dumpsymtab = 1;
-            } else if (strcmp(arg, "-pptype") == 0) {
-                pptype = 1;
-            } else {
-                if (!pathSet) {
-                    // must be the path to the file
-                    programPath = arg;
-                    pathSet = 1;
-                } else {
-                    // two or more paths given?
-                    error = 1;
-                }
-            }
-
-            if (!pathSet || error) {
-                printf("USAGE: <path_to_executable> <path_to_golite_file> [-dumpsymtab, -pptype]\n");
-                exit(1);
-            }
-
-            parsePROGRAM(programPath);
-        } else if (argc > 4) {
-            printf("USAGE: <path_to_executable> <path_to_golite_file> [-dumpsymtab, -pptype]\n");
-            exit(1);
-        } else {
-            printf("Type some golite code folowed by one or two Ctrl-d's:\n");
+        if (opts->onTheFly) {
+            printf("Type some GoLite code folowed by one or two ctrl-d's:\n");
             // parse the program and build an AST rooted at theprogram
             yyparse();
             // we do some weeding in the parser; if there were any weeding errors, terminate
             terminateIfErrors();
-        }
+            printf("    >>> PARSED CODE SUCCESSFULLY\n");
 
-        programName = getProgramName(programPath);
+            programName = "onthefly";
+        } else if (opts->pathToFile != NULL) {
+            printf("parsing program...\n");
+            parsePROGRAM(opts->pathToFile);
+            terminateIfErrors();
+            printf("    >>> SUCCESS\n");
+
+            programName = getProgramName(opts->pathToFile);
+        } else {
+            if (!opts->help && !opts->version) {
+                fprintf(stderr, "USAGE: <path_to_executable> <path_to_golite_file> [-h, -v, -pp, -onthefly, -dumpsymtab]\n");
+            }
+            exit(1);
+        }
 
         // finish any weeding that we didn't do in the parser
         printf("weeding the program...\n");
@@ -214,12 +205,14 @@ int main(int argc, char* argv[]) {
         terminateIfErrors();
         printf("    >>> SUCCESS\n");
 
-        // pretty print the program
-        printf("pretty printing program...\n");
-        prettyPath = concat(outputPath, concat(programName, ".pretty.go"));
-        prettyPROGRAM(theprogram, prettyPath);
-        printf("    >>> SUCCESS\n");
-        printf("    >>> pretty printed program to %s\n", prettyPath);
+        // optionally pretty print the program
+        if (opts->prettyPrint) {
+            printf("pretty printing program...\n");
+            prettyPath = concat(outputPath, concat(programName, ".pretty.go"));
+            prettyPROGRAM(theprogram, prettyPath);
+            printf("    >>> SUCCESS\n");
+            printf("    >>> pretty printed program to %s\n", prettyPath);
+        }
 
         // create a symbol table for the program
         printf("making a symbol table...\n");
@@ -227,7 +220,7 @@ int main(int argc, char* argv[]) {
         symPROGRAM(theprogram, symbolPath);
         terminateIfErrors();
         printf("    >>> SUCCESS\n");
-        if (dumpsymtab) {
+        if (opts->dumpsymtab) {
             printf("    >>> wrote the symbol table to %s\n", symbolPath);
         }
 
@@ -246,8 +239,8 @@ int main(int argc, char* argv[]) {
         printf("generating C++ code...\n");
         cppPath = concat(outputPath, concat(programName, ".cpp"));
         genPROGRAM(theprogram, cppPath);
-        printf("    >>> SUCCESS\n");
-        printf("    >>> successfully compiled the program as %s\n", cppPath);
+        printf("    >>> SUCCESS\n\n");
+        printf(">>> successfully compiled the program as %s\n", cppPath);
 
     #endif
 
