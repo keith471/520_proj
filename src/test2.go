@@ -1,6 +1,6 @@
 package main
 
-func mai() {
+func main() {
 
     var array [2]int
     array[0] = 1
