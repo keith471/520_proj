@@ -1,8 +1,7 @@
 package main
 
 func main() {
-
-
+    
     var intSlice []int
 
     intSlice = append(intSlice, 0)

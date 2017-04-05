@@ -413,9 +413,10 @@ void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
         case eqK:
             typeEXP(e->val.eqE.left, s, v);
             typeEXP(e->val.eqE.right, s, v);
-            // all values that we support in golite are comparable, so all we have to do
-            // is check that the types are equal
             assertIdenticalTYPEs(e->val.eqE.left->type, e->val.eqE.right->type, e->lineno);
+            // all values except for slices are comparable! Since we know the types are identical,
+            // all we have to do is check one of the types
+            checkNoUnderlyingSlice(e->val.eqE.left->type, e->lineno);
             e->type = boolTYPE;
             if (resolvesToString(e->val.eqE.left->type) && resolvesToString(e->val.eqE.right->type)) {
                 e->val.eqE.stringCompare = 1;
@@ -425,6 +426,8 @@ void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
             typeEXP(e->val.neqE.left, s, v);
             typeEXP(e->val.neqE.right, s, v);
             assertIdenticalTYPEs(e->val.neqE.left->type, e->val.neqE.right->type, e->lineno);
+            // all values except for slices are comparable!
+            checkNoUnderlyingSlice(e->val.neqE.left->type, e->lineno);
             e->type = boolTYPE;
             if (resolvesToString(e->val.neqE.left->type) && resolvesToString(e->val.neqE.right->type)) {
                 e->val.neqE.stringCompare = 1;
@@ -1640,6 +1643,48 @@ void checkOrderedAndEqual(TYPE* left, TYPE* right, int lineno) {
     // assert that both types are ordered
     assertOrdered(left, lineno);
     assertOrdered(right, lineno);
+}
+
+void checkNoUnderlyingSlice(TYPE* t, int lineno) {
+    switch(t->kind) {
+        case intK:
+            break;
+        case float64K:
+            break;
+        case runeK:
+            break;
+        case boolK:
+            break;
+        case stringK:
+            break;
+        case idK:
+            // check the underlying type!
+            checkNoUnderlyingSlice(t->val.idT.underlyingType, lineno);
+            break;
+        case structK:
+            // check that none of the fields of the struct have type slice
+            checkNoUnderlyingSliceInFields(t->val.structT->fields, lineno);
+            break;
+        case sliceK:
+            reportError("TYPE", "slices are not comparable", lineno);
+            break;
+        case arrayK:
+            // check the type of the elements in the array
+            checkNoUnderlyingSlice(t->val.arrayT.elementType, lineno);
+            break;
+    }
+}
+
+void checkNoUnderlyingSliceInFields(FIELD* fields, int lineno) {
+    if (fields == NULL) return;
+    checkNoUnderlyingSliceInFieldList(fields, lineno);
+    checkNoUnderlyingSliceInFields(fields->nextFieldSet, lineno);
+}
+
+void checkNoUnderlyingSliceInFieldList(FIELD* field, int lineno) {
+    if (field == NULL) return;
+    checkNoUnderlyingSlice(field->type, lineno);
+    checkNoUnderlyingSliceInFieldList(field->nextId, lineno);
 }
 
 /*

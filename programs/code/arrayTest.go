@@ -2,10 +2,11 @@ package main
 
 func main() {
 
-    var array [0]int
+    var array [2]int
     array[0] = 1
+    array[1] = 2
 
-    var matrix [0][0]int
+    var matrix [3][3]int
 
     var row int = 0
     var col int = 0
