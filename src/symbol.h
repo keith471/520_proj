@@ -50,4 +50,6 @@ void symEXP(EXP* e, SymbolTable* t);
 void symRECEIVER(RECEIVER* r, SymbolTable* t);
 void verifyType(TYPE* type, SymbolTable* t);
 void symSTRUCTTYPE(STRUCTTYPE* s, SymbolTable *t);
+
 int notBlank(char* name);
+int isMain(FUNCTIONDECLARATION* fd);

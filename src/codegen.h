@@ -52,7 +52,7 @@ void genComparison(CPPTYPE* c, char* name, int inequality);
 void genArrayComparator(CPPTYPE* c);
 void genArrayElementComparison(CPPTYPE* type);
 
-int isMain(FUNCTIONDECLARATION* fd);
+int equivToMain(FUNCTIONDECLARATION* fd);
 void genDefault(CPPTYPE* t, int level);
 void genDefaultSTRUCTTYPE(STRUCTTYPE* s, int level);
 void genDefaultFIELD(FIELD* f, int level);

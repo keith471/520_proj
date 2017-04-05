@@ -22,6 +22,7 @@ PROGRAM* theprogram;
 
 int dumpsymtab = 0; // if true, the symbol table will be dumped
 int pptype = 0; // TODO if true, the program will be pretty printed with types
+int requireMain = 0; // can require that the main function is present though the -reqmain flag
 
 extern FILE* yyin;
 
@@ -119,6 +120,8 @@ OPTIONS* getOptions(int nargs, char* args[]) {
             opts->prettyPrint = 1;
         } else if (strcmp(currArg, "-onthefly") == 0) {
             opts->onTheFly = 1;
+        } else if (strcmp(currArg, "-reqmain") == 0) {
+            requireMain = 1; // must set this here since it is an extern variable in symbol.c and codegen.c
         } else {
             if (beginsWithDash(currArg)) {
                 fprintf(stderr, "ERROR: unrecognized option '%s'. For proper usage, try the '-h' flag.\n", currArg);
@@ -141,12 +144,13 @@ void printVersion() {
 }
 
 void printHelp() {
-    printf("USAGE: <path_to_executable> <path_to_golite_file> [-h, -v, -pp, -onthefly, -dumpsymtab]\n");
+    printf("USAGE: <path_to_executable> <path_to_golite_file> [-h, -v, -pp, -onthefly, -dumpsymtab, -reqmain]\n");
     printf("-h:\tfor help\n");
     printf("-v:\tversion information\n");
     printf("-pp:\tto pretty print the input code\n");
     printf("-onTheFly:\tto compile code typed directly into the terminal\n");
     printf("-dumpsymtab:\tdump a file containing symbol table information\n");
+    printf("-reqmain:\tset this to require that the main function be present - if not set and no main function is present, the compiled C++ code will give a linker error due to the lack of a main function\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -194,7 +198,7 @@ int main(int argc, char* argv[]) {
             programName = getProgramName(opts->pathToFile);
         } else {
             if (!opts->help && !opts->version) {
-                fprintf(stderr, "USAGE: <path_to_executable> <path_to_golite_file> [-h, -v, -pp, -onthefly, -dumpsymtab]\n");
+                fprintf(stderr, "USAGE: <path_to_executable> <path_to_golite_file> [-h, -v, -pp, -onthefly, -dumpsymtab, -reqmain]\n");
             }
             exit(1);
         }

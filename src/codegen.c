@@ -7,13 +7,14 @@
 #include "pretty.h" // for printTabsPrecedingStatement and terminateSTATEMENT
 #include "helpers.h" // for concat
 #include "cppType.h" // for cppTypeTYPE, and nameTableContains
-#include "symbol.h" // for Hash, nameTable, putName, and isMain
+#include "symbol.h" // for Hash, nameTable, and putName
 #include "memory.h"
 
 FILE* emitFILE;
 
 // the head of the linked list of structs/arrays we discoverred in the C++ typing phase
 extern CPPTYPE* head;
+extern int requireMain;
 
 int boundsCheckVarNo = 1;
 
@@ -361,7 +362,7 @@ void genArrayChecks(ARRAYINDEX* a, int level) {
 
 void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
     // print the function signature
-    if (isMain(fd)) {
+    if (requireMain ? strcmp(fd->id->name, "main") == 0 : equivToMain(fd)) {
         fprintf(emitFILE, "int main() {");
     } else {
         if (fd->returnType == NULL) {
@@ -1308,7 +1309,7 @@ void genArrayElementComparison(CPPTYPE* type) {
  * returns 1 if the function declaration is for the main function (program entry point)
  * and 0 otherwise
  */
-int isMain(FUNCTIONDECLARATION* fd) {
+int equivToMain(FUNCTIONDECLARATION* fd) {
     // the name must be main
     if (strcmp(fd->id->name, "main") != 0) {
         return 0;

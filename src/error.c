@@ -101,6 +101,13 @@ void reportError(char* errType, char* msg, int lineno) {
     exit(1);
 }
 
+void reportGeneralError(char* errType, char* msg) {
+    fprintf(stderr, "%s ERROR:\n", errType);
+    fprintf(stderr, "    *** message: %s\n", msg);
+    errors++;
+    exit(1);
+}
+
 //==============================================================================
 // Errors for which we terminate after printing
 //==============================================================================

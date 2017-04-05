@@ -9,4 +9,5 @@ void reportCharError(char* errType, char *s, char c, int lineno);
 void reportSymbolError(char *s, char *name, int lineno);
 void reportRedeclError(char *msg, char* name, int prevLineno, int lineno);
 void reportError(char* errType, char* msg, int lineno);
+void reportGeneralError(char* errType, char* msg);
 void terminateIfErrors();

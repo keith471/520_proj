@@ -6,7 +6,9 @@
 
 FILE* emitFILE;
 extern int dumpsymtab;
+extern int requireMain;
 int currLineno = 0;  // the current lineno we are at
+int seenMain = 0; // 0 until we see the main function
 
 /////////////////////////////////////////////////////////////////////////////////
 // SYMBOL TABLE PRINTING
@@ -383,6 +385,11 @@ void symPROGRAM(PROGRAM* p, char* filePath) {
     scopeExit(symbolTable);
     symbolTable = scopeSymbolTable(symbolTable, 0); // create the outermost scope for the program
     symTOPLEVELDECLARATION(p->topLevelDeclaration, symbolTable);
+    if (requireMain) {
+        if (!seenMain) {
+            reportGeneralError("SYMBOL", "no main function found");
+        }
+    }
     scopeExit(symbolTable);
 
     if (dumpsymtab) {
@@ -528,6 +535,15 @@ void symTYPEDECLARATION(TYPEDECLARATION* td, SymbolTable* t) {
  */
 void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
     currLineno = f->lineno;
+
+    // check if this is the main function
+    if (requireMain) {
+        if (!seenMain) {
+            if (isMain(f)) {
+                seenMain = 1;
+            }
+        }
+    }
 
     // sym the return type in the current scope (could be NULL)
     if (f->returnType != NULL) {
@@ -1117,6 +1133,24 @@ void symSTRUCTTYPE(STRUCTTYPE* s, SymbolTable *t) {
 
 int notBlank(char* name) {
     if (strcmp("_", name) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+int isMain(FUNCTIONDECLARATION* fd) {
+    // the name must be main
+    if (strcmp(fd->id->name, "main") != 0) {
+        return 0;
+    }
+    // there can be no parameters
+    if (fd->parameters != NULL) {
+        reportError("SYMBOL", "the main function must take no arguments", fd->lineno);
+        return 0;
+    }
+    // there can be no return
+    if (fd->returnType != NULL) {
+        reportError("SYMBOL", "the main function must have no return type", fd->lineno);
         return 0;
     }
     return 1;
