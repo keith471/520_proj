@@ -2,6 +2,8 @@ src/y.*
 src/out
 src/lex.yy.*
 src/output/*
+src/test.go
+src/test2.go
 !src/output/.gitkeep
 *.log
 output.txt
