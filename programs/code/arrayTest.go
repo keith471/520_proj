@@ -17,4 +17,13 @@ func main() {
         }
         println()
     }
+
+    var m [3][3]int
+
+    if (matrix == m) {
+        println("equal matrices")
+    } else {
+        println("unequal matrices")
+    }
+
 }

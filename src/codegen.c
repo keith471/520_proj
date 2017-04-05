@@ -7,7 +7,7 @@
 #include "pretty.h" // for printTabsPrecedingStatement and terminateSTATEMENT
 #include "helpers.h" // for concat
 #include "cppType.h" // for cppTypeTYPE, and nameTableContains
-#include "symbol.h" // for Hash, nameTable, and putName
+#include "symbol.h" // for Hash, nameTable, putName, and isMain
 #include "memory.h"
 
 FILE* emitFILE;
@@ -267,7 +267,7 @@ void genPROGRAM(PROGRAM* p, char* fname) {
     newLineInFile(emitFILE);
     addTypeDefs(head);
     newLineInFile(emitFILE);
-    // then, add the comparison operators for structs
+    // then, add the comparison operators for structs and arrays
     fprintf(emitFILE, "// operators");
     newLineInFile(emitFILE);
     newLineInFile(emitFILE);
@@ -1292,6 +1292,9 @@ void genArrayElementComparison(CPPTYPE* type) {
     switch (type->kind) {
         case cppStringK:
             fprintf(emitFILE, "strcmp(lhs[i], rhs[i]) != 0");
+            break;
+        case cppArrayK:
+            fprintf(emitFILE, "!cmp_%s(lhs[i], rhs[i])", type->val.arrayT.name);
             break;
         default:
             fprintf(emitFILE, "lhs[i] != rhs[i]");
