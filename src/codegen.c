@@ -1341,6 +1341,10 @@ void genDefault(CPPTYPE* c, int level) {
             fprintf(emitFILE, "\"\"");
             break;
         case cppArrayK:
+            if (c->val.arrayT.size == 0) {
+                fprintf(emitFILE, "{}");
+                return;
+            }
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             printTabsToFile(level + 1, emitFILE);

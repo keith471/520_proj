@@ -24,7 +24,7 @@ char* concat(char *s1, char *s2) {
 }
 
 int GOLITE_CHECK_BOUNDS(int max, int idx) {
-    if (idx < 0 || idx >= max) {
+    if (idx < 0 || idx > max) {
         fprintf(stderr, "Out of bounds index\n");
         exit(1);
     }
