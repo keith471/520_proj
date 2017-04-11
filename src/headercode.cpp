@@ -4,8 +4,6 @@
 #include <string.h>
 #include <vector>
 
-using namespace std;
-
 // header code
 
 char* concat(char *s1, char *s2) {
@@ -33,8 +31,8 @@ int GOLITE_CHECK_BOUNDS(int max, int idx) {
 
 template <typename T>
 
-vector<T> golite_slice_append(vector<T> v, T x) {
-    vector<T> w = v;
+std::vector<T> golite_slice_append(std::vector<T> v, T x) {
+    std::vector<T> w = v;
     w.push_back(x);
 	return w;
 }

@@ -25,6 +25,13 @@ All the other flags are intuitive (run with the `-h` flag for more info!).
 On a final note, when compiling the C++ code my compiler produces, you may get some warnings due to string literals ("warning: conversion from string literal to 'char \*' is deprecated"). The code will still run without issue though! :)  
 Output files are saved in `./src/output`. **It is essential that this directory exists to avoid segmentation faults.**
 
+## Final Submission
+Between **Milestone 4** and this submission, I fixed the following:
+- naming conflicts with things imported by namespace _std_
+- bug pertaining to printing out default values for structs
+- fixed code generation of array assignment (now uses _memcpy_)
+- fixed code generation of break statements in if statements -- the break statements are now generated as _goto_ statements
+
 ## References
 The code for this compiler was inspired by the **Joos compiler code**.  
 Additionally, parts of the code generation was modeled off of the **reference compiler**.  

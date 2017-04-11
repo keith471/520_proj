@@ -297,10 +297,13 @@ void cppTypeSTATEMENT(STATEMENT* s) {
             // nothing to do
             break;
         case shortDeclK:
+            /*
             if (!s->val.shortDeclS.isRedecl) {
                 // get the C++ type of the expression
                 cppTypeTYPE(s->val.shortDeclS.exp->type);
             }
+            */
+            cppTypeTYPE(s->val.shortDeclS.exp->type);
             // don't forget the next one!
             cppTypeSTATEMENT(s->val.shortDeclS.next);
             break;

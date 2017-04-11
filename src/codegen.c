@@ -17,6 +17,7 @@ extern CPPTYPE* head;
 extern int requireMain;
 
 int boundsCheckVarNo = 1;
+int labelNo = 1;
 
 void addTypeDefs(CPPTYPE* c) {
     if (c == NULL) return;
@@ -85,6 +86,20 @@ char* getBoundsCheckVarName() {
         }
     }
     return boundsCheckVarName;
+}
+
+char* getGotoLabel() {
+    char number[100]; // more than we need
+    char* gotoLabel;
+    while (1) {
+        sprintf(number, "%d", labelNo);
+        labelNo++;
+        gotoLabel = concat("label_", number);
+        if (!nameTableContains(gotoLabel)) {
+            break;
+        }
+    }
+    return gotoLabel;
 }
 
 void addToReservedNames(char* name) {
@@ -328,10 +343,16 @@ void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
                 genDefault(vd->val.typeVD->cppType, level);
                 break;
             case expOnlyK:
-                // get the type from the expression
-                genCPPTYPE(vd->val.expVD.exp->type->cppType);
-                fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
-                genEXP(vd->val.expVD.exp);
+                // if what we are assigning into is an array, we need to use memcpy
+                if (vd->val.expVD.exp->type->cppType->kind == cppArrayK) {
+                    // get the type from the expression
+                    genArrayAssign(vd->val.expVD.exp->type->cppType, getOutputName(vd->id->name), vd->val.expVD.exp, level);
+                } else {
+                    // get the type from the expression
+                    genCPPTYPE(vd->val.expVD.exp->type->cppType);
+                    fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
+                    genEXP(vd->val.expVD.exp);
+                }
                 break;
             case typeAndExpK:
                 // easy --> you already have all the information you need
@@ -377,7 +398,7 @@ void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
     }
     // print the function body
     newLineInFile(emitFILE);
-    genSTATEMENT(fd->statements, 1, 1, 0);
+    genSTATEMENT(fd->statements, 1, 1, 0, 0, NULL);
     // close off the function body
     fprintf(emitFILE, "}");
     newLineInFile(emitFILE);
@@ -407,8 +428,9 @@ void genPARAMETERlist(PARAMETER* p) {
  * if semicolon is 1, we print a semicolon after the statement
  * if startAtRwPointer is 1, we do not print tabs prior to the statement
  * if level == -1, then we print the statement in line
+ * if breakToGoto is 1, then we replace any break statements with goto gotoLabel
  */
-void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) {
+void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, int breakToGoto, char* gotoLabel) {
     if (s == NULL) return;
     switch (s->kind) {
         case emptyK:
@@ -437,13 +459,25 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
         case regAssignK:
             genArrayChecks(s->arrayIndex, level);
             if (s->val.regAssignS.isBlank) {
-                // if the exp is a function call, then we should print it
+                // if the exp is a function call, then we should generate it
                 // otherwise, it is useless
                 if (s->val.regAssignS.exp->kind == argumentsK) {
                     printTabsPrecedingStatement(level, startAtRwPointer);
                     genEXP(s->val.regAssignS.exp);
                     terminateSTATEMENT(level, semicolon);
                 }
+            } else if (s->val.regAssignS.lvalue->type->cppType->kind == cppArrayK) {
+                // if this is an assignment of one array to another, e.g. a1 = a2,
+                // then we need to use memcpy
+                // (notice how if the LHS is an array, then the RHS must also be an array of
+                // the same size, otherwise the type checker would have stopped compilation already)
+                printTabsPrecedingStatement(level, startAtRwPointer);
+                fprintf(emitFILE, "memcpy(");
+                genEXP(s->val.regAssignS.lvalue);
+                fprintf(emitFILE, ", ");
+                genEXP(s->val.regAssignS.exp);
+                fprintf(emitFILE, ", sizeof(%s))", s->val.regAssignS.lvalue->type->cppType->val.arrayT.name);
+                terminateSTATEMENT(level, semicolon);
             } else {
                 printTabsPrecedingStatement(level, startAtRwPointer);
                 genEXP(s->val.regAssignS.lvalue);
@@ -451,7 +485,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
                 genEXP(s->val.regAssignS.exp);
                 terminateSTATEMENT(level, semicolon);
             }
-            genSTATEMENT(s->val.regAssignS.next, level, semicolon, startAtRwPointer);
+            genSTATEMENT(s->val.regAssignS.next, level, semicolon, startAtRwPointer, 0, NULL);
             break;
         case binOpAssignK:
             genArrayChecks(s->arrayIndex, level);
@@ -463,19 +497,29 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             genArrayChecks(s->arrayIndex, level);
             if (!s->val.shortDeclS.isBlank) {
                 printTabsPrecedingStatement(level, startAtRwPointer);
-                if (s->val.shortDeclS.isRedecl) {
-                    // just print the name and exp
-                    fprintf(emitFILE, "%s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
-                    genEXP(s->val.shortDeclS.exp);
+                // if this is an array, then we need to use memcpy
+                if (s->val.shortDeclS.exp->type->cppType->kind == cppArrayK) {
+                    if (s->val.shortDeclS.isRedecl) {
+                        // just print the name and exp
+                        fprintf(emitFILE, "memcpy(%s, ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
+                        genEXP(s->val.shortDeclS.exp);
+                        fprintf(emitFILE, ", sizeof(%s))", s->val.shortDeclS.exp->type->cppType->val.arrayT.name);
+                    }
                 } else {
-                    // print the C++ type and then the name and exp
-                    genCPPTYPE(s->val.shortDeclS.exp->type->cppType);
-                    fprintf(emitFILE, " %s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
-                    genEXP(s->val.shortDeclS.exp);
+                    if (s->val.shortDeclS.isRedecl) {
+                        // just print the name and exp
+                        fprintf(emitFILE, "%s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
+                        genEXP(s->val.shortDeclS.exp);
+                    } else {
+                        // print the C++ type and then the name and exp
+                        genCPPTYPE(s->val.shortDeclS.exp->type->cppType);
+                        fprintf(emitFILE, " %s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
+                        genEXP(s->val.shortDeclS.exp);
+                    }
                 }
                 terminateSTATEMENT(level, semicolon);
             }
-            genSTATEMENT(s->val.shortDeclS.next, level, semicolon, startAtRwPointer);
+            genSTATEMENT(s->val.shortDeclS.next, level, semicolon, startAtRwPointer, 0, NULL);
             break;
         case varDeclK:
             genVARDECLARATION(s->val.varDeclS, level);
@@ -487,7 +531,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             if (s->val.printS != NULL) {
                 genArrayChecks(s->arrayIndex, level);
                 printTabsPrecedingStatement(level, startAtRwPointer);
-                fprintf(emitFILE, "cout");
+                fprintf(emitFILE, "std::cout");
                 genPrintEXPs(s->val.printS);
                 fprintf(emitFILE, ";");
                 newLineInFile(emitFILE);
@@ -496,9 +540,9 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
         case printlnK:
             genArrayChecks(s->arrayIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
-            fprintf(emitFILE, "cout");
+            fprintf(emitFILE, "std::cout");
             genPrintlnEXPs(s->val.printlnS);
-            fprintf(emitFILE, " << endl;");
+            fprintf(emitFILE, " << std::endl;");
             newLineInFile(emitFILE);
             break;
         case returnK:
@@ -518,13 +562,13 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
-            genSTATEMENT(s->val.ifS.initStatement, level + 1, 1, 0);
+            genSTATEMENT(s->val.ifS.initStatement, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "if (");
             genEXP(s->val.ifS.condition);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
-            genSTATEMENT(s->val.ifS.body, level + 2, 1, 0);
+            genSTATEMENT(s->val.ifS.body, level + 2, 1, 0, breakToGoto, gotoLabel);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "}");
             newLineInFile(emitFILE);
@@ -538,13 +582,13 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
-            genSTATEMENT(s->val.ifElseS.initStatement, level + 1, 1, 0);
+            genSTATEMENT(s->val.ifElseS.initStatement, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "if (");
             genEXP(s->val.ifElseS.condition);
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
-            genSTATEMENT(s->val.ifElseS.thenPart, level + 2, 1, 0);
+            genSTATEMENT(s->val.ifElseS.thenPart, level + 2, 1, 0, breakToGoto, gotoLabel);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "} else ");
             if (s->val.ifElseS.elsePart) {
@@ -552,12 +596,12 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
                     // if/else
                     // print at the same level, with a trailing semicolon
                     // and starting at rw-pointer
-                    genSTATEMENT(s->val.ifElseS.elsePart, level + 1, 1, 1);
+                    genSTATEMENT(s->val.ifElseS.elsePart, level + 1, 1, 1, breakToGoto, gotoLabel);
                 } else {
                     // else block
                     fprintf(emitFILE, "{");
                     newLineInFile(emitFILE);
-                    genSTATEMENT(s->val.ifElseS.elsePart, level + 2, 1, 0);
+                    genSTATEMENT(s->val.ifElseS.elsePart, level + 2, 1, 0, breakToGoto, gotoLabel);
                     printTabsToFile(level + 1, emitFILE);
                     fprintf(emitFILE, "}");
                     newLineInFile(emitFILE);
@@ -581,7 +625,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
-            genSTATEMENT(s->val.switchS.initStatement, level + 1, 1, 0);
+            genSTATEMENT(s->val.switchS.initStatement, level + 1, 1, 0, 0, NULL);
             genSWITCHCASE(s->val.switchS.cases, s->val.switchS.condition, level + 1);
             // close the block
             printTabsToFile(level, emitFILE);
@@ -597,7 +641,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
             // gen the body
-            genSTATEMENT(s->val.whileS.body, level + 1, 1, 0);
+            genSTATEMENT(s->val.whileS.body, level + 1, 1, 0, 0, NULL);
             // close off the loop
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
@@ -609,7 +653,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             // gen this as a while(true)
             fprintf(emitFILE, "while (true) {");
             newLineInFile(emitFILE);
-            genSTATEMENT(s->val.infiniteLoopS, level + 1, 1, 0);
+            genSTATEMENT(s->val.infiniteLoopS, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
             newLineInFile(emitFILE);
@@ -646,7 +690,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
             // print the init statement
-            genSTATEMENT(s->val.forS.initStatement, level + 1, 1, 0);
+            genSTATEMENT(s->val.forS.initStatement, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "while (");
             // print the condition inline
@@ -658,9 +702,9 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             fprintf(emitFILE, ") {");
             newLineInFile(emitFILE);
             // statements
-            genSTATEMENT(s->val.forS.body, level + 2, 1, 0);
+            genSTATEMENT(s->val.forS.body, level + 2, 1, 0, 0, NULL);
             // print the post statement
-            genSTATEMENT(s->val.forS.postStatement, level + 2, 1, 0);
+            genSTATEMENT(s->val.forS.postStatement, level + 2, 1, 0, 0, NULL);
             // close off the for loop
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "}");
@@ -673,7 +717,11 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             break;
         case breakK:
             printTabsPrecedingStatement(level, startAtRwPointer);
-            fprintf(emitFILE, "break");
+            if (breakToGoto) {
+                fprintf(emitFILE, "goto %s", gotoLabel);
+            } else {
+                fprintf(emitFILE, "break");
+            }
             terminateSTATEMENT(level, semicolon);
             break;
         case continueK:
@@ -685,13 +733,23 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer) 
             printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
-            genSTATEMENT(s->val.blockS, level + 1, 1, 0);
+            genSTATEMENT(s->val.blockS, level + 1, 1, 0, breakToGoto, gotoLabel);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
             newLineInFile(emitFILE);
             break;
     }
-    genSTATEMENT(s->next, level, 1, 0);
+    genSTATEMENT(s->next, level, 1, 0, breakToGoto, gotoLabel);
+}
+
+void genArrayAssign(CPPTYPE* cppType, char* name, EXP* e, int level) {
+    genCPPTYPE(cppType);
+    fprintf(emitFILE, " %s;", getOutputName(name));
+    newLineInFile(emitFILE);
+    printTabsToFile(level, emitFILE);
+    fprintf(emitFILE, "memcpy(%s, ", getOutputName(name));
+    genEXP(e);
+    fprintf(emitFILE, ", sizeof(%s))", cppType->val.arrayT.name);
 }
 
 void genBinOp(STATEMENT* s) {
@@ -763,6 +821,8 @@ void genPrintlnEXPs(EXP* exps) {
 void genSWITCHCASE(SWITCHCASE* sc, EXP* e, int level) {
     SWITCHCASE* defaultSc = NULL;
     int firstCase = 1;
+    // get the name of the goto label in case there is a break in the switch case
+    char* gotoLabel = getGotoLabel();
     while (sc != NULL) {
         switch (sc->kind) {
             case caseK:
@@ -776,7 +836,7 @@ void genSWITCHCASE(SWITCHCASE* sc, EXP* e, int level) {
                 genCaseEXPs(sc->val.caseC.exps, e);
                 fprintf(emitFILE, ") {");
                 newLineInFile(emitFILE);
-                genSTATEMENT(sc->val.caseC.statements, level + 1, 1, 0);
+                genSTATEMENT(sc->val.caseC.statements, level + 1, 1, 0, 1, gotoLabel);
                 printTabsToFile(level, emitFILE);
                 fprintf(emitFILE, "}");
                 break;
@@ -790,11 +850,14 @@ void genSWITCHCASE(SWITCHCASE* sc, EXP* e, int level) {
     if (defaultSc != NULL) {
         fprintf(emitFILE, " else {");
         newLineInFile(emitFILE);
-        genSTATEMENT(defaultSc->val.defaultStatementsC, level + 1, 1, 0);
+        genSTATEMENT(defaultSc->val.defaultStatementsC, level + 1, 1, 0, 1, gotoLabel);
         printTabsToFile(level, emitFILE);
         fprintf(emitFILE, "}");
     }
-
+    // print the goto label
+    newLineInFile(emitFILE);
+    printTabsToFile(level, emitFILE);
+    fprintf(emitFILE, "%s: ;", gotoLabel);
     newLineInFile(emitFILE);
 }
 
@@ -1153,9 +1216,9 @@ void genCPPTYPE(CPPTYPE* c) {
             fprintf(emitFILE, "%s", c->val.arrayT.name);
             break;
         case cppVectorK:
-            fprintf(emitFILE, "vector<");
+            fprintf(emitFILE, "std::vector< ");
             genCPPTYPE(c->val.vectorT);
-            fprintf(emitFILE, ">");
+            fprintf(emitFILE, " >");
             break;
         case cppStructK:
             fprintf(emitFILE, "%s", c->val.structT.name);
@@ -1358,9 +1421,9 @@ void genDefault(CPPTYPE* c, int level) {
             fprintf(emitFILE, "}");
             break;
         case cppVectorK:
-            fprintf(emitFILE, "vector<");
+            fprintf(emitFILE, "std::vector< ");
             genCPPTYPE(c->val.vectorT);
-            fprintf(emitFILE, ">()");
+            fprintf(emitFILE, " >()");
             break;
         case cppStructK:
             genDefaultSTRUCTTYPE(c->val.structT.structType, level);
@@ -1392,7 +1455,7 @@ void genDefaultFIELDlist(FIELD* f, int level) {
         fprintf(emitFILE, ",");
     }
     newLineInFile(emitFILE);
-    genFIELDlist(f->nextId, level);
+    genDefaultFIELDlist(f->nextId, level);
 }
 
 /*
