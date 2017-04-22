@@ -31,6 +31,17 @@ Between **Milestone 4** and this submission, I fixed the following:
 - bug pertaining to printing out default values for structs
 - fixed code generation of array assignment (now uses _memcpy_)
 - fixed code generation of break statements in if statements -- the break statements are now generated as _goto_ statements
+- a scoping issue that occurred in the following scenario
+    int x = 3;
+    {
+        int x = x;
+        println(x); // x should be 3, but it was undefined due to C++ behavior
+    }
+- printing of booleans, runes, and floats
+- passing of arrays
+- slice assignment
+
+The only thing that I did not fix is **passing of slices**, which broke when I fixed slice assignment. Unfortunately, it doesn't seem to be easy to support both slice assignment by reference and slice passing by value in C++. So, I just support slice assignment by reference. My slices are also passed by reference instead of by value, which means that the function a slice is passed to can modify the original slice. This is not how Go behaves, but it's the best I can do for now.
 
 ## References
 The code for this compiler was inspired by the **Joos compiler code**.  
