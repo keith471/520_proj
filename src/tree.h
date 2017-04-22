@@ -37,7 +37,8 @@ typedef struct SymbolTable {
  */
 typedef struct SYMBOL {
     int lineno;
-    char* name;
+    char* name; // the name of the symbol in the GoLite code
+    char* generatedName; // the name that will be used for the symbol in the generated code
     SymbolKind kind;
     union {
         struct TYPE* typeS;
@@ -104,6 +105,7 @@ typedef struct VARDECLARATION {
     int isBlank;    // whether the id is the blank identifier
     struct ARRAYINDEX* arrayIndex; // not null if the declaration involves expressions that index into an array
     struct SLICEINDEX* sliceIndex; // not null if the declaration involves expressions that index into a slice
+    struct SYMBOL* symbol; // the symbol associated with the variable declaration
     union {
         struct TYPE* typeVD; // cannot be NULL
         struct {struct EXP* exp; /* in later phases, can access the type through exp or the symbol */
@@ -137,6 +139,7 @@ typedef struct TYPEDECLARATION {
 typedef struct FUNCTIONDECLARATION {
     int lineno;
     struct ID* id;  // the name of the function
+    struct SYMBOL* symbol; // the symbol associated with the function declaration
     struct PARAMETER *parameters;
     struct TYPE* returnType; // can be NULL
     struct STATEMENT *statements;
@@ -148,6 +151,7 @@ typedef struct FUNCTIONDECLARATION {
 typedef struct PARAMETER {
     int lineno;
     struct ID* id;
+    struct SYMBOL* symbol; // the symbol associated with the parameter
     struct TYPE *type; // cannot be NULL
     struct PARAMETER* nextId;   // for the next parameter in the list, e.g. a, b, c int
     struct PARAMETER* nextParamSet; // for the next set of parameters, e.g. a, b, c int, d, e float64
@@ -218,6 +222,7 @@ typedef struct STRUCTTYPE {
 typedef struct FIELD {
     int lineno;
     struct ID* id;
+    struct SYMBOL* symbol; // the symbol associated with the field
     struct TYPE *type;
     struct FIELD* nextId;
     struct FIELD* nextFieldSet;
@@ -387,7 +392,8 @@ typedef struct EXP {
         struct {struct EXP *slice; /* expression that returns the slice to append to */
                 struct EXP *expToAppend; /* element to add */} appendE;
         struct {struct RECEIVER* receiver;
-                struct ID* lastSelector;} selectorE;
+                struct ID* lastSelector;
+                struct SYMBOL* symbol; /* the symbol associated with last selector */ } selectorE;
         struct {struct EXP* rest;
                 struct EXP* lastIndex;} indexE;
         struct {struct EXP* rest;

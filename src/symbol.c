@@ -3,12 +3,15 @@
 #include "memory.h"
 #include "symbol.h"
 #include "error.h"
+#include "helpers.h" // for concat
 
 FILE* emitFILE;
 extern int dumpsymtab;
 extern int requireMain;
 int currLineno = 0;  // the current lineno we are at
 int seenMain = 0; // 0 until we see the main function
+
+int nameNum = 0;
 
 /////////////////////////////////////////////////////////////////////////////////
 // SYMBOL TABLE PRINTING
@@ -269,6 +272,15 @@ SymbolTable* scopeSymbolTable(SymbolTable *s, int startLineno) {
     return t;
 }
 
+char* generateName() {
+    char number[100]; // more than we need
+    char* newName;
+    sprintf(number, "%d", nameNum);
+    nameNum++;
+    newName = concat("golite_", number);
+    return newName;
+}
+
 /*
  * this is called in response to the declaration of some new identifier
  * check that the identifier does not already exist AT THE CURRENT LEVEL ONLY (it's ok if it exists at a higher level)
@@ -315,6 +327,7 @@ PutSymbolWrapper* putSymbol(SymbolTable *t, char *name, SymbolKind kind, int lin
         s = NEW(SYMBOL);
         s->lineno = lineno;
         s->name = name;
+        s->generatedName = generateName();
         s->kind = kind;
         s->next = t->table[i];
         t->table[i] = s; // put the new symbol at the start of the linked list
@@ -457,6 +470,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
                 s = p->symbol;
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = v->val.typeVD;
+                v->symbol = s;
             } else {
                 v->isBlank = 1;
             }
@@ -472,6 +486,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
                 v->val.expVD.symbol = s; // important so we can set the type in the type checking phase
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = NULL;
+                v->symbol = s;
             } else {
                 v->isBlank = 1;
             }
@@ -491,6 +506,7 @@ void symVARDECLARATIONlist(VARDECLARATION* v, SymbolTable* t, int checkedType) {
                 s = p->symbol;
                 s->val.varDeclS.varDecl = v;
                 s->val.varDeclS.type = v->val.typeAndExpVD.type;
+                v->symbol = s;
             } else {
                 v->isBlank = 1;
             }
@@ -558,6 +574,7 @@ void symFUNCTIONDECLARATION(FUNCTIONDECLARATION* f, SymbolTable* t) {
         putName(f->id->name);
         s = p->symbol;
         s->val.functionDeclS = f;
+        f->symbol = s;
     }
     // don't need to do anything if the function name is blank as the weeder ensures
     // that we cannot call blank functions. Technically, we could mark this function and not
@@ -603,6 +620,7 @@ void symPARAMETERlist(PARAMETER* p, SymbolTable* t, int checkedType) {
         s = psw->symbol;
         s->val.parameterS.param = p;
         s->val.parameterS.type = p->type;
+        p->symbol = s;
     }
     // we can code-generate a blank parameter later on, it simply won't every be used
 
@@ -876,6 +894,7 @@ void symFIELDlist(FIELD* f, SymbolTable* t, int checkedType) {
         s = p->symbol;
         s->val.fieldS.field = f;
         s->val.fieldS.type = f->type;
+        f->symbol = s;
     }
 
     // recurse

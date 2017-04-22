@@ -503,6 +503,8 @@ void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
             structType = assertResolvesToStruct(e->val.selectorE.receiver->receivingStruct->type, e->lineno);
             // search the symbol table of the structType for the last selector
             symbol = getSymbolInSymbolTable(structType->symbolTable, e->val.selectorE.lastSelector->name, e->lineno);
+            // set the symbol on the expression so that we can use its generatedName during codegen
+            e->val.selectorE.symbol = symbol;
             // the type of this expression is the type of the symbol
             // this symbol will definitely have kind fieldSym, so we can access its type directly
             e->type = symbol->val.fieldS.type;

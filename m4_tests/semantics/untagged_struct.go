@@ -1,14 +1,14 @@
-/*OUTPUT:	
+/*OUTPUT:
 1
 */
 package main;
 
-func f(a struct { a int; }){
-  println(a.a);
+func f(a struct { golite_5 int; }){
+  println(a.golite_5);
 }
 
 func main(){
-  var a struct { a int; }
-  a.a = 1
+  var a struct { golite_5 int; }
+  a.golite_5 = 1
   f(a)
 }

@@ -340,25 +340,25 @@ void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
             case typeOnlyK:
                 // need to have a function that assigns defaults depending on the type!
                 genCPPTYPE(vd->val.typeVD->cppType);
-                fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
+                fprintf(emitFILE, " %s = ", vd->symbol->generatedName);
                 genDefault(vd->val.typeVD->cppType, level);
                 break;
             case expOnlyK:
                 // if what we are assigning into is an array, we need to use memcpy
                 if (vd->val.expVD.exp->type->cppType->kind == cppArrayK) {
                     // get the type from the expression
-                    genArrayAssign(vd->val.expVD.exp->type->cppType, getOutputName(vd->id->name), vd->val.expVD.exp, level);
+                    genArrayAssign(vd->val.expVD.exp->type->cppType, vd->symbol->generatedName, vd->val.expVD.exp, level);
                 } else {
                     // get the type from the expression
                     genCPPTYPE(vd->val.expVD.exp->type->cppType);
-                    fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
+                    fprintf(emitFILE, " %s = ", vd->symbol->generatedName);
                     genEXP(vd->val.expVD.exp);
                 }
                 break;
             case typeAndExpK:
                 // easy --> you already have all the information you need
                 genCPPTYPE(vd->val.typeAndExpVD.type->cppType);
-                fprintf(emitFILE, " %s = ", getOutputName(vd->id->name));
+                fprintf(emitFILE, " %s = ", vd->symbol->generatedName);
                 genEXP(vd->val.typeAndExpVD.exp);
                 break;
         }
@@ -414,7 +414,7 @@ void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
             genCPPTYPE(fd->returnType->cppType);
             fprintf(emitFILE, " ");
         }
-        fprintf(emitFILE, "%s(", getOutputName(fd->id->name));
+        fprintf(emitFILE, "%s(", fd->symbol->generatedName);
         genPARAMETER(fd->parameters);
         fprintf(emitFILE, ") {");
     }
@@ -439,7 +439,7 @@ void genPARAMETER(PARAMETER* p) {
 void genPARAMETERlist(PARAMETER* p) {
     if (p == NULL) return;
     genCPPTYPE(p->type->cppType);
-    fprintf(emitFILE, " %s", getOutputName(p->id->name));
+    fprintf(emitFILE, " %s", p->symbol->generatedName);
     if (p->nextId != NULL) {
         fprintf(emitFILE, ", ");
         genPARAMETERlist(p->nextId);
@@ -529,19 +529,19 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
                 if (s->val.shortDeclS.exp->type->cppType->kind == cppArrayK) {
                     if (s->val.shortDeclS.isRedecl) {
                         // just print the name and exp
-                        fprintf(emitFILE, "memcpy(%s, ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
+                        fprintf(emitFILE, "memcpy(%s, ", s->val.shortDeclS.prevDeclSym->generatedName);
                         genEXP(s->val.shortDeclS.exp);
                         fprintf(emitFILE, ", sizeof(%s))", s->val.shortDeclS.exp->type->cppType->val.arrayT.name);
                     }
                 } else {
                     if (s->val.shortDeclS.isRedecl) {
                         // just print the name and exp
-                        fprintf(emitFILE, "%s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
+                        fprintf(emitFILE, "%s = ", s->val.shortDeclS.prevDeclSym->generatedName);
                         genEXP(s->val.shortDeclS.exp);
                     } else {
                         // print the C++ type and then the name and exp
                         genCPPTYPE(s->val.shortDeclS.exp->type->cppType);
-                        fprintf(emitFILE, " %s = ", getOutputName(s->val.shortDeclS.id->val.idE.id->name));
+                        fprintf(emitFILE, " %s = ", s->val.shortDeclS.symbol->generatedName);
                         genEXP(s->val.shortDeclS.exp);
                     }
                 }
@@ -781,10 +781,10 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
 
 void genArrayAssign(CPPTYPE* cppType, char* name, EXP* e, int level) {
     genCPPTYPE(cppType);
-    fprintf(emitFILE, " %s;", getOutputName(name));
+    fprintf(emitFILE, " %s;", name);
     newLineInFile(emitFILE);
     printTabsToFile(level, emitFILE);
-    fprintf(emitFILE, "memcpy(%s, ", getOutputName(name));
+    fprintf(emitFILE, "memcpy(%s, ", name);
     genEXP(e);
     fprintf(emitFILE, ", sizeof(%s))", cppType->val.arrayT.name);
 }
@@ -945,7 +945,7 @@ void genEXP(EXP* e) {
             if (e->val.idE.leaveNameAsIs) {
                 fprintf(emitFILE, "%s", e->val.idE.id->name);
             } else {
-                fprintf(emitFILE, "%s", getOutputName(e->val.idE.id->name));
+                fprintf(emitFILE, "%s", e->val.idE.symbol->generatedName);
             }
             break;
         case intLiteralK:

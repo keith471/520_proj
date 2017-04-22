@@ -3,7 +3,7 @@
 
 typedef enum { intD, float64D, runeD, boolD, stringD, trueD, falseD } DefaultSymbol;
 
-// holds the names of all the identifiers in the program - these will be offlimits to us
+// holds the names of all the identifiers in the program - these will be off limits to us
 // during code generation (i.e. we can't generate any of our own variables with these names)
 ID* nameTable[HashSize];
 
@@ -26,6 +26,7 @@ SymbolTable* createUniverseBlock();
 void addDefault(DefaultSymbol defSym, SymbolKind kind, SymbolTable* symbolTable);
 SymbolTable* initSymbolTable(int startLineno);
 SymbolTable* scopeSymbolTable(SymbolTable *s, int startLineno);
+char* generateName();
 PutSymbolWrapper* putSymbol(SymbolTable *t, char *name, SymbolKind kind, int lineno, int isShortVarDecl);
 SYMBOL *getSymbol(SymbolTable *t, char *name, int lineno);
 
