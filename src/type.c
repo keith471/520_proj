@@ -327,6 +327,7 @@ void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
     SYMBOL* symbol;
     TYPE* type;
     ARRAYINDEX* arrayIndex;
+    SLICEINDEX* sliceIndex;
     switch (e->kind) {
         case identifierK:
             e->type = getSymbolType(e->val.idE.symbol->name, e->val.idE.symbol, e->lineno);
@@ -531,6 +532,16 @@ void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
                     e->type = type->val.arrayT.elementType;
                     break;
                 case sliceK:
+                    // indicate that the statement containing this expression involves a slice index
+                    sliceIndex = NEW(SLICEINDEX);
+                    sliceIndex->slice = e->val.indexE.rest;
+                    sliceIndex->index = e->val.indexE.lastIndex;
+                    sliceIndex->next = NULL;
+                    if (s != NULL) {
+                        s->sliceIndex = appendSLICEINDEX(s->sliceIndex, sliceIndex);
+                    } else {
+                        v->sliceIndex = appendSLICEINDEX(v->sliceIndex, sliceIndex);
+                    }
                     e->type = type->val.sliceT;
                     break;
                 default:
@@ -577,6 +588,15 @@ void typeEXP(EXP* e, STATEMENT* s, VARDECLARATION* v) {
 
 ARRAYINDEX* appendARRAYINDEX(ARRAYINDEX* prevs, ARRAYINDEX* curr) {
     ARRAYINDEX* t;
+    if (prevs == NULL) return curr;
+    t = prevs;
+    while (t->next != NULL) t = t->next;
+    t->next = curr;
+    return prevs;
+}
+
+SLICEINDEX* appendSLICEINDEX(SLICEINDEX* prevs, SLICEINDEX* curr) {
+    SLICEINDEX* t;
     if (prevs == NULL) return curr;
     t = prevs;
     while (t->next != NULL) t = t->next;

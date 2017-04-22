@@ -103,6 +103,7 @@ typedef struct VARDECLARATION {
     int isLocal;    // whether this declaration is local (as opposed to global)
     int isBlank;    // whether the id is the blank identifier
     struct ARRAYINDEX* arrayIndex; // not null if the declaration involves expressions that index into an array
+    struct SLICEINDEX* sliceIndex; // not null if the declaration involves expressions that index into a slice
     union {
         struct TYPE* typeVD; // cannot be NULL
         struct {struct EXP* exp; /* in later phases, can access the type through exp or the symbol */
@@ -231,6 +232,7 @@ typedef struct STATEMENT {
            typeDeclK, printK, printlnK, returnK, ifK, ifElseK, switchK, whileK,
            infiniteLoopK, forK, breakK, continueK, blockK } kind;
     struct ARRAYINDEX* arrayIndex; // not null if the statement involves expressions that index into an array
+    struct SLICEINDEX* sliceIndex; // not null if the statement involves expressions that index into a slice
     union{
         // break, continue, and empty statements have no associated val
         struct EXP* expS;
@@ -289,6 +291,12 @@ typedef struct ARRAYINDEX {
     struct EXP* indexExp;
     struct ARRAYINDEX* next;
 } ARRAYINDEX;
+
+typedef struct SLICEINDEX {
+    struct EXP* slice;
+    struct EXP* index;
+    struct SLICEINDEX* next;
+} SLICEINDEX;
 
 /*
  * a case of a switch-case statement

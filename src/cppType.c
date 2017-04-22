@@ -314,14 +314,12 @@ void cppTypeSTATEMENT(STATEMENT* s) {
             cppTypeTYPEDECLARATION(s->val.typeDeclS);
             break;
         case printK:
-            // nothing to do
-            // TODO: maybe need to C++ type these expressions actually so we know if we are
-            // printing a %s, %d, etc.
+            // need to C++ type these for printing purposes
+            cppTypeEXPs(s->val.printS);
             break;
         case printlnK:
-            // nothing to do
-            // TODO: maybe need to C++ type these expressions actually so we know if we are
-            // printing a %s, %d, etc.
+            // need to C++ type these for printing purposes
+            cppTypeEXPs(s->val.printlnS);
             break;
         case returnK:
             // nothing to do
@@ -373,6 +371,16 @@ void cppTypeSWITCHCASE(SWITCHCASE* sc) {
             break;
     }
     cppTypeSWITCHCASE(sc->next);
+}
+
+void cppTypeEXPs(EXP* exps) {
+    if (exps == NULL) return;
+    cppTypeEXP(exps);
+    cppTypeEXPs(exps->next);
+}
+
+void cppTypeEXP(EXP* e) {
+    cppTypeTYPE(e->type);
 }
 
 /*

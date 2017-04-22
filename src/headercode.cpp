@@ -29,12 +29,30 @@ int GOLITE_CHECK_BOUNDS(int max, int idx) {
     return idx;
 }
 
+char* getBoolString(bool boolean) {
+    if (boolean == true) {
+        return "true";
+    }
+    return "false";
+}
+
 template <typename T>
 
 std::vector<T> golite_slice_append(std::vector<T> v, T x) {
     std::vector<T> w = v;
     w.push_back(x);
 	return w;
+}
+
+template <typename T>
+
+void golite_slice_check_bounds(std::vector<T> v, int index) {
+    try {
+        v.at(index);
+    } catch (std::out_of_range& ex) {
+        fprintf(stderr, "Out of bounds index\n");
+        exit(1);
+    }
 }
 
 // compiled code

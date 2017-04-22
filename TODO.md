@@ -21,6 +21,5 @@ ssh kstric@teaching.cs.mcgill.ca
 
 ## Codegen
 
-
 ## Sources
 http://stackoverflow.com/questions/10826744/semicolon-insertion-ala-google-go-with-flex

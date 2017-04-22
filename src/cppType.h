@@ -24,6 +24,8 @@ void cppTypePARAMETER(PARAMETER* p);
 void cppTypePARAMETERlist(PARAMETER* p);
 void cppTypeSTATEMENT(STATEMENT* s);
 void cppTypeSWITCHCASE(SWITCHCASE* sc);
+void cppTypeEXPs(EXP* exps);
+void cppTypeEXP(EXP* e);
 void cppTypeTYPE(TYPE* t);
 void cppTypeSTRUCTTYPE(STRUCTTYPE* t);
 void cppTypeFIELD(FIELD* f);

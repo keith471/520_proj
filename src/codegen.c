@@ -332,8 +332,9 @@ void genVARDECLARATION(VARDECLARATION* vd, int level) {
 void genVARDECLARATIONlist(VARDECLARATION* vd, int level) {
     if (vd == NULL) return;
     if (!vd->isBlank) {
-        // print any array index checks if need be!
+        // print any array or slice index checks if need be!
         genArrayChecks(vd->arrayIndex, level);
+        genSliceChecks(vd->sliceIndex, level);
         printTabsToFile(level, emitFILE);
         switch (vd->kind) {
             case typeOnlyK:
@@ -379,6 +380,21 @@ void genArrayChecks(ARRAYINDEX* a, int level) {
     fprintf(emitFILE, ");");
     newLineInFile(emitFILE);
     genArrayChecks(a->next, level);
+}
+
+/*
+ * prints tabs and then series of slice checks, ending in a new line
+ */
+void genSliceChecks(SLICEINDEX* s, int level) {
+    if (s == NULL) return;
+    printTabsToFile(level, emitFILE);
+    fprintf(emitFILE, "golite_slice_check_bounds(");
+    genEXP(s->slice);
+    fprintf(emitFILE, ", ");
+    genEXP(s->index);
+    fprintf(emitFILE, ");");
+    newLineInFile(emitFILE);
+    genSliceChecks(s->next, level);
 }
 
 void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
@@ -438,12 +454,14 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case expK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genEXP(s->val.expS);
             terminateSTATEMENT(level, semicolon);
             break;
         case incK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genEXP(s->val.incS);
             fprintf(emitFILE, "++");
@@ -451,6 +469,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case decK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genEXP(s->val.decS);
             fprintf(emitFILE, "--");
@@ -458,6 +477,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case regAssignK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             if (s->val.regAssignS.isBlank) {
                 // if the exp is a function call, then we should generate it
                 // otherwise, it is useless
@@ -489,12 +509,14 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case binOpAssignK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             genBinOp(s);
             terminateSTATEMENT(level, semicolon);
             break;
         case shortDeclK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             if (!s->val.shortDeclS.isBlank) {
                 printTabsPrecedingStatement(level, startAtRwPointer);
                 // if this is an array, then we need to use memcpy
@@ -530,6 +552,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
         case printK:
             if (s->val.printS != NULL) {
                 genArrayChecks(s->arrayIndex, level);
+                genSliceChecks(s->sliceIndex, level);
                 printTabsPrecedingStatement(level, startAtRwPointer);
                 fprintf(emitFILE, "std::cout");
                 genPrintEXPs(s->val.printS);
@@ -539,6 +562,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case printlnK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             fprintf(emitFILE, "std::cout");
             genPrintlnEXPs(s->val.printlnS);
@@ -547,6 +571,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case returnK:
             genArrayChecks(s->arrayIndex, level);
+            genSliceChecks(s->sliceIndex, level);
             printTabsPrecedingStatement(level, startAtRwPointer);
             if (s->val.returnS != NULL) {
                 fprintf(emitFILE, "return ");
@@ -562,6 +587,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
+            genSliceChecks(s->sliceIndex, level + 1);
             genSTATEMENT(s->val.ifS.initStatement, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "if (");
@@ -582,6 +608,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
+            genSliceChecks(s->sliceIndex, level + 1);
             genSTATEMENT(s->val.ifElseS.initStatement, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level + 1, emitFILE);
             fprintf(emitFILE, "if (");
@@ -625,6 +652,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
+            genSliceChecks(s->sliceIndex, level + 1);
             genSTATEMENT(s->val.switchS.initStatement, level + 1, 1, 0, 0, NULL);
             genSWITCHCASE(s->val.switchS.cases, s->val.switchS.condition, level + 1);
             // close the block
@@ -634,6 +662,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case whileK:
             genArrayChecks(s->arrayIndex, level + 1);
+            genSliceChecks(s->sliceIndex, level + 1);
             printTabsPrecedingStatement(level, startAtRwPointer);
             // no surrounding block needed here
             fprintf(emitFILE, "while (");
@@ -649,6 +678,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             break;
         case infiniteLoopK:
             genArrayChecks(s->arrayIndex, level + 1);
+            genSliceChecks(s->sliceIndex, level + 1);
             printTabsPrecedingStatement(level, startAtRwPointer);
             // gen this as a while(true)
             fprintf(emitFILE, "while (true) {");
@@ -689,6 +719,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
             genArrayChecks(s->arrayIndex, level + 1);
+            genSliceChecks(s->sliceIndex, level + 1);
             // print the init statement
             genSTATEMENT(s->val.forS.initStatement, level + 1, 1, 0, 0, NULL);
             printTabsToFile(level + 1, emitFILE);
@@ -800,17 +831,30 @@ void genBinOp(STATEMENT* s) {
 void genPrintEXPs(EXP* exps) {
     if (exps == NULL) return;
     fprintf(emitFILE, " << ");
-    genEXP(exps);
+    genCustomPrintOutput(exps);
     genPrintEXPs(exps->next);
 }
 
 void genPrintlnEXPs(EXP* exps) {
     if (exps == NULL) return;
     fprintf(emitFILE, " << ");
-    genEXP(exps);
+    genCustomPrintOutput(exps);
     if (exps->next != NULL) {
         fprintf(emitFILE, " << \" \"");
         genPrintlnEXPs(exps->next);
+    }
+}
+
+void genCustomPrintOutput(EXP* e) {
+    switch (e->type->cppType->kind) {
+        case cppBoolK:
+            fprintf(emitFILE, "getBoolString(");
+            genEXP(e);
+            fprintf(emitFILE, ")");
+            break;
+        default:
+            genEXP(e);
+            break;
     }
 }
 
