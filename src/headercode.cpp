@@ -23,7 +23,7 @@ char* concat(char *s1, char *s2) {
 
 int GOLITE_CHECK_BOUNDS(int max, int idx) {
     if (idx < 0 || idx > max) {
-        fprintf(stderr, "Out of bounds index\n");
+        fprintf(stderr, "invalid array index %d (out of bounds for %d-element array)\n", idx, max + 1);
         exit(1);
     }
     return idx;
@@ -36,21 +36,25 @@ char* getBoolString(bool boolean) {
     return "false";
 }
 
+int getAsciiVal(char c) {
+    return (int) c;
+}
+
 template <typename T>
 
-std::vector<T> golite_slice_append(std::vector<T> v, T x) {
-    std::vector<T> w = v;
-    w.push_back(x);
+std::vector<T>* golite_slice_append(std::vector<T>* v, T x) {
+    std::vector<T>* w = v;
+    (*w).push_back(x);
 	return w;
 }
 
 template <typename T>
 
-void golite_slice_check_bounds(std::vector<T> v, int index) {
+void golite_slice_check_bounds(std::vector<T>* v, int index) {
     try {
-        v.at(index);
+        (*v).at(index);
     } catch (std::out_of_range& ex) {
-        fprintf(stderr, "Out of bounds index\n");
+        fprintf(stderr, "out of bounds slice index %d\n", index);
         exit(1);
     }
 }

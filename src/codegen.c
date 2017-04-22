@@ -401,6 +401,12 @@ void genFUNCTIONDECLARATION(FUNCTIONDECLARATION* fd) {
     // print the function signature
     if (requireMain ? strcmp(fd->id->name, "main") == 0 : equivToMain(fd)) {
         fprintf(emitFILE, "int main() {");
+        newLineInFile(emitFILE);
+        printTabsToFile(1, emitFILE);
+        fprintf(emitFILE, "std::cout.precision(6);");
+        newLineInFile(emitFILE);
+        printTabsToFile(1, emitFILE);
+        fprintf(emitFILE, "std::cout.setf(std::ios::fixed);");
     } else {
         if (fd->returnType == NULL) {
             fprintf(emitFILE, "void ");
@@ -852,6 +858,11 @@ void genCustomPrintOutput(EXP* e) {
             genEXP(e);
             fprintf(emitFILE, ")");
             break;
+        case cppCharK:
+            fprintf(emitFILE, "getAsciiVal(");
+            genEXP(e);
+            fprintf(emitFILE, ")");
+            break;
         default:
             genEXP(e);
             break;
@@ -1202,10 +1213,19 @@ void genEXP(EXP* e) {
                 fprintf(headFILE, "GOLITE_CHECK_BOUNDS(%d, ")
             }
             */
-            genEXP(e->val.indexE.rest);
-            fprintf(emitFILE, "[");
-            genEXP(e->val.indexE.lastIndex);
-            fprintf(emitFILE, "]");
+            if (e->val.indexE.rest->type->cppType->kind == cppVectorK) {
+                fprintf(emitFILE, "(*");
+                genEXP(e->val.indexE.rest);
+                fprintf(emitFILE, ")[");
+                genEXP(e->val.indexE.lastIndex);
+                fprintf(emitFILE, "]");
+            } else {
+                // array
+                genEXP(e->val.indexE.rest);
+                fprintf(emitFILE, "[");
+                genEXP(e->val.indexE.lastIndex);
+                fprintf(emitFILE, "]");
+            }
             break;
         case argumentsK:
             genEXP(e->val.argumentsE.rest);
@@ -1262,7 +1282,7 @@ void genCPPTYPE(CPPTYPE* c) {
         case cppVectorK:
             fprintf(emitFILE, "std::vector< ");
             genCPPTYPE(c->val.vectorT);
-            fprintf(emitFILE, " >");
+            fprintf(emitFILE, " >*");
             break;
         case cppStructK:
             fprintf(emitFILE, "%s", c->val.structT.name);
@@ -1465,7 +1485,7 @@ void genDefault(CPPTYPE* c, int level) {
             fprintf(emitFILE, "}");
             break;
         case cppVectorK:
-            fprintf(emitFILE, "std::vector< ");
+            fprintf(emitFILE, "new std::vector< ");
             genCPPTYPE(c->val.vectorT);
             fprintf(emitFILE, " >()");
             break;
