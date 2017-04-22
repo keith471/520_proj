@@ -23,10 +23,14 @@ void addTypeDefs(CPPTYPE* c) {
     if (c == NULL) return;
     switch (c->kind) {
         case cppArrayK:
-            fprintf(emitFILE, "typedef ");
+            fprintf(emitFILE, "typedef struct ");
+            fprintf(emitFILE, " %s {", c->val.arrayT.name);
+            newLineInFile(emitFILE);
+            printTabsToFile(1, emitFILE);
             genCPPTYPE(c->val.arrayT.elementType);
-            fprintf(emitFILE, " %s[", c->val.arrayT.name);
-            fprintf(emitFILE, "%d];", c->val.arrayT.size);
+            fprintf(emitFILE, " arr[%d];", c->val.arrayT.size);
+            newLineInFile(emitFILE);
+            fprintf(emitFILE, "} %s;", c->val.arrayT.name);
             newLineInFile(emitFILE);
             break;
         case cppStructK:
@@ -498,9 +502,9 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
                 // (notice how if the LHS is an array, then the RHS must also be an array of
                 // the same size, otherwise the type checker would have stopped compilation already)
                 printTabsPrecedingStatement(level, startAtRwPointer);
-                fprintf(emitFILE, "memcpy(");
+                fprintf(emitFILE, "memcpy(&");
                 genEXP(s->val.regAssignS.lvalue);
-                fprintf(emitFILE, ", ");
+                fprintf(emitFILE, ", &");
                 genEXP(s->val.regAssignS.exp);
                 fprintf(emitFILE, ", sizeof(%s))", s->val.regAssignS.lvalue->type->cppType->val.arrayT.name);
                 terminateSTATEMENT(level, semicolon);
@@ -529,7 +533,7 @@ void genSTATEMENT(STATEMENT* s, int level, int semicolon, int startAtRwPointer, 
                 if (s->val.shortDeclS.exp->type->cppType->kind == cppArrayK) {
                     if (s->val.shortDeclS.isRedecl) {
                         // just print the name and exp
-                        fprintf(emitFILE, "memcpy(%s, ", s->val.shortDeclS.prevDeclSym->generatedName);
+                        fprintf(emitFILE, "memcpy(&%s, &", s->val.shortDeclS.prevDeclSym->generatedName);
                         genEXP(s->val.shortDeclS.exp);
                         fprintf(emitFILE, ", sizeof(%s))", s->val.shortDeclS.exp->type->cppType->val.arrayT.name);
                     }
@@ -784,7 +788,7 @@ void genArrayAssign(CPPTYPE* cppType, char* name, EXP* e, int level) {
     fprintf(emitFILE, " %s;", name);
     newLineInFile(emitFILE);
     printTabsToFile(level, emitFILE);
-    fprintf(emitFILE, "memcpy(%s, ", name);
+    fprintf(emitFILE, "memcpy(&%s, &", name);
     genEXP(e);
     fprintf(emitFILE, ", sizeof(%s))", cppType->val.arrayT.name);
 }
@@ -1222,7 +1226,7 @@ void genEXP(EXP* e) {
             } else {
                 // array
                 genEXP(e->val.indexE.rest);
-                fprintf(emitFILE, "[");
+                fprintf(emitFILE, ".arr[");
                 genEXP(e->val.indexE.lastIndex);
                 fprintf(emitFILE, "]");
             }
@@ -1419,13 +1423,13 @@ void genArrayComparator(CPPTYPE* c) {
 void genArrayElementComparison(CPPTYPE* type) {
     switch (type->kind) {
         case cppStringK:
-            fprintf(emitFILE, "strcmp(lhs[i], rhs[i]) != 0");
+            fprintf(emitFILE, "strcmp(lhs.arr[i], rhs.arr[i]) != 0");
             break;
         case cppArrayK:
-            fprintf(emitFILE, "!cmp_%s(lhs[i], rhs[i])", type->val.arrayT.name);
+            fprintf(emitFILE, "!cmp_%s(lhs.arr[i], rhs.arr[i])", type->val.arrayT.name);
             break;
         default:
-            fprintf(emitFILE, "lhs[i] != rhs[i]");
+            fprintf(emitFILE, "lhs.arr[i] != rhs.arr[i]");
             break;
     }
 }
@@ -1472,14 +1476,21 @@ void genDefault(CPPTYPE* c, int level) {
             fprintf(emitFILE, "\"\"");
             break;
         case cppArrayK:
+            fprintf(emitFILE, "{");
+            newLineInFile(emitFILE);
+            printTabsToFile(level + 1, emitFILE);
+            fprintf(emitFILE, ".arr = ");
             if (c->val.arrayT.size == 0) {
                 fprintf(emitFILE, "{}");
                 return;
             }
             fprintf(emitFILE, "{");
             newLineInFile(emitFILE);
+            printTabsToFile(level + 2, emitFILE);
+            genDefault(c->val.arrayT.elementType, level + 2);
+            newLineInFile(emitFILE);
             printTabsToFile(level + 1, emitFILE);
-            genDefault(c->val.arrayT.elementType, level + 1);
+            fprintf(emitFILE, "}");
             newLineInFile(emitFILE);
             printTabsToFile(level, emitFILE);
             fprintf(emitFILE, "}");
