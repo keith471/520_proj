@@ -1,0 +1,22 @@
+The following programs were used to test GoLite milestones 1 and 2. They are organized as follows:
+
+Scanner tests (section 1 of milestone 1):
+	invalid/scanner
+	valid/scanner
+
+Parser tests (section 2 of milestone 1):
+	invalid/parser
+	valid/parser
+
+Typechecker tests (milestone 2):
+	invalid/typechecker
+	valid/typechecker
+
+To pass an invalid test, you must reject the file.
+To pass a valid test, you must correctly parse all parts of the test case.
+
+-----
+
+NOTE: THE PROGRAMS ARE BEING DISTRIBUTED TO HELP WITH FIXING YOUR COMPILER. THEY MAY NOT *UNDER ANY CIRCUMSTANCES* BE DISTRIBUTED PUBLICLY OR TO FUTURE STUDENTS. DOING SO IS AN ACADEMIC OFFENCE AND WILL BE TREATED AS SUCH.
+
+THIS MEANS, IF YOU INTEND TO MAKE YOUR CODE ACCESSIBLE AFTER THE COURSE, YOU *MUST NOT* INCLUDE THEM IN YOUR REPOSITORY.

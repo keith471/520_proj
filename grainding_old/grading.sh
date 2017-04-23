@@ -46,7 +46,7 @@ fi
 # to run your compiler. The run.sh script must take a single
 # argument, the filename, and pass the contents to your compiler.
 # A sample run.sh file using rediction has been provided.
- 
+
 if [ ! -f run.sh ]
 then
 	echo "ERROR: Missing run.sh script"
@@ -107,8 +107,8 @@ for DIR_TYPE in grading/*/; do
 				then
 					echo "$TEST: $RESULT [fail]" >> ${TYPE}_${PHASE}.log
 				fi
-			fi 
-		done                                 
+			fi
+		done
 		if [ $VERBOSE -eq 1 ]
 		then
 			if [ $COUNT -gt 0 ]
